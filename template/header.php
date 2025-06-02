@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--PEGANDO O TÍTULO DEFINIDO PELA PÁGINA; 'ALEXANDRIA', CASO NÃO ESTEJA DEFINIDO-->
     <title><?php echo isset($tituloPagina) ? $tituloPagina : 'ALEXANDRIA'; ?></title>
-    <link rel="stylesheet" href="../../static/css/bilubilu.css">
+    <link rel="stylesheet" href="../../static/css/geral.css">
     <link rel="stylesheet" href="../../static/css/header.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="../../static/js/geral.js"></script>

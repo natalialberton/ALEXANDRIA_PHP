@@ -80,7 +80,7 @@
     font-size: 40px;
     font-weight: bold;
     color: white;
-    background-color: #5a7a7a;
+    background-color:#23767E;
     padding: 20px 10px;
     border-radius: 10px;
 }
@@ -183,7 +183,6 @@ td {
 tr:last-child td {
     border-bottom: none;
 }
-
 
 /* Coluna Título */
 td:first-child {

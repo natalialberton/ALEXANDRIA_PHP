@@ -4,6 +4,7 @@
 $acao = $_GET['acao']??null;
 switch($acao) {
     case 'cadastrar_membro':
+        echo "<p>oi</p>";
         cadastrarMembro();
         break;
     default:
@@ -23,7 +24,6 @@ function listar($tabela) {
     $conexao = conectaBd();
     $stmt = $conexao->prepare("SELECT * FROM $tabela");
     $stmt->execute();
-    //$result = $stmt->get_result();
     $variavel = $stmt->fetchAll();
     return $variavel;
 }
@@ -32,8 +32,7 @@ function contarTotal($tabela) {
     $conexao = conectaBd();
     $stmt = $conexao->prepare("SELECT COUNT(*) AS total FROM $tabela");
     $stmt->execute();
-    $result = $stmt->get_result();
-    $variavel = $result->fetch_assoc();
+    $variavel = $stmt->fetch(PDO::FETCH_ASSOC);
     return $variavel;
 }
 
