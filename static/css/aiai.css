@@ -1,0 +1,127 @@
+:root {
+    --cor-roxa: rgb(41, 40, 48);
+    --cor-marrom: rgb(81, 61, 70);
+    --cor-amarela: #a69c60;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: url("../img/Background.jpg");
+    background-repeat: repeat;
+}
+
+main {
+    justify-content: flex-end;
+    align-items: flex-end;
+    position: relative;
+
+}
+
+h1 {
+    margin-left: 55px;
+    margin-bottom: 10px;
+    color: #a69c60;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.LoginRight {
+    border-radius: 60% 0 0 60%;
+    background: linear-gradient(to right, rgb(41, 40, 48), rgb(81, 61, 70));
+    height: 100vh;
+    width: 60%;
+    justify-content: flex-end;
+    align-items: flex-end;
+    position: fixed;
+    padding-right: 200px;
+    right: 0;
+}
+
+.logoRight {
+    max-width: 400px;
+    width: 100%;
+    float: right;
+    padding-left: 20%;
+    margin-top: 10%
+}
+
+
+.formloginRight {
+    justify-content: flex-end;
+    align-items: flex-end;
+    display: flex;
+    right: 0;
+    z-index: 1000;
+    color: #a69c60;
+    margin-top: 260px;
+
+}
+
+.forgotpw {
+    text-decoration: none;
+    font-size: 12px;
+    color: #a69c60;
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.imgindex {
+    max-width: 200px;
+    width: 8%;
+}
+
+input {
+    background-color: var(--cor-roxa);
+    border-radius: 20px;
+    padding: 9px;
+    border: none;
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: #FFEBBC;
+    border: none;
+    border-radius: 20px;
+    padding: 10px;
+    max-width: 150px;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.right {
+    align-items: right;
+    justify-content: right;
+    padding-left: 15%;
+}
+
+
+
+
+/*------------------------------------------------LADO ESQUERDO-------------------------------------------------*/
+
+#LoginLeft{
+    border-radius: 0 60% 60% 0;
+    background: linear-gradient(to right, rgb(41, 40, 48), rgb(81, 61, 70));
+    height: 100vh;
+    width: 60%;
+    justify-content: flex-start;
+    align-items: flex-start;
+    position:fixed;
+}
+
+#formLoginLeft{
+    justify-content: flex-start;
+    align-items: flex-start;
+    display: flex;
+    right: 0;
+    z-index: 1000;
+    color: #a69c60;
+    margin-top: 260px;
+    padding-left: 20%;
+
+}
+

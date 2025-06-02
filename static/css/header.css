@@ -1,0 +1,203 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=Krona+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital@0;1&display=swap');
+
+/*DEFININDO VARIÁVEIS GERAIS PARA A PÁGINA*/
+:root {
+    --cor-primaria: rgb(41, 40, 48); 
+    --cor-secundaria: rgb(81, 61, 70);
+    /*CC no final indica 80% de opacidade; 99 60%*/
+    --cor-titulo-1: #FFEE87CC;
+    --cor-titulo-2: #C4E9EC99;
+    --cor-titulo-2-contraste: #23767E;
+    --cor-titulo-2-contraste-60: #23767E99;
+    --cor-texto: #FFF;
+}
+
+/*RESETANDO CONFIGS BÁSICAS DO NAVEGADOR*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(to right, var(--cor-primaria),  var(--cor-secundaria));
+    min-height: 100vh;
+    font-family: 'Montserrat', sans-serif;
+    color: var(--cor-titulo-1);
+    overflow-x: hidden;
+}
+
+/*-------------------------------- MENU NAVEGAÇÃO --------------------------------*/
+nav {
+    float: left;
+}
+
+/*Configurações para o ícone do menu*/
+.barrasIconeMenu {
+    display: inline-block;
+    cursor: pointer;
+}
+
+#iconeMenu {
+    position: fixed;
+    z-index: 2;
+    margin-left:2%;;
+    margin-top:1.5%;
+}
+
+#barra1,
+#barra2,
+#barra3 {
+    width: 40px;
+    height: 8px;
+    background-color: #a69c60;
+    margin: 8px;
+    border-radius: 20px;
+    transition: 0.4s;
+}
+
+/*Configurações para animar o ícone*/
+.change #barra1 {
+    transform: translate(0, 16px) rotate(-50deg);
+    z-index: 9999;
+}
+
+.change #barra2 {
+    opacity: 0;
+    z-index: 9999;
+}
+
+.change #barra3 {
+    transform: translate(0, -16px) rotate(50deg);
+    z-index: 9999;
+}
+
+/*Configurações do menu lateral*/
+.menuLateral {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #23767E;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 80px;
+}
+
+#cabecalhoMenu,
+.menuLateral a,
+.linkMenu {
+    padding: 10px;
+    text-decoration: none;
+    font-family: "Montserrat", sans-serif;
+    font-size: 20px;
+    color: #d8d7d7;
+    display: block;
+    transition: 0.3s;
+}
+
+.linkMenu {
+    width: 100%;
+    background-color: #23767E;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    text-align: left;
+}
+
+.menuLateral a:hover {
+    background-color: #5a8f94;
+}
+
+#logo,
+#iconeMenu {
+    transition: margin-left 0.5s;
+    padding: 16px;
+}
+
+@media screen and (max-height: 450px) {
+    .menuLateral {
+        padding-top: 15px;
+    }
+
+    .menuLateral a,
+    .linkMenu {
+        font-size: 15px
+    }
+
+    ;
+}
+
+.menu-icon {
+    width: 20px;
+    height: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.menu-icon span {
+    width: 100%;
+    height: 2px;
+    background: #c8a882;
+    border-radius: 1px;
+}
+
+/*-------------------------------- HEADER --------------------------------*/
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 30px;
+    border-bottom: 1px solid rgba(200, 168, 130, 0.1);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    margin-left: 5%;
+}
+
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.alexandria-logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.star-icon {
+    font-size: 16px;
+}
+
+.user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #5a7a7a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+h1, h2, h3 {
+    font-family: 'Krona One', 'sans-serif';
+}

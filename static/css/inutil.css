@@ -1,0 +1,294 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
+
+:root {
+    --cor-roxa: rgb(41, 40, 48);
+    --cor-marrom: rgb(81, 61, 70);
+    --cor-amarela: #a69c60;
+    --cor-azul: #8ecbd8;
+}
+
+
+body {
+    margin: 0 auto;
+    background: linear-gradient(to right, rgb(41, 40, 48), rgb(81, 61, 70));
+    font-family: "Montserrat", sans-serif;
+}
+
+#profileimg {
+    position: absolute;
+    top: 28px;
+    right: 60px;
+    z-index: 1500;
+    width: 40px;
+    height: 40px;
+}
+
+.logoRight {
+    position: absolute;
+    top: 10px;
+    /* distância do topo */
+    right: 100px;
+    /* distância da borda direita */
+    z-index: 1500;
+    width: 25%;
+    height: 70px;
+}
+
+h1 {
+    float: left;
+    text-align: left;
+    margin: 0;
+    padding-top: 10px;
+    padding-left: 80px;
+    font-size: 35px;
+    font-family: "Montserrat", sans-serif;
+    color: #a69c60;
+}
+
+h2 {
+    position: absolute;
+    top: 120px;
+    left: 10%;
+    color: #a69c60;
+}
+
+.books button, .author button, .category button {
+    background-color: #8ecbd8;
+    border-radius: 100px;
+    border: none;
+    width: 18%;
+    padding: 8px;
+    color: var(--cor-roxa);
+    font-size: 15px;
+    cursor: pointer;
+}
+
+.books {
+    margin-top: 140px;
+    
+}
+
+.author {
+    margin-top: 10px;
+}
+
+.category {
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+.containerCounts {
+    display: flex;
+    align-items: flex-end;
+    width: 60%;
+}
+
+.containerCountRegistro {
+    background-color: var(--cor-roxa);
+    width: 20%;
+    height: 25vh;
+    border-radius: 10px;
+    margin: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.countRegistro {
+    background-color: #23767E;
+    border-radius: 5px;
+    width: 80%;
+    height: 15vh;
+}
+
+.countRegistro p {
+    color: var(--cor-roxa);
+}
+
+/*Menu de navegação*/
+nav {
+    float: left;
+}
+
+/*Configurações para o ícone do menu*/
+.barrasIconeMenu {
+    display: inline-block;
+    cursor: pointer;
+}
+
+#iconeMenu {
+    position: fixed;
+    z-index: 2;
+}
+
+#barra1,
+#barra2,
+#barra3 {
+    width: 30px;
+    height: 8px;
+    background-color: #a69c60;
+    margin: 8px;
+    border-radius: 20px;
+    transition: 0.4s;
+}
+
+/*Configurações para animar o ícone*/
+.change #barra1 {
+    transform: translate(0, 16px) rotate(-50deg);
+    z-index: 9999;
+}
+
+.change #barra2 {
+    opacity: 0;
+    z-index: 9999;
+}
+
+.change #barra3 {
+    transform: translate(0, -16px) rotate(50deg);
+    z-index: 9999;
+}
+
+/*Configurações do menu lateral*/
+.menuLateral {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #23767E;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 80px;
+}
+
+#cabecalhoMenu,
+.menuLateral a,
+.linkMenu {
+    padding: 10px;
+    text-decoration: none;
+    font-family: "Montserrat", sans-serif;
+    font-size: 20px;
+    color: #d8d7d7;
+    display: block;
+    transition: 0.3s;
+}
+
+.linkMenu {
+    width: 100%;
+    background-color: #23767E;
+    cursor: pointer;
+    border: none;
+    outline: none;
+    text-align: left;
+}
+
+.menuLateral a:hover {
+    background-color: #5a8f94;
+}
+
+#cabecalho,
+#iconeMenu {
+    transition: margin-left 0.5s;
+    padding: 16px;
+}
+
+@media screen and (max-height: 450px) {
+    .menuLateral {
+        padding-top: 15px;
+    }
+
+
+    .menuLateral a,
+    .linkMenu {
+        font-size: 15px
+    }
+
+    ;
+}
+
+
+table {
+    border-collapse: collapse;
+    color: white;
+    border-radius: 10px;
+}
+
+.tisch {
+    background-color: var(--cor-roxa);
+    border-radius:10px;
+}
+
+.tabela {
+    display: flex;
+    text-align: center;
+    justify-content: center;
+}
+
+td,
+th {
+    border: none;
+    border-bottom: 1px dashed white;
+    /* horizontal line */
+}
+
+th {
+    width: 25px;
+}
+
+td {
+    width: 100px;
+    /* Largura fixa */
+    height: 100px;
+    /* Altura fixa */
+}
+
+tr td:last-child {
+    border-right: none;
+    /* remove right edge */
+}
+
+table tr:last-child td {
+    border-bottom: none;
+    /* remove bottom edge */
+}
+
+.fas fa-pencil-alt, .fas fa-home{
+    color:var(--cor-amarela);
+}
+
+.input-field{
+    display:flex;
+    background-color:#8db4bd;
+    width:25%;
+    border-radius:100px;
+    border:none;
+    padding:10px;
+    color:var(--cor-roxa);
+}
+
+
+.input-group {
+    display:flex;
+    align-items: center;
+    background-color:#8db4bd;
+    border-radius: 24px;
+    width:20%;
+}
+
+.input-icon {
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+    border-radius: 100%;
+    background-color: #8db4bd;
+    color:var(--cor-roxa);
+    cursor: pointer;
+}
+
+.containerCounts{
+    color:white;
+}
+

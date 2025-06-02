@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/aiai.css">
+    <title>LOGIN</title>
+</head>
+
+<body>
+    <main>
+        <div class="LoginRight"><!---Div colorida-->
+            <div class="img"> <img src="img/darkmode.png" class="logoRight" alt="Descrição da Imagem"> </div><!---Logo-->
+            <div class="formloginRight" id="formulario"><!--Formulário-->
+                <form class="login-container" id="login" action="login" method="POST">
+                    <div class="top">
+                        <h1>Login</h1>
+                    </div>
+                    <div class="entrada">
+                        <div class="input-box">
+                            <img src="img/perfildarkmode.png" class="imgindex" alt="Ícone de perfil">
+                            <input type="text" class="input-field" name="email" id="email" placeholder="E-mail">
+                        </div>
+                        <div class="input-box">
+                            <img src="img/senhadarkmode.png" class="imgindex" alt="Icon de senha">
+                            <input type="password" class="input-field" name="senha" id="senha" placeholder="Senha">
+                            <i id="toggleSenha" class="fa-solid fa-eye"></i>
+                        </div>
+                    </div>
+                    <div class="esqueci-senha">
+                        <a href="recuperarsenha.html" class="forgotpw">Esqueceu sua senha?</a>
+                    </div>
+                    <div class="right">
+                        <button type="button">Entrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+    <!--Script do olho-->
+    <script>
+        const toggleSenha = document.getElementById("toggleSenha");
+        //Pega o olho com id toggleSenha
+        const inputSenha = document.getElementById("senha");
+        //Guarda na variável inputSenha
+        toggleSenha.addEventListener("click", function () {
+            //Quando o usuário clicar no botão, faça:
+            const tipo = inputSenha.type === "password" ? "text" : "password";
+            //Troca em ocultar e mostrar
+            inputSenha.type = tipo;
+            this.classList.toggle("fa-eye");
+            this.classList.toggle("fa-eye-slash");
+            //fechado e aberto
+        });
+    </script>
+
+
+</body>
+
+</html>
