@@ -1,6 +1,6 @@
 <?php
 
-require_once "../../funcoes.php";
+require_once ('../../funcoes.php');
 
 $planos = listar('plano');
 
@@ -16,7 +16,7 @@ include '../header.php';
 </head>
 
 <main class="main-content">
-    <form action="../funcoes.php?acao=cadastrar_membro" method="POST">
+    <form action="../../funcoes.php" method="POST">
         <input type="hidden" name="acao" value="cadastrar_membro">
 
         <label class="label-cadastro" for="mem_nome">Nome: </label>
