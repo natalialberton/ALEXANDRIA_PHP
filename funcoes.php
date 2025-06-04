@@ -1,14 +1,17 @@
 <?php
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 //ROTEAMENTO DE AÇÕES
-$acao = $_GET['acao']??null;
+$acao = $_GET['acao'] ?? null;
+
 switch($acao) {
     case 'cadastrar_membro':
-        echo "<p>oi</p>";
         cadastrarMembro();
         break;
     default:
-        break;
+        die("Ação não reconhecida!");
 }
 
 
@@ -36,28 +39,43 @@ function contarTotal($tabela) {
     return $variavel;
 }
 
-//------------------------ FUNÇÕES MEMBROS ------------------------
+//------------------------ FUNÇÕES CADASTRAMENTO ------------------------
 
 function cadastrarMembro() {
     if ($_SERVER["REQUEST_METHOD"]=="POST"){
         $conexao = conectaBd();
 
+        $nome = filter_input(INPUT_POST, 'mem_nome', FILTER_SANITIZE_STRING);
+        $cpf = filter_input(INPUT_POST, 'mem_cpf', FILTER_SANITIZE_STRING);
+        $telefone = filter_input(INPUT_POST, 'mem_telefone', FILTER_SANITIZE_STRING);
+        $email = filter_input(INPUT_POST, 'mem_email', FILTER_SANITIZE_EMAIL);
+        $senha = filter_input(INPUT_POST, 'mem_senha', FILTER_SANITIZE_STRING);
+        $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao', FILTER_SANITIZE_STRING);
+        $status = filter_input(INPUT_POST, 'mem_status', FILTER_SANITIZE_STRING);
+        $plano = filter_input(INPUT_POST, 'fk_plan', FILTER_SANITIZE_NUMBER_INT);
+
+        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+        if (empty($dataInscricao)) {
+            $dataInscricao = date('Y-m-d');
+        }
+
         $sql = "INSERT INTO membro(mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha,  mem_dataInscricao, mem_status, fk_plan)
                 VALUES (:mem_nome, :mem_cpf, :mem_telefone, :mem_email, :mem_senha, :mem_dataInscricao, :mem_status, :fk_plan)";
 
         $stmt = $conexao-> prepare($sql);
-        $stmt-> bindParam(":mem_nome", $_POST["mem_nome"]);
-        $stmt-> bindParam(":mem_cpf", $_POST["mem_cpf"]);
-        $stmt-> bindParam(":mem_telefone", $_POST["mem_telefone"]);
-        $stmt-> bindParam(":mem_email", $_POST["mem_email"]);
-        $stmt-> bindParam(":mem_senha", $_POST["mem_senha"]);
-        $stmt-> bindParam(":mem_dataInscricao", $_POST["mem_dataInscricao"]);
-        $stmt-> bindParam(":mem_status", $_POST["mem_status"]);
-        $stmt-> bindParam(":fk_plan", $_POST["fk_plan"], PDO::PARAM_INT);
+        $stmt-> bindParam(":mem_nome", $nome);
+        $stmt-> bindParam(":mem_cpf", $cpf);
+        $stmt-> bindParam(":mem_telefone", $telefone);
+        $stmt-> bindParam(":mem_email", $email);
+        $stmt-> bindParam(":mem_senha", $senhaHash);
+        $stmt-> bindParam(":mem_dataInscricao", $dataInscricao);
+        $stmt-> bindParam(":mem_status", $status);
+        $stmt-> bindParam(":fk_plan", $plano, PDO::PARAM_INT);
 
         try {
             $stmt-> execute();
-            echo "Membro cadastrado com sucesso!";
+            echo "<script> alert('Membro cadastrado com sucesso!'); </script>";
             header("Location: membro-gestao.php");
             exit();
         } catch (PDOException $e) {
