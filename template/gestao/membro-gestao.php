@@ -5,7 +5,6 @@ require_once "../../funcoes.php";
 $membros = listar('membro');
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
-session_start();
 $tituloPagina = "MEMBROS";
 $tituloH1= "GESTÃO MEMBROS";
 include '../header.php';
