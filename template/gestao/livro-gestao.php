@@ -8,13 +8,13 @@ $qtdLivros = contarTotal('livro');
 $qtdCategorias = contarTotal('categoria');
 $qtdAutores = contarTotal('autor');
 
-
 session_start();
 $tituloPagina = "LIVROS";
 $tituloH1 = 'Gestão Livros';
 include '../header.php';
 
 ?>
+
 <main class="main-content">
     <div class="titulo">
         <h2>CADASTRAMENTO</h2>
@@ -56,7 +56,7 @@ include '../header.php';
                 <h2>LIVROS</h2>
             </div>
             <div class='barra'>
-                <input type="text" class="search-input" placeholder="🔍 Pesquisar">
+                <!--<input type="text" class="search-input" placeholder="🔍 Pesquisar">-->
             </div>
         </div>
 

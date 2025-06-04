@@ -10,9 +10,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ob_clean();
 
-$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
-if ($_SERVER["REQUEST_METHOD"]=="POST"){
+if ($_SERVER["REQUEST_METHOD"]=="POST" && isset($_GET['id'])){
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
     $conexao = conectaBd();
 
     $nome = filter_input(INPUT_POST, 'mem_nome', FILTER_SANITIZE_STRING);
@@ -27,8 +26,10 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
 
     if ($id > 0) {
         $sql = "UPDATE membro SET mem_nome=:mem_nome, mem_cpf=:mem_cpf, mem_telefone=:mem_telefone, mem_email=:mem_email, mem_senha=:mem_senha, 
-                                  mem_dataInscricao=:mem_dataInscricao, mem_status=:mem_status, fk_plan=:fk_plan WHERE pk_cli=$id";
+                                  mem_dataInscricao=:mem_dataInscricao, mem_status=:mem_status, fk_plan=:fk_plan WHERE pk_mem=:pk_mem";
         $stmt = $conexao-> prepare($sql);
+
+        $stmt-> bindParam(":pk_mem", $id, PDO::PARAM_INT);
         $stmt-> bindParam(":mem_nome", $nome);
         $stmt-> bindParam(":mem_cpf", $cpf);
         $stmt-> bindParam(":mem_telefone", $telefone);
@@ -40,16 +41,18 @@ if ($_SERVER["REQUEST_METHOD"]=="POST"){
 
         try {
             $stmt-> execute();
-            echo "<script> alert('Membro alterado com sucesso!'); </script>";
             header("Location: template/gestao/membro-gestao.php");
-            exit();
+            echo "<script> alert('Membro alterado com sucesso!'); </script>";
+            exit;
         } catch (PDOException $e) {
             header("Location: template/edicao/membro-edicao.php?erro=" . urlencode($e->getMessage()));
-            exit();
+            echo "<script> alert('erro!'); </script>";
+            exit;
         }
     } else {
         header("Location: template/edicao/membro-edicao.php");
-        exit();
+        echo "<script> alert('id zoado!'); </script>";
+        exit;
 }
 }
 
