@@ -6,7 +6,7 @@ $planos = listar('plano');
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
 session_start();
-$tituloPagina = "Cadastro Membro";
+$tituloPagina = "CADASTRO MEMBRO";
 $tituloH1= "CADASTRAMENTO MEMBRO";
 include '../header.php';
 
@@ -16,7 +16,7 @@ include '../header.php';
 </head>
 
 <main class="main-content">
-    <form action="../../funcoes.php" method="POST">
+    <form action='../../cadastrar-membro.php' method="POST" enctype="multipart/form-data">
         <input type="hidden" name="acao" value="cadastrar_membro">
         <label class="label-cadastro" for="mem_nome">Nome: </label>
         <input class="input-cadastro" type="text" name="mem_nome" id="mem_nome" required>
@@ -24,12 +24,12 @@ include '../header.php';
         <label class="label-cadastro" for="mem_cpf">CPF: </label>
         <input class="input-cadastro" type="text" name="mem_cpf" id="mem_cpf" required 
                pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" 
-               title="Formato: 000.000.000-00">
+               title="000.000.000-00">
 
         <label class="label-cadastro" for="mem_telefone">Telefone: </label>
         <input class="input-cadastro" type="tel" name="mem_telefone" id="mem_telefone" required
                pattern="\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}" 
-               title="Formato: (00) 00000-0000">
+               title="(00) 00000-0000">
 
         <label class="label-cadastro" for="mem_email">Email: </label>
         <input class="input-cadastro" type="email" name="mem_email" id="mem_email" required>
@@ -57,7 +57,7 @@ include '../header.php';
         </select>
 
         <button class="button-cadastrar" type="submit">Cadastrar</button>
-        <a href="membro-gestao.php" class="button-cadastrar">Cancelar</a>
+        <a href="../gestao/membro-gestao.php" class="button-cadastrar">Cancelar</a>
     </form>
 
 </main>

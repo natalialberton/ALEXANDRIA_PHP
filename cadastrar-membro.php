@@ -1,36 +1,12 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-//FUNÇÃO PARA CONEXÃO COM BANCO DE DADOS
 function conectaBd() {
     require_once "conexao.php";
     $conexao = conectarBanco();
     return $conexao;
 }
 
-//FUNÇÃO DE LISTAGEM DOS DADOS ARMAZENADOS NO BANCO
-function listar($tabela) {
-    $conexao = conectaBd();
-    $stmt = $conexao->prepare("SELECT * FROM $tabela");
-    $stmt->execute();
-    $variavel = $stmt->fetchAll();
-    return $variavel;
-}
-
-function contarTotal($tabela) {
-    $conexao = conectaBd();
-    $stmt = $conexao->prepare("SELECT COUNT(*) AS total FROM $tabela");
-    $stmt->execute();
-    $variavel = $stmt->fetch(PDO::FETCH_ASSOC);
-    return $variavel;
-}
-
-//------------------------ FUNÇÕES CADASTRAMENTO ------------------------
-
-function cadastrarMembro() {
-    if ($_SERVER["REQUEST_METHOD"]=="POST"){
+if ($_SERVER["REQUEST_METHOD"]=="POST"){
         $conexao = conectaBd();
 
         $nome = filter_input(INPUT_POST, 'mem_nome', FILTER_SANITIZE_STRING);
@@ -69,6 +45,5 @@ function cadastrarMembro() {
         header("Location: template/cadastro/membro-cadastro.php");
         exit();
     }
-}
 
 ?>
