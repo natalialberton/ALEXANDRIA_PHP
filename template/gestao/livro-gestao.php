@@ -21,10 +21,9 @@ include '../header.php';
     </div>
     <div class="top-section">
         <div class="actions-section">
-            <a class="action-btn">
-                <span class="plus-icon">+</span>
-                NOVO LIVRO
-            </a>
+            <a href="../cadastro/livro-cadastro.php" class="action-btn">
+                <span class="plus-icon">+ NOVO LIVRO</span>
+            </a>  
             <a class="action-btn">
                 <span class="plus-icon">+</span>
                 NOVO AUTOR
@@ -85,9 +84,12 @@ include '../header.php';
                                 <td><?= htmlspecialchars($livro["liv_estoque"]) ?></td>
                                 <td><?= htmlspecialchars($livro["liv_dataAlteracaoEstoque"]) ?></td>
                                 <td>
-                                    <i class='fas fa-trash-alt'
-                                        style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
+                                    <a href="../../excluir-livro.php?id=<?=$livro['pk_liv']?>" >
+                                        <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
+                                    </a>
+                                    <a href="../../editar-livro.php?id=<?=$livro['pk_liv']?>">
+                                        <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
+                                    </a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>

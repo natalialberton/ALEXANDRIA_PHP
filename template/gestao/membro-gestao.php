@@ -48,7 +48,7 @@ include '../header.php';
                                     <a href="../../excluir-membro.php?id=<?=$membro['pk_mem']?>" >
                                         <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
                                     </a>
-                                <a href="../../editar-membro.php?id=<?=$membro['pk_mem']?>">
+                                <a href="../edicao/membro-edicao.php?id=<?=$membro['pk_mem']?>">
                                     <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
                                 </a>
                             </td>
