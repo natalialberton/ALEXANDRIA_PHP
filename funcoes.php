@@ -12,46 +12,29 @@ function conectaBd() {
 
 //FUNÇÃO PARA REALIZAR LOGIN
 function login() {
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $usuario = $_POST['usuario'] ?? '';
-        $senha = $_POST['senha'] ?? '';
+    $usuario = $_POST['usuario'];
+    $senha = $_POST['senha'];
 
-        if(!empty($usuario) && !empty($senha)) {
-            $conexao = conectaBd();
-            $sql = "SELECT pk_user, user_login, user_senha FROM usuario WHERE user_login = :user_login";
-            $stmt = $conexao-> prepare($sql);
-            $stmt-> bindParam(":user_login", $usuario);
-            $stmt-> execute();
-            $usuario = $stmt-> fetch(PDO::FETCH_ASSOC);
+    if (!empty($usuario) && !empty($senha)) {
+        $conexao = conectaBd();
+        $sql = "SELECT pk_user, user_login, user_senha, user_nome FROM usuario WHERE user_login = :user_login";
+        $stmt = $conexao-> prepare($sql);
+        $stmt-> bindParam(":user_login", $usuario);
+        $stmt-> execute();
+        $usuario = $stmt-> fetch(PDO::FETCH_ASSOC);
 
-            if ($usuario && password_verify($senha, $usuario['user_senha'])) {
-                $_SESSION['pk_user'] = $usuario['pk_user'];
-                $_SESSION['user_login'] = $usuario['user_login'];
+        if ($usuario && password_verify($senha, $usuario['user_senha'])) {
+            $_SESSION['pk_user'] = $usuario['pk_user'];
+            $_SESSION['user_nome'] = $usuario['user_nome'];
 
-                header("Location: template/gestao/home.php");
-                exit();
-            } else {
-                header("Location: template/index.php?erro=1");
-                echo "<script> alert('Senha ou Usuário incorretos!'); </script>";
-                exit();
-            }
+            header("Location: gestao/home.php");
+            exit();
         } else {
-            header("Location: template/index.php?erro=1");
-            echo "<script> alert('Preencha todos os campos!'); </script>";
+            echo "<script> window.location.href = 'index.php?erro=1'; 
+                           alert('Senha ou Usuário incorretos!');
+                  </script>";
             exit();
         }
-    }
-}
-
-//FUNÇÃO PARA VERIFICAR SE O USUÁRIO ESTÁ LOGADO
-function verificarLogin($pagina, $id) {
-    if(isset($id)) {
-        header('Location: template/gestao/'.$pagina.'.php');
-        exit;
-    } else {
-        header('Location: template/index.php?erro=2');
-        echo "<script> alert('Você precisa estar logado para acessar esta página!'); </script>";
-        exit();
     }
 }
 

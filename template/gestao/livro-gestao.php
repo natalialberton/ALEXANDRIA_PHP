@@ -1,5 +1,6 @@
 <?php
 require_once "../../funcoes.php";
+session_start();
 
 $livros = listar('livro');
 $categorias = listar('categoria');
@@ -8,7 +9,6 @@ $qtdLivros = contarTotal('livro');
 $qtdCategorias = contarTotal('categoria');
 $qtdAutores = contarTotal('autor');
 
-session_start();
 $tituloPagina = "LIVROS";
 $tituloH1 = 'Gestão Livros';
 include '../header.php';
