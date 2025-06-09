@@ -1,3 +1,13 @@
+<?php
+
+require_once ('../funcoes.php');
+
+if($_SERVER('REQUEST_METHOD') === 'POST') {
+    login();
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -15,7 +25,7 @@
                 <img src="../static/img/darkmode.png" class="logoRight" alt="Descrição da Imagem">
             </div>
             <div class="formloginRight" id="formulario">
-                <form class="login-container" id="login" action="../realiza-login.php" method="POST">
+                <form class="login-container" id="login" method="POST">
                     <div class="top">
                         <h1>Login</h1>
                     </div>
@@ -23,8 +33,8 @@
                     <div class="entrada">
                         <div class="input-box">
                             <img src="../static/img/perfildarkmode.png" class="imgindex" alt="Ícone de perfil">
-                            <input type="email" class="input-field" name="email" id="email" 
-                                   placeholder="E-mail" required>
+                            <input type="text" class="input-field" name="usuario" id="usuario" 
+                                   placeholder="Usuário" required>
                         </div>
                         <div class="input-box">
                             <img src="../static/img/senhadarkmode.png" class="imgindex" alt="Icon de senha">
