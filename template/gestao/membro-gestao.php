@@ -18,7 +18,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <a href="../cadastro/membro-cadastro.php" class="action-btn">
-                <span class="plus-icon">+ NOVO MEMBRO</span>
+                <span class="plus-icon">+</span>NOVO MEMBRO
             </a>
         </div>
     </div>

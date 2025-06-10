@@ -211,11 +211,11 @@ function cadastrarLivro() {
                   </script>";
             exit();
         } catch (PDOException $e) {
-            header("Location: template/cadastro/livro-cadastro.php?erro=" . urlencode($e->getMessage()));
+            header("Location: livro-cadastro.php?erro=" . urlencode($e->getMessage()));
             exit();
         }
     } else {
-        header("Location: template/cadastro/livro-cadastro.php");
+        header("Location: livro-cadastro.php");
         exit();
     }
 }

@@ -7,7 +7,7 @@ $qtdLivros = contarTotal('livro');
 $qtdCategorias = contarTotal('categoria');
 $qtdAutores = contarTotal('autor');
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $busca = $_POST['busca'] ?? null;
     if ($busca) {
         $livros = pesquisar('livro', $busca, 'liv_titulo', 'liv_isbn');
@@ -57,8 +57,8 @@ include '../header.php';
                 <h2>LIVROS</h2>
             </div>
             <div class='barra'>
-                <form method="POST">
-                    <input type="text" class="search-input" id="busca" placeholder="🔍 Título ou ISBN">
+                <form method="GET">
+                    <input type="text" class="search-input" name="busca" id="busca" placeholder="🔍 Título ou ISBN">
                     <button type="submit">Pesquisar</button>
                 </form>
             </div>
@@ -71,12 +71,13 @@ include '../header.php';
                         <tr>
                             <th>Título</th>
                             <th>ISBN</th>
+                            <th>Autor</th>
+                            <th>Categoria</th>
                             <th>Edição</th>
-                            <th>Ano Publicação</th>
                             <th>Páginas</th>
                             <th>Estoque</th>
                             <th>Alteração Estoque</th>
-                            <th>Ação</th>
+                            <th>Ação</th> 
                         </tr>
                         <?php foreach ($livros as $livro): ?>
                             <tr>
@@ -88,7 +89,6 @@ include '../header.php';
                                 <td><?= htmlspecialchars($autor['aut_nome']) ?></td>
                                 <td><?= htmlspecialchars($categoria['cat_nome']) ?></td>
                                 <td><?= htmlspecialchars($livro["liv_edicao"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_anoPublicacao"]) ?></td>
                                 <td><?= htmlspecialchars($livro["liv_num_paginas"]) ?></td>
                                 <td><?= htmlspecialchars($livro["liv_estoque"]) ?></td>
                                 <td><?= htmlspecialchars($livro["liv_dataAlteracaoEstoque"]) ?></td>

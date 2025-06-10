@@ -32,9 +32,9 @@ include '../header.php';
             <a href="../cadastro/livro-cadastro.php" class="action-btn">
                 <span class="plus-icon">+ NOVO EMPRESTIMO</span>
             </a>  
-            <a class="action-btn">
-                <span class="plus-icon">+</span>
-               +Registrar Renovação
+            <a class="../cadastro/livro-cadastro.php">
+                <span class="plus-icon">Registrar Renovação</span>
+           
             </a>
          
         </div>

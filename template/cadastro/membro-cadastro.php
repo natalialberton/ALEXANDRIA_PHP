@@ -65,13 +65,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="form-group">
                 <label class="label-cadastro" for="fk_plan">Plano: </label>
-                <select class="input-cadastro" name="fk_plan" id="fk_plan" required>
+                <input list="fk_plan" name="fk_plan">
+                <datalist class="input-cadastro" name="fk_plan" id="fk_plan" required>
                     <?php foreach ($planos as $plano): ?>
-                        <option value="<?=htmlspecialchars($plano['pk_plan']); ?>">
-                            <?= htmlspecialchars($plano['plan_nome']); ?>
-                        </option>
+                        <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
                     <?php endforeach; ?>
-                </select>
+                </datalist>
             </div>
         </div>
 

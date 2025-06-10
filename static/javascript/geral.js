@@ -57,10 +57,8 @@ function telefoneMasc(variavel) {
 //Máscara ISBN
 function isbnMasc(variavel) {
     variavel = variavel.replace(/\D/g,"");
-    variavel = variavel.replace(/(\d{3})(\d)/,"$1-$2");
+    variavel = variavel.replace(/(\d{4})(\d)/,"$1-$2");
     variavel = variavel.replace(/(\d{2})(\d)/,"$1-$2");
     variavel = variavel.replace(/(\d{3})(\d)/,"$1-$2");
-    variavel = variavel.replace(/(\d{4})(\d)/,"$1-$2");
-    variavel = variavel.replace(/(\d{1})(\d)/,"$1-$2");
     return variavel;
 }
