@@ -21,7 +21,7 @@ if ($id > 0) {
     if ($emprestimos > 0) {
         echo "<script>
                 alert('Não é possível excluir um membro com empréstimos registrados!');
-                window.location.href = '../membro-gestao.php';
+                window.location.href = '../template/gestao/membro-gestao.php';
               </script>";
         exit();
     }
@@ -31,13 +31,16 @@ if ($id > 0) {
     $stmt-> bindParam(":pk_mem", $id, PDO::PARAM_INT);
     
     if ($stmt-> execute()) {
-        echo "<script> alert('Membro excluído com sucesso!'); </script>";
+        echo "<script> window.location.href = '../template/gestao/membro-gestao.php';
+              alert('Membro excluído com sucesso!'); </script>";
+        exit();
     } else {
-        echo "<script> window.location.href = 'template/gestao/membro-gestao.php?erro=4';
+        echo "<script> window.location.href = '../template/gestao/membro-gestao.php?erro=4';
                        alert('Erro ao excluir membro!'; </script>";
+        exit();
     }
 
-    header("Location: template/gestao/membro-gestao.php");
+    header("Location: ../template/gestao/membro-gestao.php");
     exit();
 }
 

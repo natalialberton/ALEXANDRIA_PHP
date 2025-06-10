@@ -206,7 +206,7 @@ function cadastrarLivro() {
 
         try {
             $stmt-> execute();
-            echo "<script> window.location.href = 'template/gestao/livro-gestao.php';
+            echo "<script> window.location.href = '../gestao/livro-gestao.php';
                             alert('Livro cadastrado com sucesso!'); 
                   </script>";
             exit();

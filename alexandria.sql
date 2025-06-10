@@ -15,7 +15,7 @@ CREATE TABLE CATEGORIA (
 CREATE TABLE AUTOR ( 
  pk_aut INT PRIMARY KEY auto_increment,
  aut_nome VARCHAR(100) not null,
- aut_data_nascimento DATE
+ aut_data_nascimento DATEdeep
 );
 
 CREATE TABLE FORNECEDOR ( 

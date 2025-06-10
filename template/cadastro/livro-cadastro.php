@@ -42,23 +42,23 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="fk_aut">Autor: </label>
-                <datalist class="input-cadastro" name="fk_aut" id="fk_aut" required>
+                <select class="input-cadastro" name="fk_aut" id="fk_aut" required>
                     <?php foreach ($autores as $autor): ?>
                         <option value="<?=htmlspecialchars($autor['pk_aut']); ?>">
                             <?= htmlspecialchars($autor['aut_nome']); ?>
                         </option>
                     <?php endforeach; ?>
-                </datalist>
+                </select>
             </div>
             <div class="form-group">
                 <label class="label-cadastro" for="fk_cat">Categoria: </label>
-                <datalist class="input-cadastro" name="fk_cat" id="fk_cat" required>
+                <select class="input-cadastro" name="fk_cat" id="fk_cat" required>
                     <?php foreach ($categorias as $categoria): ?>
                         <option value="<?=htmlspecialchars($categoria['pk_cat']); ?>">
                             <?= htmlspecialchars($categoria['cat_nome']); ?>
                         </option>
                     <?php endforeach; ?>
-                </datalist>
+                </select>
             </div>
         </div>
 
@@ -102,7 +102,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="form-group">
             <label for="liv_sinopse">Sinopse: </label>
-            <input type="textarea" name="liv_sinopse" id="liv_sinopse" required minlength="6" maxlength="6">
+            <input type="textarea" name="liv_sinopse" id="liv_sinopse">
         </div>
 
         <div class="form-row">

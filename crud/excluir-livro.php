@@ -31,16 +31,16 @@ if ($id > 0) {
     $stmt-> bindParam(":pk_liv", $id, PDO::PARAM_INT);
     
     if ($stmt-> execute()) {
-        echo "<script> window.location.href = 'template/gestao/livro-gestao.php?erro=4';
+        echo "<script> window.location.href = '../template/gestao/livro-gestao.php?erro=4';
                        alert('Livro excluído com sucesso!'); </script>";
         exit();
     } else {
-        echo "<script> window.location.href = 'template/gestao/livro-gestao.php?erro=4';
+        echo "<script> window.location.href = '../template/gestao/livro-gestao.php?erro=4';
                        alert('Erro ao excluir livro!'; </script>";
         exit();
     }
 
-    header("Location: template/gestao/livro-gestao.php");
+    header("Location: ../template/gestao/livro-gestao.php");
     exit();
 }
 
