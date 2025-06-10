@@ -1,0 +1,184 @@
+  @charset "UTF-8";
+  @import url('https://fonts.googleapis.com/css2?family=Krona+One&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital@0;1&display=swap');
+
+  :root {
+      --cor-primaria: rgb(41, 40, 48);
+      --cor-secundaria: rgb(81, 61, 70);
+      /*CC no final indica 80% de opacidade; 99 60%*/
+      --cor-titulo-1: #FFEE87CC;
+      --cor-titulo-2: #C4E9EC99;
+      --cor-titulo-2-contraste: #23767E;
+      --cor-titulo-2-contraste-60: #23767E99;
+  }
+
+
+* {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family:'montserrat', sans-serif;
+            background: linear-gradient(to right, var(--cor-primaria), var(--cor-secundaria));
+            min-height: 100vh;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .geral {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .blocos {
+            background:var(--cor-primaria);
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid var(--cor-titulo-1);
+        }
+
+        .blocos:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .numero {
+            font-size: 3rem;
+            font-weight: bold;
+            color:var(--cor-titulo-1);
+            margin-bottom: 0.5rem;
+        }
+
+        .titulo {
+            font-size: 1.1rem;
+            color:var(--cor-titulo-1);
+            font-weight: 500;
+        }
+
+        .charts-section {
+            background:var(--cor-primaria);
+            border:var(--cor-titulo-1) 1px solid;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color:var(--cor-titulo-1);
+            font-family: 'krona one', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .chart-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color:var(--cor-titulo-1);
+            font-family: 'krona one', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+
+        .dados-tabela {
+            background: var(--cor-primaria);
+            border: 1px solid var(--cor-titulo-1);
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        
+        }
+
+        th,
+        td {
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--cor-titulo-1);
+        }
+
+        th {
+ 
+            font-weight: 600;
+            color: var(--cor-titulo-1);
+        }
+   
+
+        tr:hover {
+            background: var(--cor-secundaria);
+        }
+
+        .total-row {
+            background:var(--cor-secundaria);
+            color: var(--cor-titulo-1);
+            font-weight: bold;
+        }
+
+        .percentage {
+            font-weight: bold;
+            color: var(--cor-titulo-1);
+        }
+
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .chart-wrapper {
+                height: 300px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+

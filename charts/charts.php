@@ -62,83 +62,84 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Alexandria - Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <link rel="stylesheet" href="charts.css">
 </head>
 
 <body>
     <div class="header">
-        <h1>📚 Sistema Alexandria</h1>
-        <p>Dashboard - Análise do Acervo por Categoria</p>
+        <h1>Alexandria</h1>
     </div>
 
     <div class="container">
         <!-- Cards de Estatísticas -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number"><?= $stats['total_livros'] ?></div>
-                <div class="stat-label">Total de Títulos</div>
+        <div class="geral">
+            <div class="blocos">
+                <div class="numero"><?= $stats['total_livros'] ?></div>
+                <div class="titulo">Total de Títulos</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number"><?= $stats['total_estoque'] ?></div>
-                <div class="stat-label">Exemplares em Estoque</div>
+            <div class="blocos">
+                <div class="numero"><?= $stats['total_estoque'] ?></div>
+                <div class="titulo">Exemplares em Estoque</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number"><?= $stats['emprestimos_ativos'] ?></div>
-                <div class="stat-label">Empréstimos Ativos</div>
+            <div class="blocos">
+                <div class="numero"><?= $stats['emprestimos_ativos'] ?></div>
+                <div class="titulo">Empréstimos Ativos</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-number"><?= $stats['membros_ativos'] ?></div>
-                <div class="stat-label">Membros Ativos</div>
+            <div class="blocos">
+                <div class="numero"><?= $stats['membros_ativos'] ?></div>
+                <div class="titulo">Membros Ativos</div>
             </div>
-        </div>
-
-        <!-- Gráfico de Pizza -->
-        <div class="chart-container">
-            <h2 class="section-title">Distribuição de Livros por Categoria</h2>
-            <div class="chart-wrapper">
-                <canvas id="graficoPizza"></canvas>
-            </div>
-        </div>
-
-        <!-- Tabela de Dados -->
-        <div class="dados-tabela">
-            <h3 class="section-title">Detalhamento por Categoria</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Categoria</th>
-                        <th>Títulos</th>
-                        <th>Estoque Total</th>
-                        <th>Percentual</th>
-                        <th>Média por Título</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                    $total_titulos = array_sum($valores);
-                    foreach ($dados as $index => $row):
-                        $percentual = $total_titulos > 0 ? ($row['total_livros'] / $total_titulos) * 100 : 0;
-                        $media_estoque = $row['total_livros'] > 0 ? $row['total_estoque'] / $row['total_livros'] : 0;
-                        ?>
-                        <tr>
-                            <td><strong><?= htmlspecialchars($row['categoria']) ?></strong></td>
-                            <td><?= $row['total_livros'] ?></td>
-                            <td><?= $row['total_estoque'] ?> exemplares</td>
-                            <td class="percentage"><?= number_format($percentual, 1) ?>%</td>
-                            <td><?= number_format($media_estoque, 1) ?> ex/título</td>
-                        </tr>
-                    <?php endforeach; ?>
-                    <tr class="total-row">
-                        <td><strong>TOTAL GERAL</strong></td>
-                        <td><strong><?= $total_titulos ?></strong></td>
-                        <td><strong><?= array_sum($estoques) ?> exemplares</strong></td>
-                        <td class="percentage"><strong>100%</strong></td>
-                        <td><strong><?= $total_titulos > 0 ? number_format(array_sum($estoques) / $total_titulos, 1) : '0' ?>
-                                ex/título</strong></td>
-                    </tr>
-                </tbody>
-            </table>
         </div>
     </div>
+
+    <!-- Gráfico de Pizza -->
+    <div class="chart-container">
+        <h2 class="section-title">Distribuição das Categorias</h2>
+        <div class="chart-wrapper">
+            <canvas id="graficoPizza"></canvas>
+        </div>
+    </div>
+
+    <!-- Tabela de Dados -->
+    <div class="dados-tabela">
+        <h3 class="section-title">Detalhamento por Categoria</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Categoria</th>
+                    <th>Títulos</th>
+                    <th>Estoque Total</th>
+                    <th>Percentual</th>
+                    <th>Média por Título</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $total_titulos = array_sum($valores);
+                foreach ($dados as $index => $row):
+                    $percentual = $total_titulos > 0 ? ($row['total_livros'] / $total_titulos) * 100 : 0;
+                    $media_estoque = $row['total_livros'] > 0 ? $row['total_estoque'] / $row['total_livros'] : 0;
+                    ?>
+                    <tr>
+                        <td><strong><?= htmlspecialchars($row['categoria']) ?></strong></td>
+                        <td><?= $row['total_livros'] ?></td>
+                        <td><?= $row['total_estoque'] ?> exemplares</td>
+                        <td class="percentage"><?= number_format($percentual, 1) ?>%</td>
+                        <td><?= number_format($media_estoque, 1) ?> ex/título</td>
+                    </tr>
+                <?php endforeach; ?>
+                <tr class="total-row">
+                    <td><strong>TOTAL GERAL</strong></td>
+                    <td><strong><?= $total_titulos ?></strong></td>
+                    <td><strong><?= array_sum($estoques) ?> exemplares</strong></td>
+                    <td class="percentage"><strong>100%</strong></td>
+                    <td><strong><?= $total_titulos > 0 ? number_format(array_sum($estoques) / $total_titulos, 1) : '0' ?>
+                            ex/título</strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
 
     <script>
         // Dados do PHP para JavaScript
@@ -169,7 +170,7 @@ try {
                 plugins: {
                     title: {
                         display: true,
-                        text: 'Distribuição do Acervo por Categoria Literária',
+                        text: 'Distribuição das Categorias',
                         font: {
                             size: 18,
                             weight: 'bold'
@@ -243,7 +244,7 @@ try {
 
         // Animação de entrada para os cards
         window.addEventListener('load', function () {
-            const cards = document.querySelectorAll('.stat-card');
+            const cards = document.querySelectorAll('.blocos');
             cards.forEach((card, index) => {
                 setTimeout(() => {
                     card.style.opacity = '0';
