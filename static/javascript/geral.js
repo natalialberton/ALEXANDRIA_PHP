@@ -50,26 +50,6 @@ function cpfMasc(variavel) {
 function telefoneMasc(variavel) {
     variavel = variavel.replace(/\D/g,"");
     variavel = variavel.replace(/^(\d\d)(\d)/g,"($1) $2");
-    variavel = variavel.replace(/(\d{4})(\d)/,"$1-$2");
+    variavel = variavel.replace(/(\d{5})(\d)/,"$1-$2");
     return variavel;
 }
-
-//CONFIGURAÇÕES POPUP EDIÇÃO
-//MEMBRO
-const popupMembro = document.getElementById('popup-cadastro-membro')
-const abrePopupMembro = document.getElementById('btn-cadastro-membro')
-const fechaPopupMembro = document.getElementById('btn-fecha-membro')
-
-abrePopupMembro.addEventListener('click', () => {
-    popupMembro.style.display = 'block';
-});
-
-fechaPopupMembro.addEventListener('click', () => {
-    popupMembro.style.display = 'none';
-});
-
-popupMembro.addEventListener('click', (e) => {
-    if (e.target === popupMembro) {
-        popupMembro.style.display = 'none';
-    }
-});

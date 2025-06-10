@@ -13,22 +13,6 @@
     --cor-texto: #FFF;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Krona One', 'sans-serif';
-    background: linear-gradient(to right, var(--cor-primaria), var(--cor-secundaria));
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
 .container {
     background: rgba(41, 40, 48, 0.651);
     border-radius: 16px;
