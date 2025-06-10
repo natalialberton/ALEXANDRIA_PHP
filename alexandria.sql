@@ -15,7 +15,6 @@ CREATE TABLE CATEGORIA (
 CREATE TABLE AUTOR ( 
  pk_aut INT PRIMARY KEY auto_increment,
  aut_nome VARCHAR(100) not null,
- aut_sobrenome VARCHAR(150) not null,
  aut_data_nascimento DATE
 );
 
@@ -32,7 +31,7 @@ CREATE TABLE FORNECEDOR (
 CREATE TABLE LIVRO ( 
  pk_liv INT PRIMARY KEY auto_increment,
  liv_titulo VARCHAR(200) not null,
- liv_isbn VARCHAR(13) not null unique,
+ liv_isbn VARCHAR(17) not null unique,
  liv_edicao INT,
  liv_anoPublicacao INT,
  liv_sinopse VARCHAR(3000),
@@ -41,6 +40,10 @@ CREATE TABLE LIVRO (
  liv_idioma VARCHAR(30),
  liv_num_paginas INT,
  liv_capa VARCHAR(255)
+ fk_autor INT not null,
+ fk_categoria INT not null,
+ FOREIGN KEY(fk_autor) references AUTOR(pk_aut) on delete restrict on update cascade
+ FOREIGN KEY(fk_categoria) references CATEGORIA(pk_cat) on delete restrict on update cascade
 );
 
 CREATE TABLE PLANO ( 

@@ -15,14 +15,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CADASTRO</title>
+    <title>EDIÇÃO</title>
     <link rel="stylesheet" href="../../static/css/signIn.css">
     <script src="../../static/javascript/geral.js"></script>
 </head>
 
 <main class="main-content">
 <div class="container">
-<h1>CADASTRAMENTO LIVRO</h1>
+<h1>EDIÇÃO LIVRO</h1>
     <form method="POST">
         <div class="form-row">
             <div class="form-group">

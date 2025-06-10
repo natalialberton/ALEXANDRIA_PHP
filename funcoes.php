@@ -64,18 +64,31 @@ function selecionarPorId($tabela, $id, $chavePrimaria) {
     return $variavel;
 }
 
-//--------------------------------------------------- FUNÇÕES CADASTRAMENTO ---------------------------------------------------
+//FUNÇÃO PARA PESQUISAR DADOS
+function pesquisar($tabela, $busca, $coluna1, $coluna2) {
+    $conexao = conectaBd();
+    $sql = "SELECT * FROM $tabela WHERE $coluna1 LIKE :busca OR $coluna2 LIKE :busca ORDER BY $coluna1";
+    $stmt = $conexao-> prepare($sql);
+    $busca = "%$busca%";
+    $stmt-> bindParam(":busca", $busca, PDO::PARAM_STR);
+    $stmt-> execute();
+    $variavel = $stmt-> fetchAll(PDO::FETCH_ASSOC);
+    return $variavel;
+
+}
+
+//--------------------------------------------------- FUNÇÕES MEMBRO ---------------------------------------------------
 
 function cadastrarMembro() {
     if ($_SERVER["REQUEST_METHOD"]=="POST"){
         $conexao = conectaBd();
 
-        $nome = filter_input(INPUT_POST, 'mem_nome', FILTER_SANITIZE_STRING);
-        $cpf = filter_input(INPUT_POST, 'mem_cpf', FILTER_SANITIZE_STRING);
-        $telefone = filter_input(INPUT_POST, 'mem_telefone', FILTER_SANITIZE_STRING);
-        $email = filter_input(INPUT_POST, 'mem_email', FILTER_SANITIZE_EMAIL);
-        $senha = filter_input(INPUT_POST, 'mem_senha', FILTER_SANITIZE_STRING);
-        $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao', FILTER_SANITIZE_STRING);
+        $nome = filter_input(INPUT_POST, 'mem_nome');
+        $cpf = filter_input(INPUT_POST, 'mem_cpf');
+        $telefone = filter_input(INPUT_POST, 'mem_telefone');
+        $email = filter_input(INPUT_POST, 'mem_email');
+        $senha = filter_input(INPUT_POST, 'mem_senha');
+        $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao');
         $status = 'Ativo';
         $plano = filter_input(INPUT_POST, 'fk_plan', FILTER_SANITIZE_NUMBER_INT);
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
@@ -109,18 +122,16 @@ function cadastrarMembro() {
     }
 }
 
-
-//--------------------------------------------------- FUNÇÕES EDIÇÃO ---------------------------------------------------
 function editarMembro($id) {
     $conexao = conectaBd();
 
-    $nome = filter_input(INPUT_POST, 'mem_nome', FILTER_SANITIZE_STRING);
-    $cpf = filter_input(INPUT_POST, 'mem_cpf', FILTER_SANITIZE_STRING);
-    $telefone = filter_input(INPUT_POST, 'mem_telefone', FILTER_SANITIZE_STRING);
-    $email = filter_input(INPUT_POST, 'mem_email', FILTER_SANITIZE_EMAIL);
-    $senha = filter_input(INPUT_POST, 'mem_senha', FILTER_SANITIZE_STRING);
-    $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao', FILTER_SANITIZE_STRING);
-    $status = filter_input(INPUT_POST, 'mem_status', FILTER_SANITIZE_STRING);
+    $nome = filter_input(INPUT_POST, 'mem_nome');
+    $cpf = filter_input(INPUT_POST, 'mem_cpf');
+    $telefone = filter_input(INPUT_POST, 'mem_telefone');
+    $email = filter_input(INPUT_POST, 'mem_email');
+    $senha = filter_input(INPUT_POST, 'mem_senha');
+    $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao');
+    $status = filter_input(INPUT_POST, 'mem_status');
     $plano = filter_input(INPUT_POST, 'fk_plan', FILTER_SANITIZE_NUMBER_INT);
     $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
@@ -141,11 +152,11 @@ function editarMembro($id) {
         try {
             $stmt-> execute();
             echo "<script> window.location.href = '../gestao/membro-gestao.php';
-                            alert('Membro cadastrado com sucesso!'); 
+                            alert('Membro alterado com sucesso!'); 
                   </script>";
             exit();
         } catch (PDOException $e) {
-            echo "<script> window.location.href = 'template/gestao/membro-gestao.php';
+            echo "<script> window.location.href = 'template/gestao/membro-gestao.php?erro= " . urlencode($e->getMessage()) . "';
                             alert('Erro ao realizar alteração!'); 
                   </script>";
             exit();
@@ -154,6 +165,115 @@ function editarMembro($id) {
         echo "<script> window.location.href = 'template/gestao/membro-gestao.php';
                        alert('ID Inválido!'); 
               </script>";
+        exit();
+    }
+}
+
+//--------------------------------------------------- FUNÇÕES LIVRO ---------------------------------------------------
+function cadastrarLivro() {
+    if ($_SERVER["REQUEST_METHOD"]=="POST"){
+        $conexao = conectaBd();
+
+        $titulo = filter_input(INPUT_POST, 'liv_titulo');
+        $isbn = filter_input(INPUT_POST, 'liv_isbn');
+        $autor = filter_input(INPUT_POST, 'fk_aut');
+        $categoria = filter_input(INPUT_POST, 'fk_cat');
+        $edicao = filter_input(INPUT_POST, 'liv_edicao');
+        $anoPublicacao = filter_input(INPUT_POST, 'liv_anoPublicacao');
+        $dataAlteracaoEstoque = filter_input(INPUT_POST, 'liv_dataAlteracaoEstoque');
+        $estoque = filter_input(INPUT_POST, 'liv_estoque');
+        $idioma = filter_input(INPUT_POST, 'liv_idioma');
+        $numPaginas = filter_input(INPUT_POST, 'liv_num_paginas');
+        $sinopse = filter_input(INPUT_POST, 'liv_sinopse');
+
+        $sql = "INSERT INTO livro(liv_titulo, liv_isbn, liv_edicao, liv_anoPublicacao, liv_sinopse,  liv_estoque,
+                liv_dataAlteracaoEstoque, liv_idioma, liv_num_paginas, fk_aut, fk_cat)
+                VALUES (:liv_titulo, :liv_isbn, :liv_edicao, :liv_anoPublicacao, :liv_sinopse, :liv_estoque, 
+                :liv_dataAlteracaoEstoque, :liv_idioma, :liv_num_paginas, :fk_aut, :fk_cat)";
+
+        $stmt = $conexao-> prepare($sql);
+        $stmt-> bindParam(":liv_titulo", $titulo);
+        $stmt-> bindParam(":liv_isbn", $isbn);
+        $stmt-> bindParam(":liv_edicao", $edicao);
+        $stmt-> bindParam(":liv_anoPublicacao", $anoPublicacao);
+        $stmt-> bindParam(":liv_sinopse", $sinopse);
+        $stmt-> bindParam(":liv_estoque", $estoque);
+        $stmt-> bindParam(":liv_dataAlteracaoEstoque", $dataAlteracaoEstoque);
+        $stmt-> bindParam(":liv_idioma", $idioma);
+        $stmt-> bindParam(":liv_num_paginas", $numPaginas);
+        $stmt-> bindParam(":fk_aut", $autor, PDO::PARAM_INT);
+        $stmt-> bindParam(":fk_cat", $categoria, PDO::PARAM_INT);
+
+        try {
+            $stmt-> execute();
+            echo "<script> window.location.href = 'template/gestao/livro-gestao.php';
+                            alert('Livro cadastrado com sucesso!'); 
+                  </script>";
+            exit();
+        } catch (PDOException $e) {
+            header("Location: template/cadastro/livro-cadastro.php?erro=" . urlencode($e->getMessage()));
+            exit();
+        }
+    } else {
+        header("Location: template/cadastro/livro-cadastro.php");
+        exit();
+    }
+}
+
+function editarLivro($id) {
+    if ($_SERVER["REQUEST_METHOD"]=="POST"){
+        $conexao = conectaBd();
+
+        $titulo = filter_input(INPUT_POST, 'liv_titulo');
+        $isbn = filter_input(INPUT_POST, 'liv_isbn');
+        $autor = filter_input(INPUT_POST, 'fk_aut');
+        $categoria = filter_input(INPUT_POST, 'fk_cat');
+        $edicao = filter_input(INPUT_POST, 'liv_edicao');
+        $anoPublicacao = filter_input(INPUT_POST, 'liv_anoPublicacao');
+        $dataAlteracaoEstoque = filter_input(INPUT_POST, 'liv_dataAlteracaoEstoque');
+        $estoque = filter_input(INPUT_POST, 'liv_estoque');
+        $idioma = filter_input(INPUT_POST, 'liv_idioma');
+        $numPaginas = filter_input(INPUT_POST, 'liv_num_paginas');
+        $sinopse = filter_input(INPUT_POST, 'liv_sinopse');
+
+        if ($id > 0) {
+            $sql = "UPDATE livro SET liv_titulo=:liv_titulo, liv_isbn=:liv_isbn, liv_edicao=:liv_edicao, liv_anoPublicacao=:liv_anoPublicacao, liv_sinopse=:liv_sinopse, liv_estoque=:liv_estoque, 
+                    liv_dataAlteracaoEstoque=:liv_dataAlteracaoEstoque, liv_idioma=:liv_idioma, liv_num_paginas=:liv_num_paginas, fk_aut=:fk_aut, fk_cat=:fk_cat WHERE pk_liv=:pk_liv";
+
+            $stmt = $conexao-> prepare($sql);
+            $stmt-> bindParam(":pk_liv", $id, PDO::PARAM_INT);
+            $stmt-> bindParam(":liv_titulo", $titulo);
+            $stmt-> bindParam(":liv_isbn", $isbn);
+            $stmt-> bindParam(":liv_edicao", $edicao);
+            $stmt-> bindParam(":liv_anoPublicacao", $anoPublicacao);
+            $stmt-> bindParam(":liv_sinopse", $sinopse);
+            $stmt-> bindParam(":liv_estoque", $estoque);
+            $stmt-> bindParam(":liv_dataAlteracaoEstoque", $dataAlteracaoEstoque);
+            $stmt-> bindParam(":liv_idioma", $idioma);
+            $stmt-> bindParam(":liv_num_paginas", $numPaginas);
+            $stmt-> bindParam(":fk_aut", $autor, PDO::PARAM_INT);
+            $stmt-> bindParam(":fk_cat", $categoria, PDO::PARAM_INT);
+
+            try {
+            $stmt-> execute();
+            echo "<script> window.location.href = '../gestao/livro-gestao.php';
+                            alert('Livro alterado com sucesso!'); 
+                  </script>";
+            exit();
+            } catch (PDOException $e) {
+                echo "<script> window.location.href = 'template/gestao/livro-gestao.php?erro= " . urlencode($e->getMessage()) . "';
+                               alert('Erro ao realizar alteração!'); 
+                    </script>";
+                exit();
+            }
+        } else {
+            echo "<script> window.location.href = 'template/gestao/livro-gestao.php';
+                        alert('ID Inválido!'); 
+                </script>";
+            exit();
+        }
+    } else {
+        header("Location: template/gestao/livro-gestao.php");
         exit();
     }
 }
