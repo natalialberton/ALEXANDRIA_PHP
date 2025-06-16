@@ -57,8 +57,25 @@ function telefoneMasc(variavel) {
 //Máscara ISBN
 function isbnMasc(variavel) {
     variavel = variavel.replace(/\D/g,"");
-    variavel = variavel.replace(/(\d{4})(\d)/,"$1-$2");
-    variavel = variavel.replace(/(\d{2})(\d)/,"$1-$2");
-    variavel = variavel.replace(/(\d{3})(\d)/,"$1-$2");
+    variavel = variavel.replace(/^(\d{3})(\d)/, "$1-$2");
+    variavel = variavel.replace(/^(\d{3}-\d{2})(\d)/, "$1-$2");
+    variavel = variavel.replace(/^(\d{3}-\d{2}-\d{3})(\d)/, "$1-$2");
+    variavel = variavel.replace(/^(\d{3}-\d{2}-\d{3}-\d{4})(\d)/, "$1-$2");
     return variavel;
 }
+
+function abrePopup(idPopup) {
+    let modal = document.getElementById(idPopup);
+    modal.showModal();
+}
+
+function fechaPopup(idPopup) {
+    let modal = document.getElementById(idPopup);
+    modal.close();
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+    if (window.location.hash === '#editarMembro') {
+        document.getElementById('popupEdicaoMembro').showModal();
+    }
+});

@@ -4,8 +4,9 @@ require_once '../../funcoes.php';
 session_start();
 
 if(!isset($_SESSION['pk_user'])) {
-    echo "<script> alert('Você precisa estar logado para acessar esta página!'); </script>";
-    header('Location: ../index.php?erro=2');
+    echo "<script> window.location.href = '../index.php?erro=2'; 
+                   alert('Você precisa estar logado para acessar a página!');
+          </script>";
     exit();
 }
 
