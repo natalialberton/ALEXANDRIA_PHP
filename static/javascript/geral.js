@@ -69,7 +69,7 @@ function abrePopup(idPopup) {
     modal.showModal();
 }
 
-function fechaPopup(idPopup) {
+function fechaPopup(idPopup, caminho) {
     let modal = document.getElementById(idPopup);
     modal.close();
 }

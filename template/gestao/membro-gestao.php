@@ -95,11 +95,11 @@ include '../header.php';
             <div class="form-group">
                 <input type="hidden" name="form-id" value="cadastrar_membro">
                 <label for="mem_nome">Nome: </label>
-                <input type="text" name="mem_nome" id="mem_nome" onkeypress="mascara(this,nomeMasc)" required>
+                <input type="text" name="mem_nome" onkeypress="mascara(this,nomeMasc)" required>
             </div>
             <div class="form-group">
                 <label for="mem_cpf">CPF: </label>
-                <input type="text" name="mem_cpf" id="mem_cpf" required 
+                <input type="text" name="mem_cpf" required 
                     pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" 
                     title="000.000.000-00"
                     maxlength="14"
@@ -110,7 +110,7 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="mem_telefone">Telefone: </label>
-                <input type="tel" name="mem_telefone" id="mem_telefone" required
+                <input type="tel" name="mem_telefone" required
                     pattern="\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}" 
                     title="(00) 00000-0000"
                     maxlength="15"
@@ -119,7 +119,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="mem_email">Email: </label>
-                <input type="email" name="mem_email" id="mem_email" required>
+                <input type="email" name="mem_email" required>
             </div>
         </div>
 
@@ -127,14 +127,14 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="mem_dataInscricao">Data Inscrição: </label>
-                <input type="date" name="mem_dataInscricao" id="mem_dataInscricao" 
+                <input type="date" name="mem_dataInscricao"
                     value="<?php echo date('Y-m-d'); ?>">
             </div>
 
             <div class="form-group">
                 <label class="label-cadastro" for="plan_nome">Plano: </label>
                 <input list="plan_nome" name="plan_nome">
-                <datalist class="input-cadastro" name="plan_nome" id="plan_nome" required>
+                <datalist class="input-cadastro" name="plan_nome" required>
                     <?php foreach ($planos as $plano): ?>
                         <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
                     <?php endforeach; ?>
@@ -144,7 +144,7 @@ include '../header.php';
 
         <div class="form-group">
             <label for="mem_senha">Senha: </label>
-            <input type="password" name="mem_senha" id="mem_senha" required minlength="6" maxlength="6">
+            <input type="password" name="mem_senha" required minlength="6" maxlength="6">
         </div>
 
         <div class="form-row">
@@ -185,13 +185,13 @@ include '../header.php';
                 <input type="hidden" name="form-id" value="editar_membro">
                 <input type="hidden" name="editar-id" value="<?= $idMembro ?? '' ?>">
                 <label for="mem_nome">Nome: </label>
-                <input type="text" name="mem_nome" id="mem_nome" required
+                <input type="text" name="mem_nome" required
                        onkeypress="mascara(this,nomeMasc)"
                        value="<?=$membro['mem_nome']?>">
             </div>
             <div class="form-group">
                 <label for="mem_cpf">CPF: </label>
-                <input type="text" name="mem_cpf" id="mem_cpf" required 
+                <input type="text" name="mem_cpf" required 
                     pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" 
                     title="000.000.000-00"
                     maxlength="14"
@@ -203,7 +203,7 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="mem_telefone">Telefone: </label>
-                <input type="tel" name="mem_telefone" id="mem_telefone" required
+                <input type="tel" name="mem_telefone" required
                     pattern="\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}" 
                     title="(00) 00000-0000"
                     maxlength="15"
@@ -213,7 +213,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="mem_email">Email: </label>
-                <input type="email" name="mem_email" id="mem_email" value="<?=$membro['mem_email']?>" required>
+                <input type="email" name="mem_email" value="<?=$membro['mem_email']?>" required>
             </div>
         </div>
 
@@ -221,13 +221,13 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="mem_dataInscricao">Data Inscrição: </label>
-                <input type="date" name="mem_dataInscricao" id="mem_dataInscricao" 
+                <input type="date" name="mem_dataInscricao"
                        value="<?=$membro['mem_dataInscricao']?>">
             </div>
 
             <div class="form-group">
                 <label class="label-cadastro" for="mem_status">Status: </label>
-                <select class="input-cadastro" name="mem_status" id="mem_status" required>
+                <select class="input-cadastro" name="mem_status" required>
                     <option value="Ativo" <?= ($membro['mem_status'] ?? '') === 'Ativo' ? 'selected' : '' ?>>Ativo</option>
                     <option value="Suspenso" <?= ($membro['mem_status'] ?? '') === 'Suspenso' ? 'selected' : '' ?>>Suspenso</option>
                 </select>
@@ -239,7 +239,7 @@ include '../header.php';
                 <label class="label-cadastro" for="plan_nome">Plano: </label>
                 <input list="plan_nome" name="plan_nome" 
                        value="<?=htmlspecialchars($planoOriginal['plan_nome']) ?? ''?>">
-                <datalist class="input-cadastro" name="plan_nome" id="plan_nome" required>
+                <datalist class="input-cadastro" name="plan_nome" required>
                     <?php foreach ($planos as $plano): ?>
                         <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
                     <?php endforeach; ?>
@@ -247,13 +247,13 @@ include '../header.php';
             </div>
             <div class="form-group">
                 <label for="mem_senha">Senha: </label>
-                <input type="password" name="mem_senha" id="mem_senha" required minlength="6" maxlength="6">
+                <input type="password" name="mem_senha" required minlength="6" maxlength="6">
             </div>
         </div>
 
         <div class="form-row">
             <button class="btn btn-save" type="submit">Alterar</button>
-            <button class="btn btn-cancel" onclick="fechaPopup('popupEdicaoMembro')">Cancelar</button>
+            <button class="btn btn-cancel" onclick="location.href='membro-gestao.php'">Cancelar</button>
         </div>
     </form>
 </div>
