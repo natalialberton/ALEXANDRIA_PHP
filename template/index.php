@@ -1,8 +1,9 @@
 <?php
 
-require_once ('../funcoes.php');
+session_start();
+require ('../funcoes.php');
 
-if($_SERVER('REQUEST_METHOD') === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     login();
 }
 
@@ -25,7 +26,7 @@ if($_SERVER('REQUEST_METHOD') === 'POST') {
                 <img src="../static/img/darkmode.png" class="logoRight" alt="Descrição da Imagem">
             </div>
             <div class="formloginRight" id="formulario">
-                <form class="login-container" id="login" method="POST">
+                <form method="POST" action="index.php" class="login-container" id="login">
                     <div class="top">
                         <h1>Login</h1>
                     </div>
@@ -37,7 +38,7 @@ if($_SERVER('REQUEST_METHOD') === 'POST') {
                                    placeholder="Usuário" required>
                         </div>
                         <div class="input-box">
-                            <img src="../static/img/senhadarkmode.png" class="imgindex" alt="Icon de senha">
+                            <img src="../static/img/senhadarkmode.png" class="imgindex" alt="Ícone de senha">
                             <input type="password" class="input-field" name="senha" id="senha" 
                                    placeholder="Senha" required>
                             <i id="toggleSenha" class="fa-solid fa-eye"></i>

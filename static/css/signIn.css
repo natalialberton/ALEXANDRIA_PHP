@@ -20,13 +20,15 @@
 }
 
 body {
+    background: linear-gradient(to right, var(--cor-primaria),  var(--cor-secundaria));
+    height: 100vh;
+    width: 100vw;
     font-family: 'Krona One', 'sans-serif';
-    background: linear-gradient(to right, var(--cor-primaria), var(--cor-secundaria));
-    min-height: 100vh;
+    color: var(--cor-titulo-1);
+    overflow-x: hidden;
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 20px;
+    align-items: center;
 }
 
 .container {
@@ -36,13 +38,14 @@ body {
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    max-height: fit-content;
     width: 100%;
-    max-width: 600px;
+    max-width: fit-content;
 }
 
 h1 {
     color: var(--cor-titulo-1);
-    font-size: 28px;
+    font-size: 1.5rem;
     font-weight: 300;
     letter-spacing: 3px;
     text-align: center;

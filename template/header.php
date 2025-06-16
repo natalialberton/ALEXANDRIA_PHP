@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--PEGANDO O TÍTULO DEFINIDO PELA PÁGINA; 'ALEXANDRIA', CASO NÃO ESTEJA DEFINIDO-->
     <title><?php echo isset($tituloPagina) ? $tituloPagina : 'ALEXANDRIA'; ?></title>
-    <link rel="stylesheet" href="../../static/css/geral.css">
     <link rel="stylesheet" href="../../static/css/header.css">
+    <link rel="stylesheet" href="../../static/css/geral.css">
+    <link rel="stylesheet" href="../../static/css/popup.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="../../static/js/geral.js"></script>
+    <script src="../../static/javascript/geral.js"></script>
 </head>
 
 <body>
@@ -26,14 +27,16 @@
     <!-- Adicionando configuração para abrir um menu lateral -->
     <div id="navegaMenu" class="menuLateral">
         <h2 id="cabecalhoMenu">Menu</h2>
-        <a href="home.php" target="_blank" class="linkMenu" >Home</a>
-        <a href="livro-gestao.php" target="_blank" class="linkMenu">Livros</a>
-        <a href="emprestimo-gestao.php" target="_blank" class="linkMenu">Empréstimos</a>
-        <a href="remessa-gestao.php" target="_blank" class="linkMenu">Remessas</a>
-        <a href="membro-gestao.php" target="_blank" class="linkMenu">Membros</a>
-        <a href="fornecedor-gestao.php" target="_blank" class="linkMenu">Fornecedores</a>
-        <a href="funcionario-gestao.php" target="_blank" class="linkMenu">Funcionários</a>
-        <a href="dashboard.php" target="_blank" class="linkMenu">Dashboard</a>
+        <a href="home.php" class="linkMenu" >Home</a>
+        <a href="livro-gestao.php" class="linkMenu">Livros</a>
+        <a href="categoria-gestao.php" class="linkMenu">Categorias</a>
+        <a href="autor-gestao.php" class="linkMenu">Autores</a>
+        <a href="emprestimo-gestao.php" class="linkMenu">Empréstimos</a>
+        <a href="remessa-gestao.php" class="linkMenu">Remessas</a>
+        <a href="membro-gestao.php" class="linkMenu">Membros</a>
+        <a href="fornecedor-gestao.php" class="linkMenu">Fornecedores</a>
+        <a href="funcionario-gestao.php" class="linkMenu">Funcionários</a>
+        <a href="dashboard.php" class="linkMenu">Dashboard</a>
     </div>
     </nav>
     <header>

@@ -1,3 +1,6 @@
+@charset "UTF-8";
+@import url('https://fonts.googleapis.com/css2?family=Krona+One&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital@0;1&display=swap');
 
 .main-content {
     padding: 30px;
@@ -342,10 +345,7 @@ h1, h2 {
     font-weight: 700;
     color: var(--cor-titulo-1);
     text-transform: uppercase;
-}
-
-h1 {
-    text-align: center;
+    font-family: 'Krona One', 'sans-serif';
 }
 
 .titulo{
@@ -353,3 +353,130 @@ h1 {
     padding-right:75%;
 }
 
+.container {
+    background: rgba(41, 40, 48, 0.651);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 100%;
+    max-width: 600px;
+}
+
+h1 {
+    color: var(--cor-titulo-1);
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 3px;
+    text-align: center;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+label {
+    display: block;
+    color: var(--cor-titulo-1);
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 15px 20px;
+    background: var(--cor-secundaria);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    color: #ffffff;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+input:focus,
+textarea:focus {
+    border-color:var(--cor-titulo-1);
+    box-shadow:var(--cor-titulo-1);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+    font-family: inherit;
+}
+
+.button-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 40px;
+}
+
+.btn {
+    flex: 1;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 15px;
+    font-family: 'Krona One', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.btn-cancel {
+    background: rgba(120, 120, 140, 0.8);
+    color: #ffffff;
+}
+
+.btn-cancel:hover {
+    background: rgba(120, 120, 140, 1);
+}
+
+.btn-save {
+    background: var(--cor-titulo-2-contraste);
+    color: #ffffff;
+}
+
+.btn-save:hover {
+    background-color: var(--cor-titulo-2-contraste-60);
+}
+
+@media (max-width: 640px) {
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .button-group {
+        flex-direction: column;
+    }
+
+    .container {
+        padding: 30px 20px;
+    }
+}
