@@ -13,6 +13,24 @@
     --cor-texto: #FFF;
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(to right, var(--cor-primaria),  var(--cor-secundaria));
+    height: 100vh;
+    width: 100vw;
+    font-family: 'Krona One', 'sans-serif';
+    color: var(--cor-titulo-1);
+    overflow-x: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .container {
     background: rgba(41, 40, 48, 0.651);
     border-radius: 16px;
@@ -20,13 +38,14 @@
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    max-height: fit-content;
     width: 100%;
-    max-width: 600px;
+    max-width: fit-content;
 }
 
 h1 {
     color: var(--cor-titulo-1);
-    font-size: 28px;
+    font-size: 1.5rem;
     font-weight: 300;
     letter-spacing: 3px;
     text-align: center;

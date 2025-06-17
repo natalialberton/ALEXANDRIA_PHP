@@ -348,28 +348,9 @@ h1, h2 {
     font-family: 'Krona One', 'sans-serif';
 }
 
-h1 {
-    text-align: center;
-}
-
 .titulo{
     display:left;
     padding-right:75%;
-}
-
-
-#popup-cadastro-membro {
-    display: none;
-}
-
-.popup-overlay {
-    position: fixed;
-    top:0;
-    left: 0;
-    width: 100vw;
-    height: 100dvh;
-    background-color: rgba(0, 0, 0, 0.6);
-    z-index: 1000;
 }
 
 .container {
@@ -457,6 +438,7 @@ textarea {
     padding: 15px 30px;
     border: none;
     border-radius: 15px;
+    font-family: 'Krona One', sans-serif;
     font-size: 16px;
     font-weight: 600;
     text-transform: uppercase;
@@ -481,7 +463,7 @@ textarea {
 }
 
 .btn-save:hover {
-background-color: var(--cor-titulo-2-contraste-60);
+    background-color: var(--cor-titulo-2-contraste-60);
 }
 
 @media (max-width: 640px) {

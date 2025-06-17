@@ -3,14 +3,14 @@
 $host = 'localhost:3307';
 $dbname = 'ALEXANDRIA';
 $username = 'root';
-$password = 'root';
+$password = '';
 
 try {
     // Conexão com o banco
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // query para buscar quantidade de livros por categoria
+    // Query para buscar quantidade de livros por categoria
     $sql = "SELECT 
                 c.cat_nome as categoria,
                 COUNT(cl.fk_liv) as total_livros,
@@ -30,7 +30,7 @@ try {
     $labels = [];
     $valores = [];
     $estoques = [];
-    $cores = ['#23767E99', '#36A2EB', '#FFCE56', '#800080', '#9966FF', '#FF9F40', '#FF99CC', '#66FF66'];
+    $cores = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FF99CC', '#66FF66'];
 
     foreach ($dados as $row) {
         $labels[] = $row['categoria'];
@@ -62,14 +62,188 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema Alexandria - Dashboard</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <link rel="stylesheet" href="scr.css">
     <style>
-     
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .geral {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .blocos {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .blocos:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .numero {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .titulo {
+            font-size: 1.1rem;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .charts-section {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 3rem;
+            align-items: start;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #333;
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .chart-title {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #555;
+            font-size: 1.3rem;
+            font-weight: 500;
+        }
+
+        .dados-tabela {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #555;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .total-row {
+            background: #667eea !important;
+            color: white;
+            font-weight: bold;
+        }
+
+        .total-row:hover {
+            background: #5a6fd8 !important;
+        }
+
+        .percentage {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        @media (max-width: 768px) {
+            .charts-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .chart-wrapper {
+                height: 300px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 0.5rem;
+            }
+        }
     </style>
 </head>
 
 <body>
-
+    <div class="header">
+        <h1>Alexandria</h1>
+    </div>
 
     <div class="container">
         <!-- Cards de Estatísticas -->
@@ -80,7 +254,7 @@ try {
             </div>
             <div class="blocos">
                 <div class="numero"><?= $stats['total_estoque'] ?></div>
-                <div class="titulo">Obra em Estoque</div>
+                <div class="titulo">Exemplares em Estoque</div>
             </div>
             <div class="blocos">
                 <div class="numero"><?= $stats['emprestimos_ativos'] ?></div>
@@ -95,11 +269,11 @@ try {
 
     <!-- Seção dos Gráficos -->
     <div class="charts-section">
-        <h2 class="section-title">Análise por Categoria</h2>
+        <h2 class="section-title">Análise do Acervo por Categoria</h2>
         <div class="charts-container">
             <!-- Gráfico de Pizza -->
             <div>
-                <h3 class="chart-title">Porcentagem</h3>
+                <h3 class="chart-title">Distribuição Percentual</h3>
                 <div class="chart-wrapper">
                     <canvas id="graficoPizza"></canvas>
                 </div>
@@ -172,7 +346,7 @@ try {
                     label: 'Títulos por Categoria',
                     data: dados,
                     backgroundColor: cores,
-                    borderColor: ' rgb(41, 40, 48);',
+                    borderColor: '#fff',
                     borderWidth: 3,
                     hoverBorderWidth: 5,
                     hoverOffset: 10
@@ -348,4 +522,39 @@ try {
 </html>
 
 <?php
+/*
+SISTEMA ALEXANDRIA - DASHBOARD ATUALIZADO
+
+Este dashboard mostra:
+1. Estatísticas gerais da biblioteca
+2. Gráfico de pizza com distribuição percentual por categoria
+3. Gráfico de barras para comparação visual dos números
+4. Tabela detalhada com análise do acervo
+
+NOVIDADES DESTA VERSÃO:
+- Gráfico de barras lado a lado com o de pizza
+- Layout responsivo com grid
+- Melhor organização visual dos gráficos
+- Tooltips consistentes em ambos os gráficos
+- Design aprimorado e moderno
+
+DADOS ANALISADOS:
+- Total de títulos cadastrados
+- Exemplares em estoque
+- Empréstimos ativos
+- Membros ativos
+- Distribuição por categoria literária
+
+CONFIGURAÇÃO:
+1. Ajuste as credenciais do banco no início do arquivo
+2. Certifique-se que o banco ALEXANDRIA está criado e populado
+3. Execute o arquivo em servidor com PHP
+
+POSSÍVEIS EXPANSÕES:
+- Gráfico de empréstimos por mês
+- Top 10 livros mais emprestados
+- Análise de membros por plano
+- Relatório de multas
+- Dashboard de reservas
+*/
 ?>

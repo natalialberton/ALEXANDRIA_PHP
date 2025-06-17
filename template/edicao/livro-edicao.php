@@ -8,7 +8,7 @@ $autores = listar('autor');
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $livro = selecionarPorId('livro', $id, 'pk_liv');
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_GET['id']) ) {
+if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_GET['id'])) {
     editarLivro($id);
 }
 

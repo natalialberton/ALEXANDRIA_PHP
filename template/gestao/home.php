@@ -4,8 +4,9 @@ require_once '../../funcoes.php';
 session_start();
 
 if(!isset($_SESSION['pk_user'])) {
-    echo "<script> alert('Você precisa estar logado para acessar esta página!'); </script>";
-    header('Location: ../index.php?erro=2');
+    echo "<script> window.location.href = '../index.php?erro=2'; 
+                   alert('Você precisa estar logado para acessar a página!');
+          </script>";
     exit();
 }
 
@@ -32,9 +33,9 @@ include '../header.php';
             <a href="../cadastro/livro-cadastro.php" class="action-btn">
                 <span class="plus-icon">+ NOVO EMPRESTIMO</span>
             </a>  
-            <a class="action-btn">
-                <span class="plus-icon">+</span>
-               +Registrar Renovação
+            <a class="../cadastro/livro-cadastro.php">
+                <span class="plus-icon">Registrar Renovação</span>
+           
             </a>
          
         </div>

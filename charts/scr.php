@@ -3,14 +3,14 @@
 $host = 'localhost:3307';
 $dbname = 'ALEXANDRIA';
 $username = 'root';
-$password = 'root';
+$password = '';
 
 try {
     // Conexão com o banco
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // query para buscar quantidade de livros por categoria
+    // Query para buscar quantidade de livros por categoria
     $sql = "SELECT 
                 c.cat_nome as categoria,
                 COUNT(cl.fk_liv) as total_livros,
@@ -348,4 +348,5 @@ try {
 </html>
 
 <?php
+
 ?>

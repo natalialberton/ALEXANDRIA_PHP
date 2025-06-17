@@ -10,6 +10,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -33,8 +34,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="form-group">
                 <label for="liv_isbn">ISBN: </label>
                 <input type="text" name="liv_isbn" id="liv_isbn" required 
-                    title="978-85-333-0227-3"
-                    maxlength="17"
+                    placeholder="000-00-000-0000-0" 
+                    maxlength="17" 
                     onkeypress="mascara(this,isbnMasc)">
             </div>
         </div>
@@ -42,61 +43,59 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="fk_aut">Autor: </label>
-                <select class="input-cadastro" name="fk_aut" id="fk_aut" required>
+                <input list="fk_aut" name="fk_aut">
+                <datalist class="input-cadastro" name="fk_aut" id="fk_aut" required>
                     <?php foreach ($autores as $autor): ?>
                         <option value="<?=htmlspecialchars($autor['pk_aut']); ?>">
-                            <?= htmlspecialchars($autor['aut_nome']); ?>
+                            <?=htmlspecialchars($autor['aut_nome']); ?>
                         </option>
                     <?php endforeach; ?>
-                </select>
+                </datalist>
             </div>
             <div class="form-group">
                 <label class="label-cadastro" for="fk_cat">Categoria: </label>
-                <select class="input-cadastro" name="fk_cat" id="fk_cat" required>
+                <input list="fk_cat" name="fk_cat">
+                <datalist class="input-cadastro" name="fk_cat" id="fk_cat" required>
                     <?php foreach ($categorias as $categoria): ?>
                         <option value="<?=htmlspecialchars($categoria['pk_cat']); ?>">
-                            <?= htmlspecialchars($categoria['cat_nome']); ?>
+                            <?=htmlspecialchars($categoria['cat_nome']); ?>
                         </option>
                     <?php endforeach; ?>
-                </select>
+                </datalist>
             </div>
         </div>
 
         <div class="form-row">
-            <div class="form-group">
-                <label for="liv_edicao">Edição: </label>
-                <input type="text" name="liv_edicao" id="liv_edicao" required>
-            </div>
-
             <div class="form-group">
                 <label for="liv_anoPublicacao">Ano Publicação: </label>
                 <input type="text" name="liv_anoPublicacao" id="liv_anoPublicacao" required>
             </div>
+            <div class="form-group">
+                <label for="liv_idioma">Idioma: </label>
+                <input type="text" name="liv_idioma" id="liv_idioma" >
+            </div>
+            <div class="form-group">
+                <label for="liv_edicao">Edição: </label>
+                <input type="text" name="liv_edicao" id="liv_edicao" required>
+            </div>
         </div>
 
 
         <div class="form-row">
             <div class="form-group">
-                <label for="liv_dataAlteracaoEstoque">Data Alteração Estoque: </label>
+                <label for="liv_dataAlteracaoEstoque">Alteração Estoque: </label>
                 <input type="date" name="liv_dataAlteracaoEstoque" id="liv_dataAlteracaoEstoque" 
-                    value="<?php echo date('d-m-Y'); ?>">
+                    value="<?php echo date('Y-m-d'); ?>">
             </div>
 
             <div class="form-group">
                 <label for="liv_estoque">Estoque: </label>
                 <input type="text" name="liv_estoque" id="liv_estoque" >
             </div>
-        </div>
-        
-        <div class="form-row">
+
             <div class="form-group">
                 <label for="liv_num_paginas">Número Páginas: </label>
                 <input type="text" name="liv_num_paginas" id="liv_num_paginas">
-            </div>
-
-            <div class="form-group">
-                <label for="liv_idioma">Idioma: </label>
-                <input type="text" name="liv_idioma" id="liv_idioma" >
             </div>
         </div>
 

@@ -78,51 +78,7 @@ function pesquisar($tabela, $busca, $coluna1, $coluna2) {
 }
 
 //--------------------------------------------------- FUNÇÕES MEMBRO ---------------------------------------------------
-
-function cadastrarMembro() {
-    if ($_SERVER["REQUEST_METHOD"]=="POST"){
-        $conexao = conectaBd();
-
-        $nome = filter_input(INPUT_POST, 'mem_nome');
-        $cpf = filter_input(INPUT_POST, 'mem_cpf');
-        $telefone = filter_input(INPUT_POST, 'mem_telefone');
-        $email = filter_input(INPUT_POST, 'mem_email');
-        $senha = filter_input(INPUT_POST, 'mem_senha');
-        $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao');
-        $status = 'Ativo';
-        $plano = filter_input(INPUT_POST, 'fk_plan', FILTER_SANITIZE_NUMBER_INT);
-        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
-
-        $sql = "INSERT INTO membro(mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha,  mem_dataInscricao, mem_status, fk_plan)
-                VALUES (:mem_nome, :mem_cpf, :mem_telefone, :mem_email, :mem_senha, :mem_dataInscricao, :mem_status, :fk_plan)";
-
-        $stmt = $conexao-> prepare($sql);
-        $stmt-> bindParam(":mem_nome", $nome);
-        $stmt-> bindParam(":mem_cpf", $cpf);
-        $stmt-> bindParam(":mem_telefone", $telefone);
-        $stmt-> bindParam(":mem_email", $email);
-        $stmt-> bindParam(":mem_senha", $senhaHash);
-        $stmt-> bindParam(":mem_dataInscricao", $dataInscricao);
-        $stmt-> bindParam(":mem_status", $status);
-        $stmt-> bindParam(":fk_plan", $plano, PDO::PARAM_INT);
-
-        try {
-            $stmt-> execute();
-            echo "<script> window.location.href = 'template/gestao/membro-gestao.php';
-                            alert('Membro cadastrado com sucesso!'); 
-                  </script>";
-            exit();
-        } catch (PDOException $e) {
-            header("Location: template/cadastro/membro-cadastro.php?erro=" . urlencode($e->getMessage()));
-            exit();
-        }
-    } else {
-        header("Location: template/cadastro/membro-cadastro.php");
-        exit();
-    }
-}
-
-function editarMembro($id) {
+function membro($acao, $id) {
     $conexao = conectaBd();
 
     $nome = filter_input(INPUT_POST, 'mem_nome');
@@ -131,43 +87,82 @@ function editarMembro($id) {
     $email = filter_input(INPUT_POST, 'mem_email');
     $senha = filter_input(INPUT_POST, 'mem_senha');
     $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao');
-    $status = filter_input(INPUT_POST, 'mem_status');
-    $plano = filter_input(INPUT_POST, 'fk_plan', FILTER_SANITIZE_NUMBER_INT);
+    $status = filter_input(INPUT_POST, 'mem_status') ?? 'Ativo';
+    $planoNome = filter_input(INPUT_POST, 'plan_nome');
     $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
-    if ($id > 0) {
-        $sql = "UPDATE membro SET mem_nome=:mem_nome, mem_cpf=:mem_cpf, mem_telefone=:mem_telefone, mem_email=:mem_email, mem_senha=:mem_senha, 
-                                  mem_dataInscricao=:mem_dataInscricao, mem_status=:mem_status, fk_plan=:fk_plan WHERE pk_mem=:pk_mem";
-        $stmt = $conexao-> prepare($sql);
-        $stmt-> bindParam(":pk_mem", $id, PDO::PARAM_INT);
-        $stmt-> bindParam(":mem_nome", $nome);
-        $stmt-> bindParam(":mem_cpf", $cpf);
-        $stmt-> bindParam(":mem_telefone", $telefone);
-        $stmt-> bindParam(":mem_email", $email);
-        $stmt-> bindParam(":mem_senha", $senhaHash);
-        $stmt-> bindParam(":mem_dataInscricao", $dataInscricao);
-        $stmt-> bindParam(":mem_status", $status);
-        $stmt-> bindParam(":fk_plan", $plano, PDO::PARAM_INT);
+    $sqlPlano = "SELECT pk_plan FROM plano WHERE plan_nome LIKE :planoNome";
+    $stmtPlano = $conexao->prepare($sqlPlano);
+    $stmtPlano->bindParam(':planoNome', $planoNome);
+    $stmtPlano->execute();
+    $plano = $stmtPlano->fetch(PDO::FETCH_ASSOC);
 
-        try {
-            $stmt-> execute();
-            echo "<script> window.location.href = '../gestao/membro-gestao.php';
-                            alert('Membro alterado com sucesso!'); 
-                  </script>";
-            exit();
-        } catch (PDOException $e) {
-            echo "<script> window.location.href = 'template/gestao/membro-gestao.php?erro= " . urlencode($e->getMessage()) . "';
-                            alert('Erro ao realizar alteração!'); 
-                  </script>";
+    if($acao == 1 || $acao == 2) {
+        if ($plano) {
+            $fk_plan = $plano['pk_plan'];
+
+            if($acao == 1) {
+                $msgSucesso = "Membro cadastrado com sucesso!";
+                $sql = "INSERT INTO membro (mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha, mem_dataInscricao, mem_status, fk_plan) 
+                        VALUES (:nome, :cpf, :telefone, :email, :senhaHash, :dataInscricao, :status, :fk_plan)";
+                $stmt = $conexao->prepare($sql);
+            } elseif($acao == 2 && $id > 0) {
+                $msgSucesso = "Membro alterado com sucesso!";
+                $sql = "UPDATE membro SET mem_nome=:nome, mem_cpf=:cpf, mem_telefone=:telefone, mem_email=:email, mem_senha=:senhaHash, 
+                                    mem_dataInscricao=:dataInscricao, mem_status=:status, fk_plan=:fk_plan WHERE pk_mem=:pk_mem";
+                $stmt = $conexao-> prepare($sql);
+                $stmt-> bindParam(":pk_mem", $id, PDO::PARAM_INT);
+            }
+
+            $stmt->bindParam(':nome', $nome);
+            $stmt->bindParam(':cpf', $cpf);
+            $stmt->bindParam(':telefone', $telefone);
+            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':senhaHash', $senhaHash);
+            $stmt->bindParam(':dataInscricao', $dataInscricao);
+            $stmt->bindParam(':status', $status);
+            $stmt->bindParam(':fk_plan', $fk_plan, PDO::PARAM_INT);
+
+        } else {
+        echo "<script> window.location.href = 'membro-gestao.php';
+                        alert('Plano não encontrado!'); 
+                </script>";
+        exit();
+        }
+
+    } elseif($acao == 3 && $id > 0) {
+        $msgSucesso = "Membro excluído com sucesso!";
+        $sqlCheck = "SELECT COUNT(*) FROM emprestimo WHERE fk_mem = :pk_mem";
+        $stmtCheck = $conexao->prepare($sqlCheck);
+        $stmtCheck->bindParam(":pk_mem", $id, PDO::PARAM_INT);
+        $stmtCheck->execute();
+        $emprestimos = $stmtCheck->fetchColumn();
+
+        if ($emprestimos > 0) {
+            echo "<script>
+                    alert('Não é possível excluir um membro com empréstimos registrados!');
+                    window.location.href = 'membro-gestao.php';
+                </script>";
             exit();
         }
-    } else {
-        echo "<script> window.location.href = 'template/gestao/membro-gestao.php';
-                       alert('ID Inválido!'); 
+
+        $sql = "DELETE FROM membro WHERE pk_mem = :pk_mem";
+        $stmt = $conexao-> prepare($sql);
+        $stmt-> bindParam(":pk_mem", $id, PDO::PARAM_INT);
+    }
+    try {
+        $stmt-> execute();
+        echo "<script> window.location.href = 'membro-gestao.php';
+                       alert('$msgSucesso'); 
               </script>";
+        exit();
+    } catch (PDOException $e) {
+        echo "<script> window.location.href = 'membro-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
         exit();
     }
 }
+
+
 
 //--------------------------------------------------- FUNÇÕES LIVRO ---------------------------------------------------
 function cadastrarLivro() {
@@ -211,11 +206,11 @@ function cadastrarLivro() {
                   </script>";
             exit();
         } catch (PDOException $e) {
-            header("Location: template/cadastro/livro-cadastro.php?erro=" . urlencode($e->getMessage()));
+            header("Location: livro-cadastro.php?erro=" . urlencode($e->getMessage()));
             exit();
         }
     } else {
-        header("Location: template/cadastro/livro-cadastro.php");
+        header("Location: livro-cadastro.php");
         exit();
     }
 }
