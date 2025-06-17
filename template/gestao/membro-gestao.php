@@ -12,7 +12,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$membros = listar('membro');
+if(!$termoBusca) {
+    $membros = listar('membro');
+}
+
 $planos = listar('plano');
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
@@ -32,12 +35,17 @@ include '../header.php';
         </div>
     </div>
     
-    <div class = "titulo">
-        <h2>Membros</h2>
-    </div>
+    <div class="search-section">
+            <div class="titulo">
+                <h2>MEMBROS</h2>
+            </div>
+            <div class='barra'>
+                <input type="text" class="search-input" id="busca" placeholder="Pesquisar">
+            </div>
+        </div>
 
     <div class='titleliv'>
-        <div class="tabela">
+        <div class="tabela" id="tabela">
             <div class="tisch">
                 <table>
                     <tr>
@@ -260,5 +268,7 @@ include '../header.php';
 </div>
 <?php endif; ?> 
 </dialog>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="../../static/javascript/geral.js"></script>
 </body>
 </html>

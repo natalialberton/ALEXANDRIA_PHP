@@ -7,16 +7,6 @@ $qtdLivros = contarTotal('livro');
 $qtdCategorias = contarTotal('categoria');
 $qtdAutores = contarTotal('autor');
 
-if ($_SERVER['REQUEST_METHOD'] == 'GET') {
-    $busca = $_POST['busca'] ?? null;
-    if ($busca) {
-        $livros = pesquisar('livro', $busca, 'liv_titulo', 'liv_isbn');
-        if (empty($livros)) {
-            echo "<script> alert('Nenhum livro encontrado!'); </script>";
-            exit();
-        }
-    }
-}
 
 $tituloPagina = "LIVROS";
 $tituloH1 = 'Gestão Livros';

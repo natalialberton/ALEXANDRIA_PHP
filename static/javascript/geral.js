@@ -64,6 +64,39 @@ function isbnMasc(variavel) {
     return variavel;
 }
 
+// CONFIGURAÇÕES BARRA DE PESQUISA
+$(document).ready(function() {
+    let timer;
+    $('#busca').on('input', function() {
+        clearTimeout(timer);
+        const termoBusca = $(this).val().trim();
+        timer = setTimeout(function() {
+            if(termoBusca.length > 0) {
+                buscar(termoBusca);
+            } else {
+                //Caso não tenha o termo, pode carregar todos ou limpar
+                $('#tabela').html('');
+            }
+        }, 300); //Espera 300ms após a última tecla para fazer a requisição
+    });
+});
+
+function buscar(termoBusca) {
+    $.ajax({
+        url: 'funcoes.php',
+        type: 'GET',
+        data: { termoBusca: termoBusca},
+        dataType: 'html',
+        success: function(resposta) {
+            $('#tabela').html(resposta);
+        },
+        error: function() {
+            $('#tabela').html('<p> Nenhum membro encontrado! </p>');
+        }
+    });
+}
+
+//CONFIGURAÇÕES POPUP
 function abrePopup(idPopup) {
     let modal = document.getElementById(idPopup);
     modal.showModal();
