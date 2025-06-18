@@ -69,13 +69,13 @@ $(document).ready(function() {
     let timer;
     $('#busca').on('input', function() {
         clearTimeout(timer);
+        //val() retorna o value do input; trim() tira os espaços em branco
         const termoBusca = $(this).val().trim();
         timer = setTimeout(function() {
             if(termoBusca.length > 0) {
                 buscar(termoBusca);
             } else {
-                //Caso não tenha o termo, pode carregar todos ou limpar
-                $('#tabela').html('');
+                location.reload();
             }
         }, 300); //Espera 300ms após a última tecla para fazer a requisição
     });
@@ -83,17 +83,39 @@ $(document).ready(function() {
 
 function buscar(termoBusca) {
     $.ajax({
-        url: 'funcoes.php',
+        url: '../../funcoes.php',
         type: 'GET',
-        data: { termoBusca: termoBusca},
-        dataType: 'html',
-        success: function(resposta) {
-            $('#tabela').html(resposta);
+        data: {termoBusca: termoBusca},
+        dataType: 'json',
+        success: function(membros) {
+            atualizarTabela(membros);
         },
         error: function() {
             $('#tabela').html('<p> Nenhum membro encontrado! </p>');
         }
     });
+}
+
+function atualizarTabela(membros) {
+    $('table tbody').remove();
+    
+    // Cria novo tbody
+    var tbody = $('<tbody>');
+    
+    // Adiciona cada membro
+    $.each(membros, function(index, membro) {
+        var tr = $('<tr>');
+        
+        // Adiciona as células (ajuste conforme sua estrutura)
+        tr.append('<td>' + membro.mem_nome + '</td>');
+        tr.append('<td>' + membro.mem_cpf + '</td>');
+        // ... continue com as outras colunas
+        
+        tbody.append(tr);
+    });
+    
+    // Adiciona o tbody à tabela
+    $('table').append(tbody);
 }
 
 //CONFIGURAÇÕES POPUP

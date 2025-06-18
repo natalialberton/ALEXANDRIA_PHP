@@ -12,7 +12,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-if(!$termoBusca) {
+$termoBusca = isset($_GET['termoBusca']) ? $_GET['termoBusca'] : '';
+$membros = buscar($termoBusca);
+if(empty($termoBusca) || empty($membros)) {
     $membros = listar('membro');
 }
 
@@ -36,56 +38,56 @@ include '../header.php';
     </div>
     
     <div class="search-section">
-            <div class="titulo">
-                <h2>MEMBROS</h2>
-            </div>
-            <div class='barra'>
-                <input type="text" class="search-input" id="busca" placeholder="Pesquisar">
-            </div>
+        <div class="titulo">
+            <h2>MEMBROS</h2>
         </div>
+        <div class='barra'>
+            <input type="text" class="search-input" id="busca" placeholder="Pesquisar">
+        </div>
+    </div>
 
     <div class='titleliv'>
         <div class="tabela" id="tabela">
             <div class="tisch">
                 <table>
-                    <tr>
-                        <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Telefone</th>
-                        <th>E-mail</th>
-                        <th>Plano</th>
-                        <th>Status</th>
-                        <th>Ação</th>
-                    </tr>
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>CPF</th>
+                            <th>Telefone</th>
+                            <th>E-mail</th>
+                            <th>Plano</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
                     <?php foreach ($membros as $membro): 
                         $plano = selecionarPorId('plano', $membro['fk_plan'], 'pk_plan');
                     ?>
-                        
-                        <tr>
-                            <td><?= htmlspecialchars($membro["mem_nome"]) ?></td>
-                            <td><?= htmlspecialchars($membro["mem_cpf"]) ?></td>
-                            <td><?= htmlspecialchars($membro["mem_telefone"]) ?></td>
-                            <td><?= htmlspecialchars($membro["mem_email"]) ?></td>
-                            <td><?= htmlspecialchars($plano["plan_nome"]) ?></td>
-                            <td><?= htmlspecialchars($membro["mem_status"]) ?></td>
-                            <td>
-                                <!--<a href="../../crud/excluir-membro.php?id=<?=$membro['pk_mem']?>" >
-                                    <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                                </a>-->
-                                <form method="POST" style="display: inline;">
-                                    <input type="hidden" name="form-id" value="excluir_membro">
-                                    <input type="hidden" name="id" value="<?= $membro['pk_mem'] ?>">
-                                    <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer;"
-                                            onclick="return confirm('Tem certeza que deseja excluir este membro?')">
-                                        <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
+                        <tbody>
+                            <tr>
+                                <td><?= htmlspecialchars($membro["mem_nome"]) ?></td>
+                                <td><?= htmlspecialchars($membro["mem_cpf"]) ?></td>
+                                <td><?= htmlspecialchars($membro["mem_telefone"]) ?></td>
+                                <td><?= htmlspecialchars($membro["mem_email"]) ?></td>
+                                <td><?= htmlspecialchars($plano["plan_nome"]) ?></td>
+                                <td><?= htmlspecialchars($membro["mem_status"]) ?></td>
+                                <td>
+                                    <form method="POST" style="display: inline;">
+                                        <input type="hidden" name="form-id" value="excluir_membro">
+                                        <input type="hidden" name="id" value="<?= $membro['pk_mem'] ?>">
+                                        <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer;"
+                                                onclick="return confirm('Tem certeza que deseja excluir este membro?')">
+                                            <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
+                                        </button>
+                                    </form>
+                                    <button onclick="location.href='?id=<?= $membro['pk_mem'] ?>#editarMembro'" 
+                                            style="background: none; border: none; padding: 0; cursor: pointer;">
+                                        <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
                                     </button>
-                                </form>
-                                <button onclick="location.href='?id=<?= $membro['pk_mem'] ?>#editarMembro'" 
-                                        style="background: none; border: none; padding: 0; cursor: pointer;">
-                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
-                                </button>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        </tbody>
                     <?php endforeach; ?>
                 </table>
             </div>

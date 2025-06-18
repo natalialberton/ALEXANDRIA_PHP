@@ -65,16 +65,20 @@ function selecionarPorId($tabela, $id, $chavePrimaria) {
 }
 
 //FUNÇÃO PARA PESQUISAR DADOS
-if (isset($_GET['termoBusca']) || $_GET['termoBusca']) {
-    $conexao = conectaBd();
-    $termoBusca = isset($_GET['termo']) ? $_GET['termo'] : '';
-    $termoBusca = '%' . $termoBusca . '%';
-    $sql = "SELECT * FROM membro WHERE mem_nome LIKE :termoBusca";
-    $stmt = $conexao-> prepare($sql);
-    $stmt-> bindParam(":termoBusca", $termoBusca, PDO::PARAM_STR);
-    $stmt-> execute();
-    $membros = $stmt-> fetchAll(PDO::FETCH_ASSOC);
-    return $membros;
+function buscar($termoBusca = '') {
+    $termoBusca = isset($_GET['termoBusca']) ? $_GET['termoBusca'] : '';
+    if (!empty($termoBusca)) {
+        $conexao = conectaBd();
+        $termoBusca = '%' . $termoBusca . '%';
+        $sql = "SELECT * FROM membro WHERE mem_nome LIKE :termoBusca";
+        $stmt = $conexao-> prepare($sql);
+        $stmt-> bindParam(":termoBusca", $termoBusca, PDO::PARAM_STR);
+        $stmt-> execute();
+        $membros = $stmt-> fetchAll(PDO::FETCH_ASSOC);
+        return $membros;
+    } else {
+        return null;
+    }
 }
 
 //--------------------------------------------------- FUNÇÕES MEMBRO ---------------------------------------------------

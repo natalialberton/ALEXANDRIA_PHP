@@ -136,7 +136,6 @@
     overflow: hidden;
     /*esse corta o conteúdo que ultrapassa*/
     border: 1px solid var(--cor-titulo-1);
-
 }
 
 .tisch {
