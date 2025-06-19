@@ -1,3 +1,4 @@
+
 @charset "UTF-8";
 @import url('https://fonts.googleapis.com/css2?family=Krona+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital@0;1&display=swap');
@@ -136,10 +137,12 @@
     overflow: hidden;
     /*esse corta o conteúdo que ultrapassa*/
     border: 1px solid var(--cor-titulo-1);
+
 }
 
 .tisch {
-    overflow-x: auto;
+    max-height: 300px;
+    overflow-y: scroll;
     /*é a barra*/
 }
 
@@ -151,6 +154,7 @@ table {
 
 /* Cabeçalho da Tabela */
 th {
+    position:sticky;
     background: var(--cor-primaria);
     color: var(--cor-titulo-1);
     padding: 20px 25px;

@@ -1,146 +1,133 @@
 <?php
-
-require_once '../../funcoes.php';
+require_once "../../funcoes.php";
 session_start();
 
-if(!isset($_SESSION['pk_user'])) {
-    echo "<script> window.location.href = '../index.php?erro=2'; 
-                   alert('Você precisa estar logado para acessar a página!');
-          </script>";
-    exit();
-}
-
-$livros = listar('livro');
-$categorias = listar('categoria');
-$autores = listar('autor');
-$qtdLivros = contarTotal('livro');
-$qtdCategorias = contarTotal('categoria');
-$qtdAutores = contarTotal('autor');
-
-//PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
 $tituloPagina = "HOME";
-$tituloH1= "HOME | " . $_SESSION['user_nome'];
+$tituloH1 = "HOME | " . $_SESSION['user_nome'];
 include '../header.php';
+
+$conexao = conectaBd();
+
+$sql = "
+    SELECT 
+        u.user_cpf AS cpf,
+        u.user_nome AS nome,
+        u.user_email AS email,
+        e.pk_emp AS id_emprestimo,
+        l.liv_titulo AS livro,
+        e.emp_dataEmp AS data_emprestimo,
+        e.emp_dataDev AS data_devolucao,
+        e.emp_status AS status
+    FROM EMPRESTIMO e
+    JOIN USUARIO u ON e.fk_user = u.pk_user
+    JOIN LIVRO l ON e.fk_liv = l.pk_liv
+    ORDER BY e.emp_dataEmp DESC
+";
+
+//u.user_cpf AS cpf,
+//u.user_nome AS nome,
+//u.user_email AS email,
+
+
+try {
+    $stmt = $conexao->prepare($sql);
+    $stmt->execute();
+    $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    die("Erro na consulta: " . $e->getMessage());
+}
 
 ?>
 
-<main class="main-content">
-    <div class="titulo">
-        <h2>Geral</h2>
+<div class="main">
+
+    <div class="status">
     </div>
-    <div class="top-section">
-        <div class="actions-section">
-            <a href="../cadastro/livro-cadastro.php" class="action-btn">
-                <span class="plus-icon">+ NOVO EMPRESTIMO</span>
-            </a>  
-            <a class="../cadastro/livro-cadastro.php">
-                <span class="plus-icon">Registrar Renovação</span>
-           
-            </a>
-         
-        </div>
+    <div class="reservas">
+        <div class="multas"></div>
+    </div>
+</div>
 
-        <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-title">ATRASADO</div>
-                <div class="stat-number"><?= $qtdLivros['total'] ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">A VENCER</div>
-                <div class="stat-number"><?= $qtdCategorias['total'] ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">NO PRAZO</div>
-                <div class="stat-number"><?= $qtdAutores['total'] ?></div>
-            </div>
+<div class="titulo">
+    <h2>Empréstimos em Aberto</h2>
+</div>
+
+<div class='titleliv'>
+    <div class="tabela">
+        <div class="tisch">
+            <table>
+                <tr>
+                    <th>CPF</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>ID Emp</th>
+                    <th>Livro</th>
+                    <th>Data Emp</th>
+                    <th>Data Dev</th>
+                    <th>Status</th>
+                </tr>
+                <?php if (count($resultado) > 0): ?>
+                    <?php foreach ($resultado as $linha): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($linha['cpf']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['nome']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['email']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['id_emprestimo']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['livro']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['data_emprestimo']); ?></td>
+                            <td><?php echo $linha['data_devolucao'] ? htmlspecialchars($linha['data_devolucao']) : 'Pendente'; ?>
+                            </td>
+                            <td><?php echo htmlspecialchars($linha['status']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan='8'>Nenhum empréstimo encontrado.</td>
+                    </tr>
+                <?php endif; ?>
+            </table>
         </div>
     </div>
-        <div class="campo"></div>
+</div>
 
-        <div class="search-section">
-            <div class="titulo">
-                <h2>LIVROS</h2>
-            </div>
-            <div class='barra'>
-                <!--<input type="text" class="search-input" placeholder="🔍 Pesquisar">-->
-            </div>
-        </div>
+<div class="titulo">
+    <h2>Reservas em Aberto</h2>
+</div>
 
-        <div class='titleliv'>
-            <div class="tabela">
-                <div class="tisch">
-                    <table>
+<div class='titleliv'>
+    <div class="tabela">
+        <div class="tisch">
+            <table>
+                <tr>
+                    <th>CPF</th>
+                    <th>Nome</th>
+                    <th>Email</th>
+                    <th>ID Emp</th>
+                    <th>Livro</th>
+                    <th>Data Emp</th>
+                    <th>Data Dev</th>
+                    <th>Status</th>
+                </tr>
+                <?php if (count($resultado) > 0): ?>
+                    <?php foreach ($resultado as $linha): ?>
                         <tr>
-                            <th>Título</th>
-                            <th>ISBN</th>
-                            <th>Edição</th>
-                            <th>Ano Publicação</th>
-                            <th>Páginas</th>
-                            <th>Estoque</th>
-                            <th>Alteração Estoque</th>
-                            <th>Ação</th>
+                            <td><?php echo htmlspecialchars($linha['cpf']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['nome']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['email']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['id_emprestimo']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['livro']); ?></td>
+                            <td><?php echo htmlspecialchars($linha['data_emprestimo']); ?></td>
+                            <td><?php echo $linha['data_devolucao'] ? htmlspecialchars($linha['data_devolucao']) : 'Pendente'; ?>
+                            </td>
+                            <td><?php echo htmlspecialchars($linha['status']); ?></td>
                         </tr>
-                        <?php foreach ($livros as $livro): ?>
-                            <tr><!--aqui-->
-                                <td><?= htmlspecialchars($livro["liv_titulo"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_isbn"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_edicao"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_anoPublicacao"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_num_paginas"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_estoque"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_dataAlteracaoEstoque"]) ?></td>
-                                <td>
-                                    <a href="../../excluir-livro.php?id=<?=$livro['pk_liv']?>" >
-                                        <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                                    </a>
-                                    <a href="../../editar-livro.php?id=<?=$livro['pk_liv']?>">
-                                        <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
-            </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan='8'>Nenhum empréstimo encontrado.</td>
+                    </tr>
+                <?php endif; ?>
+            </table>
         </div>
-
-        <div class = "titulo"><h2>Categorias</h2></div>
-
-        <div class='titleliv'>
-            <div class="tabela">
-                <div class="tisch">
-                    <table>
-                        <tr>
-                            <th>Categoria</th>
-                            <!--<th>Quantidade de Livros</th>-->
-                            <th>Ação</th>
-                        </tr>
-                        <?php foreach ($categorias as $categoria): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($categoria["cat_nome"]) ?></td>
-                                <!--<td><?= htmlspecialchars($categoria["pk_cat"]) ?></td>-->
-                                <td>
-                                    <i class='fas fa-trash-alt'
-                                        style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
-            </div>
-        </div>
-
-        
-        <div class="search-section">
-            <div class="titulo">
-                <h2>Autor</h2>
-            </div>
-            <div class='barra'>
-                <input type="text" class="search-input" placeholder="🔍 Pesquisar">
-            </div>
-        </div>
-    </main>
-</body>
-
-</html>
+    </div>
+</div>
