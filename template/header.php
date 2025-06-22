@@ -9,8 +9,9 @@
     <link rel="stylesheet" href="../../static/css/header.css">
     <link rel="stylesheet" href="../../static/css/geral.css">
     <link rel="stylesheet" href="../../static/css/popup.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.all.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="../../static/javascript/geral.js"></script>
+    <script src="../../static/javascript/geral.js?v=<?= time() ?>"></script>
 </head>
 
 <body>
