@@ -10,6 +10,16 @@ function conectaBd() {
     return $conexao;
 }
 
+//FUNÇÃO ENVIAR MSG DE ALERTA PARA O JS (SWEET ALERT)
+function enviarSweetAlert($local, $tipoMensagem, $mensagem) {
+    echo "<script>
+            window.location.href = '$local';
+            sessionStorage.setItem('$tipoMensagem', '$mensagem');
+         </script>";
+
+    exit();
+}
+
 //FUNÇÃO PARA REALIZAR LOGIN
 function login() {
     $usuario = $_POST['usuario'];
@@ -30,10 +40,7 @@ function login() {
             header("Location: gestao/home.php");
             exit();
         } else {
-            echo "<script> window.location.href = 'index.php?erro=1'; 
-                           alert('Senha ou Usuário incorretos!');
-                  </script>";
-            exit();
+            enviarSweetAlert('index.php', 'erroAlerta', 'Senha ou Usuário incorretos!');
         }
     }
 }
@@ -65,52 +72,64 @@ function selecionarPorId($tabela, $id, $chavePrimaria) {
 }
 
 //FUNÇÃO PARA PESQUISAR DADOS
-function buscar($termoBusca = '') {
-    $termoBusca = isset($_GET['termoBusca']) ? $_GET['termoBusca'] : '';
-    if (!empty($termoBusca)) {
-        $conexao = conectaBd();
-        $termoBusca = '%' . $termoBusca . '%';
-        $sql = "SELECT * FROM membro WHERE mem_nome LIKE :termoBusca";
-        $stmt = $conexao-> prepare($sql);
-        $stmt-> bindParam(":termoBusca", $termoBusca, PDO::PARAM_STR);
-        $stmt-> execute();
-        $membros = $stmt-> fetchAll(PDO::FETCH_ASSOC);
-        return $membros;
-    } else {
-        return null;
-    }
-}
-
-//--------------------------------------------------- FUNÇÕES MEMBRO ---------------------------------------------------
-function membro($acao, $id) {
+function retornoPesquisa($termoBusca, $tabela, $id, $string1, $string2) {
     $conexao = conectaBd();
 
-    $nome = filter_input(INPUT_POST, 'mem_nome');
-    $cpf = filter_input(INPUT_POST, 'mem_cpf');
-    $telefone = filter_input(INPUT_POST, 'mem_telefone');
-    $email = filter_input(INPUT_POST, 'mem_email');
-    $senha = filter_input(INPUT_POST, 'mem_senha');
-    $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao');
-    $status = filter_input(INPUT_POST, 'mem_status') ?? 'Ativo';
-    $planoNome = filter_input(INPUT_POST, 'plan_nome');
-    $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+    $termoBusca = '%' . $termoBusca . '%';
+    $sql = "SELECT * FROM $tabela WHERE $id = :termoBusca
+            OR $string1 LIKE :termoBusca
+            OR $string2 LIKE :termoBusca
+            ORDER BY 
+                $id LIKE :termoBusca DESC,
+                $string1 LIKE :termoBusca DESC,
+                $string2 LIKE :termoBusca DESC";
+            
+    $stmt = $conexao-> prepare($sql);
+    $stmt-> bindParam(":termoBusca", $termoBusca);
+    $stmt-> execute();
+    $membros = $stmt-> fetchAll(PDO::FETCH_ASSOC);
+    return $membros;
+}
 
-    $sqlPlano = "SELECT pk_plan FROM plano WHERE plan_nome LIKE :planoNome";
-    $stmtPlano = $conexao->prepare($sqlPlano);
-    $stmtPlano->bindParam(':planoNome', $planoNome);
-    $stmtPlano->execute();
-    $plano = $stmtPlano->fetch(PDO::FETCH_ASSOC);
+//--------------------------------------------------- FUNÇÕES CRUD MEMBRO ---------------------------------------------------
+function crudMembro($acao, $id) {
+    $conexao = conectaBd();
 
     if($acao == 1 || $acao == 2) {
+    //PUXANDO DADOS VIA POST
+        $nome = filter_input(INPUT_POST, 'mem_nome');
+        $cpf = filter_input(INPUT_POST, 'mem_cpf');
+        $telefone = filter_input(INPUT_POST, 'mem_telefone');
+        $email = filter_input(INPUT_POST, 'mem_email');
+        $senha = filter_input(INPUT_POST, 'mem_senha');
+        $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao');
+        $status = filter_input(INPUT_POST, 'mem_status') ?? 'Ativo';
+        $planoNome = filter_input(INPUT_POST, 'plan_nome');
+        $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
+
+        $sqlPlano = "SELECT pk_plan FROM plano WHERE plan_nome LIKE :planoNome";
+        $stmtPlano = $conexao->prepare($sqlPlano);
+        $stmtPlano->bindParam(':planoNome', $planoNome);
+        $stmtPlano->execute();
+        $plano = $stmtPlano-> fetch(PDO::FETCH_ASSOC);
+        
         if ($plano) {
             $fk_plan = $plano['pk_plan'];
 
+        //CADASTRAMENTO
             if($acao == 1) {
                 $msgSucesso = "Membro cadastrado com sucesso!";
                 $sql = "INSERT INTO membro (mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha, mem_dataInscricao, mem_status, fk_plan) 
                         VALUES (:nome, :cpf, :telefone, :email, :senhaHash, :dataInscricao, :status, :fk_plan)";
                 $stmt = $conexao->prepare($sql);
+
+        //ALTERAÇÃO
             } elseif($acao == 2 && $id > 0) {
+                $stmtMembroAtual = $conexao-> prepare("SELECT * FROM membro WHERE pk_mem = :id");
+                $stmtMembroAtual-> bindParam(":id", $id, PDO::PARAM_STR);
+                $stmtMembroAtual-> execute();
+                $membroAtual = $stmtMembroAtual-> fetch(PDO::FETCH_ASSOC);
+
                 $msgSucesso = "Membro alterado com sucesso!";
                 $sql = "UPDATE membro SET mem_nome=:nome, mem_cpf=:cpf, mem_telefone=:telefone, mem_email=:email, mem_senha=:senhaHash, 
                                     mem_dataInscricao=:dataInscricao, mem_status=:status, fk_plan=:fk_plan WHERE pk_mem=:pk_mem";
@@ -118,6 +137,25 @@ function membro($acao, $id) {
                 $stmt-> bindParam(":pk_mem", $id, PDO::PARAM_INT);
             }
 
+        //TRATAMENTO DE EXCEÇÕES
+            $stmtCheckCpf = $conexao-> prepare("SELECT * FROM membro WHERE mem_cpf = :cpf");
+            $stmtCheckCpf-> bindParam(":cpf", $cpf, PDO::PARAM_STR);
+            $stmtCheckCpf-> execute();
+            $cpfExistente = $stmtCheckCpf-> fetch(PDO::FETCH_ASSOC);
+
+            $stmtCheckEmail = $conexao-> prepare("SELECT * FROM membro WHERE mem_email = :email");
+            $stmtCheckEmail-> bindParam(":email", $email, PDO::PARAM_STR);
+            $stmtCheckEmail-> execute();
+            $emailExistente = $stmtCheckEmail-> fetch(PDO::FETCH_ASSOC);
+                
+            if($acao == 1 && $cpfExistente || $acao == 2 && $cpfExistente && $cpfExistente != htmlspecialchars($membroAtual['mem_cpf'])) {
+                enviarSweetAlert('membro-gestao.php', 'erroAlerta', 'CPF já cadastrado!');
+            }
+
+            if($emailExistente) {
+                enviarSweetAlert('membro-gestao.php', 'erroAlerta', 'Email já cadastrado!');
+            }
+    
             $stmt->bindParam(':nome', $nome);
             $stmt->bindParam(':cpf', $cpf);
             $stmt->bindParam(':telefone', $telefone);
@@ -128,38 +166,35 @@ function membro($acao, $id) {
             $stmt->bindParam(':fk_plan', $fk_plan, PDO::PARAM_INT);
 
         } else {
-        echo "<script> window.location.href = 'membro-gestao.php';
-                        alert('Plano não encontrado!'); 
-                </script>";
-        exit();
+            enviarSweetAlert('membro-gestao.php', 'erroAlerta', 'Plano não encontrado!');
         }
 
+    //EXCLUSÃO E TRATAMENTO DE EXCEÇÕES
     } elseif($acao == 3 && $id > 0) {
-        $msgSucesso = "Membro excluído com sucesso!";
-        $sqlCheck = "SELECT COUNT(*) FROM emprestimo WHERE fk_mem = :pk_mem";
-        $stmtCheck = $conexao->prepare($sqlCheck);
-        $stmtCheck->bindParam(":pk_mem", $id, PDO::PARAM_INT);
-        $stmtCheck->execute();
-        $emprestimos = $stmtCheck->fetchColumn();
+        try {
+            $msgSucesso = "Membro excluído com sucesso!";
+            $stmtCheckEmp = $conexao->prepare("SELECT COUNT(*) FROM emprestimo WHERE fk_mem = :pk_mem");
+            $stmtCheckEmp->bindParam(":pk_mem", $id, PDO::PARAM_INT);
+            $stmtCheckEmp->execute();
+            $emprestimos = $stmtCheckEmp->fetchColumn();
 
-        if ($emprestimos > 0) {
-            echo "<script>
-                    alert('Não é possível excluir um membro com empréstimos registrados!');
-                    window.location.href = 'membro-gestao.php';
-                </script>";
+            if ($emprestimos > 0) {
+                enviarSweetAlert('membro-gestao.php', 'erroAlerta', 'Não é possível excluir um membro com empréstimos registrados!');
+            }
+
+            $sql = "DELETE FROM membro WHERE pk_mem = :pk_mem";
+            $stmt = $conexao-> prepare($sql);
+            $stmt-> bindParam(":pk_mem", $id, PDO::PARAM_INT);
+        } catch(Exception $e) {
+            echo "<script> window.location.href = 'membro-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
             exit();
         }
 
-        $sql = "DELETE FROM membro WHERE pk_mem = :pk_mem";
-        $stmt = $conexao-> prepare($sql);
-        $stmt-> bindParam(":pk_mem", $id, PDO::PARAM_INT);
     }
+    //EXECUÇÃO DO COMANDO NO BANCO DE DADOS
     try {
         $stmt-> execute();
-        echo "<script> window.location.href = 'membro-gestao.php';
-                       alert('$msgSucesso'); 
-              </script>";
-        exit();
+        enviarSweetAlert('membro-gestao.php', 'sucessoAlerta', $msgSucesso);
     } catch (PDOException $e) {
         echo "<script> window.location.href = 'membro-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
         exit();

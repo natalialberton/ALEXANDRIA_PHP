@@ -5,19 +5,14 @@ require_once "../../funcoes.php";
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['form-id'])) {
         if($_POST['form-id'] === 'cadastrar_membro') {
-            membro(1, '');
+            crudMembro(1, '');
         } elseif ($_POST['form-id'] === 'excluir_membro') {
-            membro(3, $_POST['id']);
+            crudMembro(3, $_POST['id']);
         }
     }
 }
 
-$termoBusca = isset($_GET['termoBusca']) ? $_GET['termoBusca'] : '';
-$membros = buscar($termoBusca);
-if(empty($termoBusca) || empty($membros)) {
-    $membros = listar('membro');
-}
-
+$GLOBALS['tabela'] = 'membro';
 $planos = listar('plano');
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
@@ -42,54 +37,14 @@ include '../header.php';
             <h2>MEMBROS</h2>
         </div>
         <div class='barra'>
-            <input type="text" class="search-input" id="busca" placeholder="Pesquisar">
+            <input type="text" class="search-input" id="pesquisaInput" placeholder="Pesquisar ID, nome ou CPF" oninput="pesquisarDadoTabela('membro')">
         </div>
     </div>
 
     <div class='titleliv'>
-        <div class="tabela" id="tabela">
+        <div class="tabela" id="container-tabela">
             <div class="tisch">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Nome</th>
-                            <th>CPF</th>
-                            <th>Telefone</th>
-                            <th>E-mail</th>
-                            <th>Plano</th>
-                            <th>Status</th>
-                            <th>Ação</th>
-                        </tr>
-                    </thead>
-                    <?php foreach ($membros as $membro): 
-                        $plano = selecionarPorId('plano', $membro['fk_plan'], 'pk_plan');
-                    ?>
-                        <tbody>
-                            <tr>
-                                <td><?= htmlspecialchars($membro["mem_nome"]) ?></td>
-                                <td><?= htmlspecialchars($membro["mem_cpf"]) ?></td>
-                                <td><?= htmlspecialchars($membro["mem_telefone"]) ?></td>
-                                <td><?= htmlspecialchars($membro["mem_email"]) ?></td>
-                                <td><?= htmlspecialchars($plano["plan_nome"]) ?></td>
-                                <td><?= htmlspecialchars($membro["mem_status"]) ?></td>
-                                <td>
-                                    <form method="POST" style="display: inline;">
-                                        <input type="hidden" name="form-id" value="excluir_membro">
-                                        <input type="hidden" name="id" value="<?= $membro['pk_mem'] ?>">
-                                        <button type="submit" style="background: none; border: none; padding: 0; cursor: pointer;"
-                                                onclick="return confirm('Tem certeza que deseja excluir este membro?')">
-                                            <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                                        </button>
-                                    </form>
-                                    <button onclick="location.href='?id=<?= $membro['pk_mem'] ?>#editarMembro'" 
-                                            style="background: none; border: none; padding: 0; cursor: pointer;">
-                                        <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    <?php endforeach; ?>
-                </table>
+                <?php include 'tabelas.php'; ?>
             </div>
         </div>
     </div>
@@ -137,13 +92,13 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="mem_dataInscricao">Data Inscrição: </label>
-                <input type="date" name="mem_dataInscricao"
+                <input type="date" name="mem_dataInscricao" required
                     value="<?php echo date('Y-m-d'); ?>">
             </div>
 
             <div class="form-group">
                 <label class="label-cadastro" for="plan_nome">Plano: </label>
-                <input list="plan_nome" name="plan_nome">
+                <input list="plan_nome" name="plan_nome" required>
                 <datalist class="input-cadastro" name="plan_nome" required>
                     <?php foreach ($planos as $plano): ?>
                         <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
@@ -179,7 +134,7 @@ include '../header.php';
     if($_SERVER["REQUEST_METHOD"] == "POST") {
         if(isset($_POST['form-id'])) {
             if($_POST['form-id'] === 'editar_membro') {
-                membro(2, $idMembro);
+                crudMembro(2, $idMembro);
             }
         }
     }
@@ -231,7 +186,7 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="mem_dataInscricao">Data Inscrição: </label>
-                <input type="date" name="mem_dataInscricao"
+                <input type="date" name="mem_dataInscricao" required
                        value="<?=$membro['mem_dataInscricao']?>">
             </div>
 
@@ -247,9 +202,9 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="plan_nome">Plano: </label>
-                <input list="plan_nome" name="plan_nome" 
+                <input list="plan_nome" name="plan_nome" required
                        value="<?=htmlspecialchars($planoOriginal['plan_nome']) ?? ''?>">
-                <datalist class="input-cadastro" name="plan_nome" required>
+                <datalist class="input-cadastro" name="plan_nome">
                     <?php foreach ($planos as $plano): ?>
                         <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
                     <?php endforeach; ?>
@@ -270,7 +225,5 @@ include '../header.php';
 </div>
 <?php endif; ?> 
 </dialog>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="../../static/javascript/geral.js"></script>
 </body>
 </html>

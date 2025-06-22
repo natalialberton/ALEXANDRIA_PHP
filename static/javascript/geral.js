@@ -64,67 +64,13 @@ function isbnMasc(variavel) {
     return variavel;
 }
 
-// CONFIGURAÇÕES BARRA DE PESQUISA
-$(document).ready(function() {
-    let timer;
-    $('#busca').on('input', function() {
-        clearTimeout(timer);
-        //val() retorna o value do input; trim() tira os espaços em branco
-        const termoBusca = $(this).val().trim();
-        timer = setTimeout(function() {
-            if(termoBusca.length > 0) {
-                buscar(termoBusca);
-            } else {
-                location.reload();
-            }
-        }, 300); //Espera 300ms após a última tecla para fazer a requisição
-    });
-});
-
-function buscar(termoBusca) {
-    $.ajax({
-        url: '../../funcoes.php',
-        type: 'GET',
-        data: {termoBusca: termoBusca},
-        dataType: 'json',
-        success: function(membros) {
-            atualizarTabela(membros);
-        },
-        error: function() {
-            $('#tabela').html('<p> Nenhum membro encontrado! </p>');
-        }
-    });
-}
-
-function atualizarTabela(membros) {
-    $('table tbody').remove();
-    
-    // Cria novo tbody
-    var tbody = $('<tbody>');
-    
-    // Adiciona cada membro
-    $.each(membros, function(index, membro) {
-        var tr = $('<tr>');
-        
-        // Adiciona as células (ajuste conforme sua estrutura)
-        tr.append('<td>' + membro.mem_nome + '</td>');
-        tr.append('<td>' + membro.mem_cpf + '</td>');
-        // ... continue com as outras colunas
-        
-        tbody.append(tr);
-    });
-    
-    // Adiciona o tbody à tabela
-    $('table').append(tbody);
-}
-
 //CONFIGURAÇÕES POPUP
 function abrePopup(idPopup) {
     let modal = document.getElementById(idPopup);
     modal.showModal();
 }
 
-function fechaPopup(idPopup, caminho) {
+function fechaPopup(idPopup) {
     let modal = document.getElementById(idPopup);
     modal.close();
 }
@@ -134,3 +80,148 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('popupEdicaoMembro').showModal();
     }
 });
+
+// CONFIGURAÇÕES BARRA DE PESQUISA
+function pesquisarDadoTabela(tabela) {
+    let timeoutPesquisa;
+    clearTimeout(timeoutPesquisa);
+    
+    timeoutPesquisa = setTimeout(() => {
+        const termoBusca = document.getElementById('pesquisaInput').value;
+        
+        // Mostra loading (opcional)
+        document.getElementById('container-tabela').innerHTML = '<p>Carregando...</p>';
+        
+        // Faz a requisição AJAX
+        fetch(`tabelas.php?tabela=${encodeURIComponent(tabela)}&termo=${encodeURIComponent(termoBusca)}`)
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('container-tabela').innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                document.getElementById('container-tabela').innerHTML = '<p>Erro ao carregar resultados</p>';
+            });
+    }, 300); // Atraso de 300ms após a digitação
+}
+
+// ALERTAS ESTILIZADOS (SWEET ALERT)
+document.addEventListener('DOMContentLoaded', function() {
+    const mensagemErro = sessionStorage.getItem('erroAlerta');
+    const mensagemSucesso = sessionStorage.getItem('sucessoAlerta');
+    const mensagemAviso = sessionStorage.getItem('avisoAlerta');
+    console.log(mensagemErro + ' antes do if');
+
+    if(mensagemErro) {
+        console.log(mensagemErro);
+        mostraAlerta('erro', mensagemErro, ''); // Chama sua função do geral.js
+        sessionStorage.removeItem('erroAlerta'); // Limpa o storage
+    } else if(mensagemSucesso) {
+        mostraAlerta('sucesso', mensagemSucesso, '');
+        sessionStorage.removeItem('sucessoAlerta');
+    } else if(mensagemAviso) {
+        mostraAlerta('aviso', mensagemAviso);
+        sessionStorage.removeItem('avisoAlerta');
+    }
+});
+
+function mostraAlerta(tipoAlerta, mensagem) {
+    if(typeof Swal === 'undefined') {
+        console.error('SweetAlert2 não está carregado!');
+        alert(mensagem); // Fallback
+        return;
+    }
+
+    if(tipoAlerta == 'sucesso') {
+        alertaSucesso(mensagem);
+    } else if(tipoAlerta == 'erro') {
+        alertaErro(mensagem);
+    } else if(tipoAlerta == 'aviso') {
+        alertaAviso(mensagem);
+    }
+}
+
+function alertaErro(mensagem) {
+    Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: mensagem,
+        confirmButtonColor: '#a69c60',
+        showConfirmButton: true,
+        confirmButtonText: 'OK'
+    });
+}
+
+function alertaSucesso(mensagem) {
+    Swal.fire({
+        icon: 'success',
+        title: 'Sucesso!',
+        text: mensagem,
+        confirmButtonColor: '#a69c60',
+        showConfirmButton: true,
+        confirmButtonText: 'OK'
+    });
+}
+
+function alertaAviso(mensagem) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Atenção!',
+        text: mensagem,
+        confirmButtonColor: '#a69c60',
+        showConfirmButton: true,
+        confirmButtonText: 'OK'
+    });
+}
+
+/*function alertaAviso(urlRedirecionamento, mensagem) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Atenção!',
+        text: mensagem,
+        confirmButtonColor: '#a69c60',
+        showConfirmButton: true,
+        confirmButtonText: 'Continuar',
+        showCancelButton: true,
+        cancelButtonColor: '#d33',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if(result.isConfirmed) {
+            window.location.href = urlRedirecionamento + '&confirmado=1';    
+        }
+    });
+}*/
+
+function confirmarExclusao(arquivo, acao, id, mensagem) {
+    Swal.fire({
+        icon: 'warning',
+        title: 'Confirmar Exclusão',
+        text: mensagem,
+        showCancelButton: true,
+        confirmButtonText: 'Excluir',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#d33',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Cria e submete formulário
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = arquivo;
+            
+            const inputId = document.createElement('input');
+            inputId.type = 'hidden';
+            inputId.name = 'id';
+            inputId.value = id;
+            
+            const inputFormId = document.createElement('input');
+            inputFormId.type = 'hidden';
+            inputFormId.name = 'form-id';
+            inputFormId.value = acao;
+            
+            form.appendChild(inputId);
+            form.appendChild(inputFormId);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+}
