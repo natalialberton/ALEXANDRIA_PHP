@@ -34,10 +34,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <h1>Redefinir sua Senha</h1>
                     </div>
                     <div class="entrada">
-                        <div class="input-box">
+                        <!--<div class="input-box">
                             <i class="fas fa-user"></i>
                             <input type="text" class="input-field" name="email" id="email" placeholder="E-mail">
-                        </div>
+                        </div>-->
                         <div class="input-box">
                             <i class="fas fa-lock"></i>
                             <input type="password" class="input-field senhaLeft" name="senha" id="senha" placeholder="Nova Senha">

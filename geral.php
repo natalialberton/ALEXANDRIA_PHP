@@ -34,7 +34,7 @@ function login() {
 
     if (!empty($usuario) && !empty($senha)) {
         $conexao = conectaBd();
-        $sql = "SELECT pk_user, user_login, user_senha, user_nome, user_tipoUser FROM usuario WHERE user_login = :user_login";
+        $sql = "SELECT * FROM usuario WHERE user_login = :user_login";
         $stmt = $conexao-> prepare($sql);
         $stmt-> bindParam(":user_login", $usuario);
         $stmt-> execute();
@@ -60,7 +60,7 @@ function login() {
 function enviarEmailRecuperacao($emailDestino, $token) {
     $phpmailer = new PHPMailer(true);
     try {
-        // Configurações do servidor SMTP
+        // Configurações do servidor SMTP (Mailtrap)
         $phpmailer->isSMTP();
         $phpmailer->Host = 'sandbox.smtp.mailtrap.io';
         $phpmailer->SMTPAuth = true;
@@ -81,7 +81,7 @@ function enviarEmailRecuperacao($emailDestino, $token) {
         $phpmailer->send();
         return true;
     } catch (Exception $e) {
-        echo "<script> console.log('Erro ao enviar e-mail: {$phpmailer->ErrorInfo}'); </script>";
+        echo "<script> console.log('Erro ao enviar e-mail:' . {$phpmailer->ErrorInfo}); </script>";
         exit();
     }
 }
@@ -96,7 +96,7 @@ function recuperarSenha() {
     $usuario = $stmt-> fetch(PDO::FETCH_ASSOC);
 
     if ($usuario) {
-        $token = bin2hex(random_bytes(32));
+        $token = bin2hex(random_bytes(15));
         $expiracao = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
         $stmt = $conexao-> prepare("INSERT INTO recuperaSenha (fk_user, rs_token, rs_expiracao) VALUES (:fk_user, :token, :expiracao)");
@@ -122,6 +122,8 @@ function verificarToken() {
         $stmt-> execute();
         $recuperacao = $stmt-> fetch(PDO::FETCH_ASSOC);
 
+        $_SESSION['recuperacaoSenhaId'] = $recuperacao['pk_rs'];
+
         if (!$recuperacao || strtotime($recuperacao['rs_expiracao']) < time()) {
             enviarSweetAlert('confirmar-recuperacao.php', 'erroAlerta', 'Código de recuperação inválido ou expirado!');
         } else {
@@ -133,26 +135,37 @@ function verificarToken() {
 function redefinirSenha() {
     $conexao = conectaBd();
 
-    $email = $_POST['email'];
+    //$email = $_POST['email'];
+    $idToken = $_SESSION['recuperacaoSenhaId'];
     $novaSenha = $_POST['senha'];
     $confirmaSenha = $_POST['confirma_senha'];
 
-    $stmt = $conexao-> prepare("SELECT * FROM usuario WHERE user_email = :email");
+    /*$stmt = $conexao-> prepare("SELECT * FROM usuario WHERE user_email = :email");
     $stmt-> bindParam(':email', $email);
     $stmt-> execute();
-    $usuario = $stmt-> fetch(PDO::FETCH_ASSOC);
+    $usuario = $stmt-> fetch(PDO::FETCH_ASSOC);*/
 
-    if ($usuario) {
+    if ($idToken) {
         if ($novaSenha !== $confirmaSenha) {
             enviarSweetAlert('redefinir-senha.php', 'erroAlerta', 'As senhas não coincidem!');
         } else {
+            $stmt = $conexao-> prepare("SELECT * FROM recuperaSenha WHERE pk_rs = :id");
+            $stmt-> bindParam(":id", $idToken);
+            $stmt-> execute();
+            $recuperacao = $stmt-> fetch(PDO::FETCH_ASSOC);
+
             $senhaHash = password_hash($novaSenha, PASSWORD_DEFAULT);
             $stmt = $conexao-> prepare("UPDATE usuario SET user_senha = :senha WHERE pk_user = :id");
             $stmt-> bindParam(":senha", $senhaHash);
-            $stmt-> bindParam(":id", $usuario['pk_user']);
-            $stmt-> execute();
+            $stmt-> bindParam(":id", $recuperacao['fk_user']);
 
-            enviarSweetAlert('index.php', 'sucessoAlerta', 'Senha redefinida! Você pode fazer login em paz agora!');
+            try {
+                $stmt-> execute();
+                enviarSweetAlert('index.php', 'sucessoAlerta', 'Senha redefinida! Você pode fazer login em paz agora!');
+            } catch (PDOException $e) {
+                echo "<script> window.location.href = 'redefinir-senha.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
+                exit();
+            }
         }
     } else {
         enviarSweetAlert('redefinir-senha.php', 'erroAlerta', 'E-mail não registrado no sistema!');
