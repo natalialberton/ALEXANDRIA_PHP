@@ -1,10 +1,14 @@
 create database ALEXANDRIA;
 use ALEXANDRIA;
 
-CREATE TABLE TIPO_USUARIO (
-    pk_tipo_user INT PRIMARY KEY auto_increment,
-    tipo_user_nome VARCHAR(50) not null,
-    tipo_user_descricao VARCHAR(300)
+CREATE TABLE recuperaSenha (
+    pk_rs INT AUTO_INCREMENT PRIMARY KEY,
+    rs_token VARCHAR(64) NOT NULL,
+    rs_expiracao DATETIME NOT NULL,
+    rs_usado TINYINT DEFAULT 0,
+    rs_data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fk_user INT NOT NULL,
+    FOREIGN KEY (fk_user) REFERENCES usuario(pk_user)
 );
 
 CREATE TABLE CATEGORIA ( 
@@ -24,8 +28,8 @@ CREATE TABLE FORNECEDOR (
  forn_cnpj VARCHAR(18) unique,
  forn_telefone VARCHAR(16),
  forn_email VARCHAR(100),
+ forn_dataInscricao DATE,
  forn_endereco VARCHAR(250)
-
 );
 
 CREATE TABLE LIVRO ( 
@@ -67,8 +71,7 @@ CREATE TABLE USUARIO (
  user_dataDemissao DATE,
  user_foto VARCHAR(255),
  user_status ENUM('Ativo', 'Inativo'),
- fk_tipoUser INT not null,
- FOREIGN KEY(fk_tipoUser) references TIPO_USUARIO(pk_tipo_user) on delete restrict on update cascade
+ user_tipoUser ENUM('Administrador', 'Secretaria', 'Almoxarife')
 );
 
 CREATE TABLE MEMBRO (
@@ -180,12 +183,6 @@ CREATE TABLE AUT_LIV (
 );
 
 /*INSERT DE DADOS | IA UTILIZADA: DEEPSEEK*/
--- Insert data into TIPO_USUARIO
-INSERT INTO TIPO_USUARIO (tipo_user_nome, tipo_user_descricao) VALUES
-('Administrador', 'Acesso total ao sistema'),
-('Bibliotecário', 'Pode gerenciar empréstimos, reservas e livros'),
-('Assistente', 'Acesso limitado para auxiliar nas operações');
-
 -- Insert data into CATEGORIA (cat_nome) VALUES
 INSERT INTO CATEGORIA (cat_nome) VALUES
 ('Ficção Científica'),
@@ -226,12 +223,12 @@ INSERT INTO AUTOR (aut_nome, aut_data_nascimento) VALUES
 ('Antoine de Saint-Exupéry', '1900-06-29');
 
 -- Insert data into FORNECEDOR
-INSERT INTO FORNECEDOR (forn_nome, forn_cnpj, forn_telefone, forn_email, forn_endereco) VALUES
-('Editora Arqueiro', '12.345.678/0001-01', '(11) 1234-5678', 'contato@arqueiro.com.br', 'Rua dos Livros, 100 - São Paulo, SP'),
-('Editora Rocco', '23.456.789/0001-02', '(21) 2345-6789', 'vendas@rocco.com.br', 'Av. Literária, 200 - Rio de Janeiro, RJ'),
-('Companhia das Letras', '34.567.890/0001-03', '(31) 3456-7890', 'atendimento@companhiadasletras.com.br', 'Praça das Letras, 300 - Belo Horizonte, MG'),
-('Editora Intrínseca', '45.678.901/0001-04', '(41) 4567-8901', 'sac@intrinseca.com.br', 'Alameda dos Autores, 400 - Curitiba, PR'),
-('Editora Sextante', '56.789.012/0001-05', '(51) 5678-9012', 'contato@sextante.com.br', 'Travessa dos Best-sellers, 500 - Porto Alegre, RS');
+INSERT INTO FORNECEDOR (forn_nome, forn_cnpj, forn_telefone, forn_email, forn_dataInscricao, forn_endereco) VALUES
+('Editora Arqueiro', '12.345.678/0001-01', '(11) 1234-5678', 'contato@arqueiro.com.br', '2023-01-29', 'Rua dos Livros, 100 - São Paulo, SP'),
+('Editora Rocco', '23.456.789/0001-02', '(21) 2345-6789', 'vendas@rocco.com.br', '2023-01-29', 'Av. Literária, 200 - Rio de Janeiro, RJ'),
+('Companhia das Letras', '34.567.890/0001-03', '(31) 3456-7890', 'atendimento@companhiadasletras.com.br', '2023-01-29', 'Praça das Letras, 300 - Belo Horizonte, MG'),
+('Editora Intrínseca', '45.678.901/0001-04', '(41) 4567-8901', 'sac@intrinseca.com.br', '2023-01-29', 'Alameda dos Autores, 400 - Curitiba, PR'),
+('Editora Sextante', '56.789.012/0001-05', '(51) 5678-9012', 'contato@sextante.com.br', '2023-01-29', 'Travessa dos Best-sellers, 500 - Porto Alegre, RS');
 
 -- Insert data into PLANO
 INSERT INTO PLANO (plan_nome, plan_valor, plan_duracao, plan_descricao, plan_limite_emp) VALUES
@@ -242,12 +239,12 @@ INSERT INTO PLANO (plan_nome, plan_valor, plan_duracao, plan_descricao, plan_lim
 ('Estudante', 9.90, 'Mensal', 'Plano especial para estudantes com limite de 2 empréstimos simultâneos', 2);
 
 -- Insert data into USUARIO
-INSERT INTO USUARIO (user_nome, user_cpf, user_email, user_telefone, user_senha, user_login, user_dataAdmissao, user_status, fk_tipoUser) VALUES
-('Maria Silva', '111.222.333-44', 'maria.silva@alexandria.com', '(11) 91234-5678', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'msilva', '2020-01-15', 'Ativo', 1),
-('João Santos', '222.333.444-55', 'joao.santos@alexandria.com', '(21) 92345-6789', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'jsantos', '2020-03-20', 'Ativo', 2),
-('Ana Oliveira', '333.444.555-66', 'ana.oliveira@alexandria.com', '(31) 93456-7890', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'aoliveira', '2021-05-10', 'Ativo', 2),
-('Carlos Pereira', '444.555.666-77', 'carlos.pereira@alexandria.com', '(41) 94567-8901', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'cpereira', '2021-07-25', 'Ativo', 3),
-('Juliana Costa', '555.666.777-88', 'juliana.costa@alexandria.com', '(51) 95678-9012', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'jcosta', '2022-02-18', 'Ativo', 3);
+INSERT INTO USUARIO (user_nome, user_cpf, user_email, user_telefone, user_senha, user_login, user_dataAdmissao, user_status, user_tipoUser) VALUES
+('Maria Silva', '111.222.333-44', 'maria.silva@alexandria.com', '(11) 91234-5678', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'msilva', '2020-01-15', 'Ativo', 'Administrador'),
+('João Santos', '222.333.444-55', 'joao.santos@alexandria.com', '(21) 92345-6789', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'jsantos', '2020-03-20', 'Ativo', 'Secretaria'),
+('Ana Oliveira', '333.444.555-66', 'ana.oliveira@alexandria.com', '(31) 93456-7890', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'aoliveira', '2021-05-10', 'Ativo', 'Almoxarife'),
+('Carlos Pereira', '444.555.666-77', 'carlos.pereira@alexandria.com', '(41) 94567-8901', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'cpereira', '2021-07-25', 'Ativo', 'Secretaria'),
+('Juliana Costa', '555.666.777-88', 'juliana.costa@alexandria.com', '(51) 95678-9012', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'jcosta', '2022-02-18', 'Ativo', 'Almoxarife');
 
 -- Insert data into MEMBRO
 INSERT INTO MEMBRO (mem_nome, mem_cpf, mem_senha, mem_email, mem_telefone, mem_dataInscricao, mem_status, fk_plan) VALUES
