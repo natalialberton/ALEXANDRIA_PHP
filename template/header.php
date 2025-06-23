@@ -18,29 +18,37 @@
 
 <body>
     <nav>
-    <div id="iconeMenu">
-        <!-- Adicionando um ícone animado para abrir o menu de navegação -->
-        <div class="barrasIconeMenu" onclick="animaIconeMenu(this)">
-            <div id="barra1"></div>
-            <div id="barra2"></div>
-            <div id="barra3"></div>
+        <div id="iconeMenu">
+            <div class="barrasIconeMenu" onclick="animaIconeMenu(this)">
+                <div id="barra1"></div>
+                <div id="barra2"></div>
+                <div id="barra3"></div>
+            </div>
         </div>
-    </div>
 
-    <!-- Adicionando configuração para abrir um menu lateral -->
-    <div id="navegaMenu" class="menuLateral">
-        <h2 id="cabecalhoMenu">Menu</h2>
-        <a href="home.php" class="linkMenu" >Home</a>
-        <a href="livro-gestao.php" class="linkMenu">Livros</a>
-        <a href="categoria-gestao.php" class="linkMenu">Categorias</a>
-        <a href="autor-gestao.php" class="linkMenu">Autores</a>
-        <a href="emprestimo-gestao.php" class="linkMenu">Empréstimos</a>
-        <a href="remessa-gestao.php" class="linkMenu">Remessas</a>
-        <a href="membro-gestao.php" class="linkMenu">Membros</a>
-        <a href="fornecedor-gestao.php" class="linkMenu">Fornecedores</a>
-        <a href="funcionario-gestao.php" class="linkMenu">Funcionários</a>
-        <a href="dashboard.php" class="linkMenu">Dashboard</a>
-    </div>
+        <div id="navegaMenu" class="menuLateral">
+            <h2 id="cabecalhoMenu">Menu</h2>
+            <a href="home.php" class="linkMenu" >Home</a>
+            <a href="livro-gestao.php" class="linkMenu">Livros</a>
+            <a href="categoria-gestao.php" class="linkMenu">Categorias</a>
+            <a href="autor-gestao.php" class="linkMenu">Autores</a>
+            <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
+                <a href="emprestimo-gestao.php" class="linkMenu">Empréstimos</a>
+            <?php endif;?>
+            <?php if($_SESSION['tipoUser'] !== 'Secretaria'): ?>
+                <a href="remessa-gestao.php" class="linkMenu">Remessas</a>
+            <?php endif;?>
+            <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
+                <a href="membro-gestao.php" class="linkMenu">Membros</a>
+            <?php endif;?>
+            <a href="fornecedor-gestao.php" class="linkMenu">Fornecedores</a>
+            <?php if($_SESSION['tipoUser'] === 'Administrador'): ?>
+                <a href="funcionario-gestao.php" class="linkMenu">Funcionários</a>
+            <?php endif;?>
+            <?php if($_SESSION['tipoUser'] !== 'Administrador'): ?>
+                <a href="dashboard.php" class="linkMenu">Dashboard</a>
+            <?php endif;?>
+        </div>
     </nav>
     <header>
         <div id="logo" class="logo">

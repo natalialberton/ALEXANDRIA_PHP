@@ -55,7 +55,11 @@ function login() {
 }
 
 //FUNÇÃO PARA REALIZAR LOGOUT
-
+function logout() {
+    session_destroy();
+    echo "<script> window.location.href = 'index.php'; </script>";
+    exit();
+}
 
 //FUNÇÕES PARA RECUPERAÇÃO E REDEFINIÇÃO DE SENHA
 function enviarEmailRecuperacao($emailDestino, $token) {

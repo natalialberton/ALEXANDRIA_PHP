@@ -40,18 +40,24 @@ include '../header.php';
         </div>
 
         <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-title">LIVROS</div>
-                <div class="stat-number"><?= $qtdLivros['total'] ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">CATEGORIAS</div>
-                <div class="stat-number"><?= $qtdCategorias['total'] ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">AUTORES</div>
-                <div class="stat-number"><?= $qtdAutores['total'] ?></div>
-            </div>
+            <a href="livro-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">LIVROS</div>
+                    <div class="stat-number"><?= $qtdLivros['total'] ?></div>
+                </div>
+            </a>
+            <a href="categoria-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">CATEGORIAS</div>
+                    <div class="stat-number"><?= $qtdCategorias['total'] ?></div>
+                </div>
+            </a>
+            <a href="autor-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">AUTORES</div>
+                    <div class="stat-number"><?= $qtdAutores['total'] ?></div>
+                </div>
+            </a>
         </div>
     </div>
 
