@@ -85,11 +85,14 @@ function fechaPopup(idPopup) {
     modal.close();
 }
 
+//CONFIGURAÇÕES POPUP DE EDIÇÃO
 window.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash === '#editarMembro') {
         document.getElementById('popupEdicaoMembro').showModal();
     } else if (window.location.hash === '#editarFornecedor') {
         document.getElementById('popupEdicaoFornecedor').showModal();
+    } else if (window.location.hash === '#editarAutor') {
+        document.getElementById('popupEdicaoAutor').showModal();
     }
 });
 

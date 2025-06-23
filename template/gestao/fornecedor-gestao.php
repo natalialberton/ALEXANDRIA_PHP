@@ -3,6 +3,8 @@
 session_start();
 require_once '../../geral.php';
 
+permitirAcesso($_SESSION['statusUser'], $_SESSION['tipoUser'], '', 'fornecedor-gestao.php');
+
 //DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['form-id'])) {
@@ -88,12 +90,6 @@ include '../header.php';
 
         <div class="form-row">
             <div class="form-group">
-                <label for="forn_dataInscricao">Data Inscrição: </label>
-                <input type="date" name="forn_dataInscricao" required
-                    value="<?php echo date('Y-m-d'); ?>">
-            </div>
-
-            <div class="form-group">
                 <label for="forn_endereco">Endereço: </label>
                 <input type="text" name="forn_endereco" required>
             </div>
@@ -172,12 +168,6 @@ include '../header.php';
 
 
         <div class="form-row">
-            <div class="form-group">
-                <label for="forn_dataInscricao">Data Inscrição: </label>
-                <input type="date" name="forn_dataInscricao" required
-                    value="<?=$fornecedor['forn_dataInscricao']?>">
-            </div>
-
             <div class="form-group">
                 <label for="forn_endereco">Endereço: </label>
                 <input type="text" name="forn_endereco" required value="<?=$fornecedor['forn_endereco']?>">

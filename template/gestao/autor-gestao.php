@@ -1,64 +1,160 @@
 <?php
-require_once "../../funcoes.php";
+
 session_start();
+require_once '../../geral.php';
 
-$autores = listar('autor');
-$qtdAutores = contarTotal('autor');
+permitirAcesso($_SESSION['statusUser'], $_SESSION['tipoUser'], 'Almoxarife', 'autor-gestao.php');
 
+//DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if(isset($_POST['form-id'])) {
+        if($_POST['form-id'] == 'cadastrar_autor') {
+            crudAutor(1, '');
+        } elseif ($_POST['form-id'] == 'excluir_autor') {
+            crudAutor(3, $_POST['id']);
+        }
+    }
+}
+
+$_SESSION['tabela'] = 'autor';
+$categorias = listar('categoria');
+
+//PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
 $tituloPagina = "AUTORES";
-$tituloH1 = 'Gestão Autores';
+$tituloH1= "GESTÃO AUTORES";
 include '../header.php';
 
 ?>
 
 <main class="main-content">
-    <div class="titulo">
-        <h2>CADASTRAMENTO</h2>
-    </div>
     <div class="top-section">
         <div class="actions-section">
-            <a class="action-btn">
-                <span class="plus-icon">+</span>
-                NOVO AUTOR
-            </a>
+            <h2>CADASTRAMENTO</h2>
+            <button class="action-btn" onclick="abrePopup('popupCadastroAutor')"><span class="plus-icon">+</span>NOVO AUTOR</button>
+        </div>
+    </div>
+    
+    <div class="search-section">
+        <h2>AUTORES</h2>
+        <div class='search-section__barra'>
+            <i class='fi fi-rs-search'></i>
+            <input type="text" class="search-input" id="pesquisaInput" size="26";
+                   placeholder="Pesquisar ID ou nome" oninput="pesquisarDadoTabela('autor')">
         </div>
     </div>
 
-        <div class="search-section">
-            <div class="titulo">
-                <h2>Autor</h2>
+    <div class='titleliv'>
+        <div class="tabela" id="container-tabela">
+            <div class="tisch">
+                <?php include 'tabelas.php'; ?>
             </div>
-            <div class='barra'>
-                <input type="text" class="search-input" placeholder="🔍 Pesquisar">
+        </div>
+    </div>
+</main>
+
+<!--POPUP CADASTRAMENTO-->
+<dialog class="popup" id="popupCadastroAutor">
+<div class="popup-content">
+<div class="container">
+<h1>CADASTRAMENTO AUTOR</h1>
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="hidden" name="form-id" value="cadastrar_autor">
+                <label for="aut_nome">Nome: </label>
+                <input type="text" name="aut_nome" onkeypress="mascara(this,nomeMasc)" required>
+            </div>
+
+            <div class="form-group">
+                <label for="aut_dataNascimento">Data Nascimento: </label>
+                <input type="date" name="aut_dataNascimento" required>
             </div>
         </div>
 
-        <div class='titleliv'>
-            <div class="tabela">
-                <div class="tisch">
-                    <table>
-                        <tr>
-                            <th>Nome</th>
-                            <th>Sobrenome</th>
-                            <th>Data de Nascimento</th>
-                            <th>Ação</th>
-                        </tr>
-                        <?php foreach ($autores as $autor): ?>
-                            <tr>
-                                <td><?=htmlspecialchars($autor["aut_nome"])?></td>
-                                <td><?=htmlspecialchars($autor["aut_data_nascimento"])?></td>
-                                <td>
-                                    <i class='fas fa-trash-alt'
-                                        style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="label-cadastro" for="cat_nome">Gênero Literário: </label>
+                <input list="cat_nome" name="cat_nome" required>
+                <datalist class="input-cadastro" name="cat_nome">
+                    <?php foreach ($categorias as $categoria): ?>
+                        <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
+                    <?php endforeach; ?>
+                </datalist>
             </div>
         </div>
-    </main>
+
+        <div class="button-group">
+            <button class="btn btn-save" type="submit">Cadastrar</button>
+            <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroAutor')">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+</dialog>
+
+<!--POPUP EDIÇÃO-->
+<dialog class="popup" id="popupEdicaoAutor">
+<?php
+
+    if (isset($_GET['id'])) {
+        $idAutor = $_GET['id'];
+        $autor = selecionarPorId('autor', $idAutor, 'pk_forn');
+        $categoriaOriginal = selecionarPorId('categoria', $autor['fk_cat'], 'pk_cat');
+        
+        if (!$autor) {
+            echo "<script>window.location.href='autor-gestao.php';</script>";
+            exit();
+        }
+    }
+
+    if($_SERVER["REQUEST_METHOD"] == "POST") {
+        if(isset($_POST['form-id'])) {
+            if($_POST['form-id'] === 'editar_autor') {
+                crudAutor(2, $idAutor);
+            }
+        }
+    }
+
+    if ($autor) :
+?>
+<div class="popup-content">
+<div class="container">
+<h1>EDIÇÃO AUTOR</h1>
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="hidden" name="form-id" value="editar_autor">
+                <input type="hidden" name="editar-id" value="<?= $idAutor ?? '' ?>">
+                <label for="aut_nome">Nome: </label>
+                <input type="text" name="aut_nome" onkeypress="mascara(this,nomeMasc)" required value="<?=$autor['aut_nome']?>">
+            </div>
+            <div class="form-group">
+                <label for="aut_dataNascimento">Data Nascimento: </label>
+                <input type="date" name="aut_dataNascimento" required value="<?=$autor['aut_dataNascimento']?>">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="label-cadastro" for="cat_nome">Gênero Literário: </label>
+                <input list="cat_nome" name="cat_nome" required
+                       value="<?=htmlspecialchars($categoriaOriginal['cat_nome']) ?? ''?>">
+                <datalist class="input-cadastro" name="cat_nome">
+                    <?php foreach ($categorias as $categoria): ?>
+                        <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
+                    <?php endforeach; ?>
+                </datalist>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-save" type="submit">Alterar</button>
+            <button class="btn btn-cancel" type="button" onclick="location.href='autor-gestao.php'">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+<?php endif; ?>
+</dialog>
 </body>
-
 </html>

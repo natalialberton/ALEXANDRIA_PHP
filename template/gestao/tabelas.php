@@ -16,6 +16,9 @@ switch($tabela) {
     case 'fornecedor':
         $dados = !empty($termoBusca) ? retornoPesquisa($termoBusca, $tabela, 'pk_forn', 'forn_nome', 'forn_cnpj') : listar('fornecedor');
         break;
+    case 'autor':
+        $dados = !empty($termoBusca) ? retornoPesquisa($termoBusca, $tabela, 'pk_aut', 'aut_nome', '') : listar('autor');
+        break;
     default:
         $dados = [];
 }
@@ -100,6 +103,47 @@ switch($tabela) {
                                 <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
                             </button>
                             <button onclick="location.href='?id=<?= $dado['pk_forn'] ?>#editarFornecedor'" 
+                                    style="background: none; border: none; padding: 0; cursor: pointer;">
+                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
+                            </button>
+                        </td>
+                    </tr>
+        <?php 
+                endforeach;
+            else: echo "<tr><td colspan='8' class='text-center'><i class='fas fa-search'></i>$mensagem</td></tr>";
+            endif;
+        ?>
+    </tbody>
+</table>
+
+<?php elseif($tabela === 'autor'): ?>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Data Nascimento</th>
+            <th>Genêro Literário</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody id="tabela-body">
+        <?php 
+            if(!empty($dados)): 
+                foreach ($dados as $dado): 
+                    $categoria = selecionarPorId('categoria', $dado['fk_cat'], 'pk_cat');
+        ?>
+                    <tr>
+                        <td><?= htmlspecialchars($dado["pk_aut"]) ?></td>
+                        <td><?= htmlspecialchars($dado["aut_nome"]) ?></td>
+                        <td><?= htmlspecialchars($dado["aut_dataNascimento"]) ?></td>
+                        <td><?= htmlspecialchars($categoria["cat_nome"]) ?></td>
+                        <td>
+                            <button style="background: none; border: none; padding: 0; cursor: pointer;"
+                                    onclick="confirmarExclusao('autor-gestao.php', 'excluir_autor', <?= $dado['pk_aut'] ?>, 'Tem certeza que deseja excluir este autor?')">
+                                <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
+                            </button>
+                            <button onclick="location.href='?id=<?= $dado['pk_aut'] ?>#editarAutor'" 
                                     style="background: none; border: none; padding: 0; cursor: pointer;">
                                     <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
                             </button>

@@ -176,6 +176,10 @@ function redefinirSenha() {
             $stmt-> execute();
             $recuperacao = $stmt-> fetch(PDO::FETCH_ASSOC);
 
+            $stmt = $conexao-> prepare("UPDATE recuperaSenha SET rs_usado = 1 WHERE pk_rs = :id");
+            $stmt-> bindParam(":id", $idToken);
+            $stmt-> execute();
+
             $senhaHash = password_hash($novaSenha, PASSWORD_DEFAULT);
             $stmt = $conexao-> prepare("UPDATE usuario SET user_senha = :senha WHERE pk_user = :id");
             $stmt-> bindParam(":senha", $senhaHash);
@@ -251,7 +255,6 @@ function crudMembro($acao, $id) {
         $telefone = filter_input(INPUT_POST, 'mem_telefone');
         $email = filter_input(INPUT_POST, 'mem_email');
         $senha = filter_input(INPUT_POST, 'mem_senha');
-        $dataInscricao = filter_input(INPUT_POST, 'mem_dataInscricao');
         $status = filter_input(INPUT_POST, 'mem_status') ?? 'Ativo';
         $planoNome = filter_input(INPUT_POST, 'plan_nome');
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
@@ -305,15 +308,15 @@ function crudMembro($acao, $id) {
         //CADASTRAMENTO
             if($acao == 1) {
                 $msgSucesso = "Membro cadastrado com sucesso!";
-                $sql = "INSERT INTO membro (mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha, mem_dataInscricao, mem_status, fk_plan) 
-                        VALUES (:nome, :cpf, :telefone, :email, :senhaHash, :dataInscricao, :status, :fk_plan)";
+                $sql = "INSERT INTO membro (mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha, mem_status, fk_plan) 
+                        VALUES (:nome, :cpf, :telefone, :email, :senhaHash, :status, :fk_plan)";
                 $stmt = $conexao->prepare($sql);
 
         //ALTERAÇÃO
             } elseif($acao == 2 && $id > 0) {
                 $msgSucesso = "Membro alterado com sucesso!";
                 $sql = "UPDATE membro SET mem_nome=:nome, mem_cpf=:cpf, mem_telefone=:telefone, mem_email=:email, mem_senha=:senhaHash, 
-                        mem_dataInscricao=:dataInscricao, mem_status=:status, fk_plan=:fk_plan WHERE pk_mem=:pk_mem";
+                        mem_status=:status, fk_plan=:fk_plan WHERE pk_mem=:pk_mem";
                 $stmt = $conexao-> prepare($sql);
                 $stmt-> bindParam(":pk_mem", $id, PDO::PARAM_INT);
             }
@@ -323,7 +326,6 @@ function crudMembro($acao, $id) {
             $stmt->bindParam(':telefone', $telefone);
             $stmt->bindParam(':email', $email);
             $stmt->bindParam(':senhaHash', $senhaHash);
-            $stmt->bindParam(':dataInscricao', $dataInscricao);
             $stmt->bindParam(':status', $status);
             $stmt->bindParam(':fk_plan', $fk_plan, PDO::PARAM_INT);
 
@@ -375,7 +377,6 @@ function crudFornecedor($acao, $id) {
         $cnpj = filter_input(INPUT_POST, 'forn_cnpj');
         $telefone = filter_input(INPUT_POST, 'forn_telefone');
         $email = filter_input(INPUT_POST, 'forn_email');
-        $dataInscricao = filter_input(INPUT_POST, 'forn_dataInscricao');
         $endereco = filter_input(INPUT_POST, 'forn_endereco');
 
     //TRATAMENTO DE EXCEÇÕES
@@ -418,15 +419,15 @@ function crudFornecedor($acao, $id) {
     //CADASTRAMENTO
         if($acao == 1) {
             $msgSucesso = "Fornecedor cadastrado com sucesso!";
-            $sql = "INSERT INTO fornecedor (forn_nome, forn_cnpj, forn_telefone, forn_email, forn_dataInscricao, forn_endereco) 
-                    VALUES (:nome, :cnpj, :telefone, :email, :dataInscricao, :endereco)";
+            $sql = "INSERT INTO fornecedor (forn_nome, forn_cnpj, forn_telefone, forn_email, forn_endereco) 
+                    VALUES (:nome, :cnpj, :telefone, :email, :endereco)";
             $stmt = $conexao->prepare($sql);
 
         //ALTERAÇÃO
             } elseif($acao == 2 && $id > 0) {
                 $msgSucesso = "Fornecedor alterado com sucesso!";
                 $sql = "UPDATE fornecedor SET forn_nome=:nome, forn_cnpj=:cnpj, forn_telefone=:telefone, forn_email=:email,
-                        forn_dataInscricao=:dataInscricao, forn_endereco=:endereco WHERE pk_forn=:pk_forn";
+                        forn_endereco=:endereco WHERE pk_forn=:pk_forn";
                 $stmt = $conexao-> prepare($sql);
                 $stmt-> bindParam(":pk_forn", $id, PDO::PARAM_INT);
             }
@@ -435,7 +436,6 @@ function crudFornecedor($acao, $id) {
             $stmt->bindParam(':cnpj', $cnpj);
             $stmt->bindParam(':telefone', $telefone);
             $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':dataInscricao', $dataInscricao);
             $stmt->bindParam(':endereco', $endereco);
 
     //EXCLUSÃO E TRATAMENTO DE EXCEÇÕES
@@ -471,6 +471,88 @@ function crudFornecedor($acao, $id) {
 }
 
 
+//--------------------------------------------------- CRUD AUTOR ---------------------------------------------------
+function crudAutor($acao, $id) {
+    $conexao = conectaBd();
+
+    if ($acao == 1 || $acao == 2) {
+    //PUXANDO DADOS VIA POST
+        $nome = filter_input(INPUT_POST, 'aut_nome');
+        $dataNascimento = filter_input(INPUT_POST, 'aut_dataNascimento');
+        $categoriaNome = filter_input(INPUT_POST, 'cat_nome');
+
+    //PUXANDO CHAVE ESTRANGEIRA
+        $stmtCategoria = $conexao-> prepare("SELECT * FROM categoria WHERE cat_nome = :nome");
+        $stmtCategoria-> bindParam(":nome", $categoriaNome);
+        $stmtCategoria-> execute();
+        $categoria = $stmtCategoria-> fetch(PDO::FETCH_ASSOC);
+    
+        if ($categoria) {
+            $fk_cat = $categoria['pk_cat'];
+
+        //CADASTRAMENTO
+            if ($acao == 1) {
+                $msgSucesso = "Autor cadastrado com sucesso!";
+                $sql = "INSERT INTO autor (aut_nome, aut_dataNascimento, fk_cat)
+                        VALUES (:nome, :dataNascimento, :fk_cat)";
+                $stmt = $conexao-> prepare($sql);
+        
+        //ALTERAÇÃO
+            } elseif ($acao == 2 && $id > 0) {
+                $msgSucesso = "Autor cadastrado com sucesso!";
+                $sql = "UPDATE autor SET aut_nome=:nome, aut_dataNascimento=:dataNascimento, fk_cat=:fk_cat
+                        WHERE pk_aut=:pk_aut";
+                $stmt = $conexao-> prepare($sql);
+                $stmt-> bindParam(":pk_aut", $id, PDO::PARAM_INT);
+            }
+
+            $stmt-> bindParam(":nome", $nome);
+            $stmt-> bindParam(":dataNascimento", $dataNascimento);
+            $stmt-> bindParam(":fk_cat", $fk_cat, PDO::PARAM_INT);
+
+        } else {
+            enviarSweetAlert('autor-gestao.php', 'erroAlerta', 'Categoria não encontrada!');
+        }
+    } elseif ($acao == 3 && $id > 0) {
+        try {
+            $msgSucesso = "Autor excluído com sucesso!";
+            $stmtCheckLivro = $conexao-> prepare("SELECT COUNT(*) FROM livro WHERE fk_aut=:pk_aut");
+            $stmtCheckLivro-> bindParam(":pk_aut", $id, PDO::PARAM_INT);
+            $stmtCheckLivro-> execute();
+            $livros = $stmtCheckLivro-> fetchColumn();
+
+            if ($livros > 0) {
+                enviarSweetAlert('autor-gestao.php', 'erroAlerta', 'Não é possível excluir um autor com livros cadastrados!');
+            }
+
+            $stmt = $conexao-> prepare("DELETE FROM autor WHERE pk_aut = :pk_aut");
+            $stmt-> bindParam(":pk_aut", $id, PDO::PARAM_INT);
+        } catch (Exception $e) {
+            echo "<script> window.location.href = 'autor-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
+            exit();
+        }
+    }
+    //EXECUÇÃO DO COMANDO NO BANCO DE DADOS
+    try {
+        $stmt-> execute();
+        enviarSweetAlert('autor-gestao.php', 'sucessoAlerta', $msgSucesso);
+    } catch (PDOException $e) {
+        echo "<script> window.location.href = 'autor-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
+        exit();
+    }
+
+}
+
+
+//--------------------------------------------------- CRUD CATEGORIA ---------------------------------------------------
+function crudCategoria($acao, $id) {
+    $conexao = conectaBd();
+}
+
+//--------------------------------------------------- CRUD FUNCIONÁRIO ---------------------------------------------------
+function crudFuncionario($acao, $id) {
+    $conexao = conectaBd();
+}
 
 //--------------------------------------------------- CRUD LIVRO ---------------------------------------------------
 function cadastrarLivro() {

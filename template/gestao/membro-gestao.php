@@ -93,12 +93,6 @@ include '../header.php';
 
         <div class="form-row">
             <div class="form-group">
-                <label for="mem_dataInscricao">Data Inscrição: </label>
-                <input type="date" name="mem_dataInscricao" required
-                    value="<?php echo date('Y-m-d'); ?>">
-            </div>
-
-            <div class="form-group">
                 <label class="label-cadastro" for="plan_nome">Plano: </label>
                 <input list="plan_nome" name="plan_nome" required>
                 <datalist class="input-cadastro" name="plan_nome" required>
@@ -107,11 +101,11 @@ include '../header.php';
                     <?php endforeach; ?>
                 </datalist>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="mem_senha">Senha: </label>
-            <input type="password" name="mem_senha" required minlength="6" maxlength="6">
+            <div class="form-group">
+                <label for="mem_senha">Senha: </label>
+                <input type="password" name="mem_senha" required minlength="6" maxlength="6">
+            </div>
         </div>
 
         <div class="button-group">
@@ -187,17 +181,16 @@ include '../header.php';
 
         <div class="form-row">
             <div class="form-group">
-                <label for="mem_dataInscricao">Data Inscrição: </label>
-                <input type="date" name="mem_dataInscricao" required
-                       value="<?=$membro['mem_dataInscricao']?>">
-            </div>
-
-            <div class="form-group">
                 <label class="label-cadastro" for="mem_status">Status: </label>
                 <select class="input-cadastro" name="mem_status" required>
                     <option value="Ativo" <?= ($membro['mem_status'] ?? '') === 'Ativo' ? 'selected' : '' ?>>Ativo</option>
                     <option value="Suspenso" <?= ($membro['mem_status'] ?? '') === 'Suspenso' ? 'selected' : '' ?>>Suspenso</option>
                 </select>
+            </div>
+
+            <div class="form-group">
+                <label for="mem_senha">Senha: </label>
+                <input type="password" name="mem_senha" required minlength="6" maxlength="6">
             </div>
         </div>
 
@@ -211,10 +204,6 @@ include '../header.php';
                         <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
                     <?php endforeach; ?>
                 </datalist>
-            </div>
-            <div class="form-group">
-                <label for="mem_senha">Senha: </label>
-                <input type="password" name="mem_senha" required minlength="6" maxlength="6">
             </div>
         </div>
 
