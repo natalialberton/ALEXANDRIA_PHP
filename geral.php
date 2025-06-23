@@ -43,13 +43,35 @@ function login() {
         if ($usuario && password_verify($senha, $usuario['user_senha'])) {
             $_SESSION['pk_user'] = $usuario['pk_user'];
             $_SESSION['user_nome'] = $usuario['user_nome'];
-            $_SESSION['user_tipoUser'] = $usuario['user_tipoUser'];
+            $_SESSION['tipoUser'] = $usuario['user_tipoUser'];
+            $_SESSION['statusUser'] = $usuario['user_status'];
 
             header("Location: gestao/home.php");
             exit();
         } else {
             enviarSweetAlert('index.php', 'erroAlerta', 'Senha ou Usuário incorretos!');
         }
+    }
+}
+
+//FUNÇÃO PARA CHECAR SE O USUÁRIO TEM PERMISSÃO PARA ACESSAR A PÁGINA
+function permitirAcesso($statusUser, $tipoUser, $tipoUserNegado, $local) {
+    if (!empty($statusUser)) {
+        if ($statusUser === 'Ativo') {
+            if (!empty($tipoUserNegado)) {
+                if ($tipoUser !== $tipoUserNegado) {
+                    echo "<script> window.location.href = '$local'; </script>";
+                } else {
+                    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado para o cargo ' . $tipoUserNegado . '!');
+                }
+            } else {
+                echo "<script> window.location.href = '$local'; </script>";
+            }
+        } else {
+            enviarSweetAlert('index.php', 'erroAlerta', 'Você não pode acessar o site com uma conta inativa!');
+        }
+    } else {
+        enviarSweetAlert('index.php', 'erroAlerta', 'Você precisa estar logado para acessar o site!');
     }
 }
 

@@ -3,10 +3,7 @@
 session_start();
 require_once "../../geral.php";
 
-//CHECANDO SE O USUÁRIO TEM PERMISSÃO PARA ACESSAR A PÁGINA
-if($_SESSION['user_tipoUser'] == 'Almoxarife') {
-    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado para o cargo ' . $_SESSION['user_tipoUser'] . '!');
-}
+permitirAcesso($_SESSION['statusUser'], $_SESSION['tipoUser'], 'Almoxarife', 'membro-gestao.php');
 
 //DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
 if($_SERVER["REQUEST_METHOD"] == "POST") {
