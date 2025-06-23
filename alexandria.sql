@@ -6,20 +6,24 @@ CREATE TABLE recuperaSenha (
     rs_token VARCHAR(64) NOT NULL,
     rs_expiracao DATETIME NOT NULL,
     rs_usado TINYINT DEFAULT 0,
-    rs_data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    rs_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fk_user INT NOT NULL,
     FOREIGN KEY (fk_user) REFERENCES usuario(pk_user)
 );
 
 CREATE TABLE CATEGORIA ( 
  pk_cat INT PRIMARY KEY auto_increment, 
- cat_nome VARCHAR(100) not null
+ cat_nome VARCHAR(100) not null,
+ cat_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE AUTOR ( 
  pk_aut INT PRIMARY KEY auto_increment,
  aut_nome VARCHAR(100) not null,
- aut_data_nascimento DATE
+ aut_dataNascimento DATE,
+ aut_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ fk_cat INT,
+ FOREIGN KEY (fk_cat) REFERENCES categoria(pk_cat) on update cascade;
 );
 
 CREATE TABLE FORNECEDOR ( 
@@ -28,8 +32,8 @@ CREATE TABLE FORNECEDOR (
  forn_cnpj VARCHAR(18) unique,
  forn_telefone VARCHAR(16),
  forn_email VARCHAR(100),
- forn_dataInscricao DATE,
- forn_endereco VARCHAR(250)
+ forn_endereco VARCHAR(250),
+ forn_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 );
 
 CREATE TABLE LIVRO ( 
@@ -40,7 +44,8 @@ CREATE TABLE LIVRO (
  liv_anoPublicacao INT,
  liv_sinopse VARCHAR(3000),
  liv_estoque INT,
- liv_dataAlteracaoEstoque DATE,
+ liv_dataAlteracaoEstoque TIMESTAMP,
+ liv_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  liv_idioma VARCHAR(30),
  liv_num_paginas INT,
  liv_capa VARCHAR(255),
@@ -67,8 +72,9 @@ CREATE TABLE USUARIO (
  user_telefone VARCHAR(16),
  user_senha VARCHAR(255) not null,
  user_login VARCHAR(20) unique,
- user_dataAdmissao DATE,
- user_dataDemissao DATE,
+ user_dataAdmissao TIMESTAMP,
+ user_dataDemissao TIMESTAMP,
+ user_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  user_foto VARCHAR(255),
  user_status ENUM('Ativo', 'Inativo'),
  user_tipoUser ENUM('Administrador', 'Secretaria', 'Almoxarife')
@@ -81,7 +87,7 @@ CREATE TABLE MEMBRO (
  mem_senha VARCHAR(250) not null,
  mem_email VARCHAR(250),
  mem_telefone VARCHAR(16),
- mem_dataInscricao DATE,
+ mem_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  mem_status ENUM('Ativo', 'Suspenso'),
  fk_plan INT,
  FOREIGN KEY(fk_plan) references PLANO(pk_plan) on delete restrict on update cascade
@@ -90,9 +96,9 @@ CREATE TABLE MEMBRO (
 CREATE TABLE EMPRESTIMO (
  pk_emp INT PRIMARY KEY auto_increment,
  emp_prazo INT,
- emp_dataEmp DATE,
- emp_dataDev DATE,
- emp_dataDevReal DATE,
+ emp_dataEmp TIMESTAMP,
+ emp_dataDev TIMESTAMP,
+ emp_dataDevReal TIMESTAMP,
  emp_valorMultaDiaria DECIMAL(10,2) default 1.50,
  emp_status ENUM('Empréstimo Ativo', 'Empréstimo Atrasado', 'Renovação Ativa', 'Renovação Atrasada', 'Finalizado') not null default 'Empréstimo Ativo',
  fk_mem INT not null,
@@ -107,9 +113,9 @@ CREATE TABLE EMPRESTIMO (
 CREATE TABLE RESERVA ( 
  pk_res INT PRIMARY KEY auto_increment,
  res_prazo INT,
- res_dataMarcada DATE,
- res_dataVencimento DATE,
- res_dataFinalizada DATE,
+ res_dataMarcada TIMESTAMP,
+ res_dataVencimento TIMESTAMP,
+ res_dataFinalizada TIMESTAMP,
  res_observacoes VARCHAR(1000),
  res_status ENUM('Aberta', 'Cancelada', 'Finalizada', 'Atrasada') not null default 'Aberta',
  fk_mem INT not null,
@@ -147,7 +153,7 @@ CREATE TABLE PAG_PLANO (
 
 CREATE TABLE REMESSA (
  pk_rem INT PRIMARY KEY auto_increment, 
- rem_data DATE not null,
+ rem_data TIMESTAMP not null,
  rem_qtd INT not null,
  fk_forn INT not null,
  fk_liv INT not null,
