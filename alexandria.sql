@@ -1,16 +1,6 @@
 create database ALEXANDRIA;
 use ALEXANDRIA;
 
-CREATE TABLE recuperaSenha (
-    pk_rs INT AUTO_INCREMENT PRIMARY KEY,
-    rs_token VARCHAR(64) NOT NULL,
-    rs_expiracao DATETIME NOT NULL,
-    rs_usado TINYINT DEFAULT 0,
-    rs_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fk_user INT NOT NULL,
-    FOREIGN KEY (fk_user) REFERENCES usuario(pk_user)
-);
-
 CREATE TABLE CATEGORIA ( 
  pk_cat INT PRIMARY KEY auto_increment, 
  cat_nome VARCHAR(100) not null,
@@ -23,7 +13,7 @@ CREATE TABLE AUTOR (
  aut_dataNascimento DATE,
  aut_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  fk_cat INT,
- FOREIGN KEY (fk_cat) REFERENCES categoria(pk_cat) on update cascade;
+ FOREIGN KEY (fk_cat) REFERENCES categoria(pk_cat) on update cascade
 );
 
 CREATE TABLE FORNECEDOR ( 
@@ -33,7 +23,7 @@ CREATE TABLE FORNECEDOR (
  forn_telefone VARCHAR(16),
  forn_email VARCHAR(100),
  forn_endereco VARCHAR(250),
- forn_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ forn_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE LIVRO ( 
@@ -78,6 +68,16 @@ CREATE TABLE USUARIO (
  user_foto VARCHAR(255),
  user_status ENUM('Ativo', 'Inativo'),
  user_tipoUser ENUM('Administrador', 'Secretaria', 'Almoxarife')
+);
+
+CREATE TABLE RECUPERA_SENHA (
+    pk_rs INT AUTO_INCREMENT PRIMARY KEY,
+    rs_token VARCHAR(64) NOT NULL,
+    rs_expiracao DATETIME NOT NULL,
+    rs_usado TINYINT DEFAULT 0,
+    rs_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    fk_user INT NOT NULL,
+    FOREIGN KEY (fk_user) REFERENCES usuario(pk_user)
 );
 
 CREATE TABLE MEMBRO (
@@ -189,201 +189,175 @@ CREATE TABLE AUT_LIV (
 );
 
 /*INSERT DE DADOS | IA UTILIZADA: DEEPSEEK*/
--- Insert data into CATEGORIA (cat_nome) VALUES
-INSERT INTO CATEGORIA (cat_nome) VALUES
+-- Inserindo categorias
+INSERT INTO CATEGORIA (cat_nome) VALUES 
 ('Ficção Científica'),
 ('Fantasia'),
 ('Romance'),
-('Terror'),
 ('Mistério'),
+('Terror'),
 ('Biografia'),
 ('História'),
 ('Ciência'),
-('Tecnologia'),
 ('Autoajuda'),
-('Negócios'),
-('Arte'),
-('Poesia'),
-('Infantil'),
-('Juvenil');
+('Infantil');
 
--- Insert data into AUTOR
-INSERT INTO AUTOR (aut_nome, aut_data_nascimento) VALUES
-('J.K. Rowling', '1965-07-31'),
-('George R.R. Martin', '1948-09-20'),
-('Stephen King', '1947-09-21'),
-('Agatha Christie', '1890-09-15'),
-('J.R.R. Tolkien', '1892-01-03'),
-('Isaac Asimov', '1920-01-02'),
-('Machado de Assis', '1839-06-21'),
-('Clarice Lispector', '1920-12-10'),
-('Neil Gaiman', '1960-11-10'),
-('Yuval Noah Harari', '1976-02-24'),
-('Dan Brown', '1964-06-22'),
-('Paulo Coelho', '1947-08-24'),
-('Jane Austen', '1775-12-16'),
-('Fiódor Dostoiévski', '1821-11-11'),
-('Gabriel García Márquez', '1927-03-06'),
-('Umberto Eco', '1932-01-05'),  -- Este será pk_aut = 16
-('George Orwell', '1903-06-25'),  -- Este será pk_aut = 17
-('Antoine de Saint-Exupéry', '1900-06-29');
+-- Inserindo autores
+INSERT INTO AUTOR (aut_nome, aut_dataNascimento, fk_cat) VALUES
+('Isaac Asimov', '1920-01-02', 1),
+('J.R.R. Tolkien', '1892-01-03', 2),
+('Jane Austen', '1775-12-16', 3),
+('Agatha Christie', '1890-09-15', 4),
+('Stephen King', '1947-09-21', 5),
+('Walter Isaacson', '1952-05-20', 6),
+('Yuval Noah Harari', '1976-02-24', 7),
+('Carl Sagan', '1934-11-09', 8),
+('Dale Carnegie', '1888-11-24', 9),
+('Monteiro Lobato', '1882-04-18', 10),
+('Arthur C. Clarke', '1917-12-16', 1),
+('George R.R. Martin', '1948-09-20', 2),
+('Machado de Assis', '1839-06-21', 3),
+('Arthur Conan Doyle', '1859-05-22', 4),
+('Mary Shelley', '1797-08-30', 5),
+('Michelle Obama', '1964-01-17', 6),
+('Jared Diamond', '1937-09-10', 7),
+('Neil deGrasse Tyson', '1958-10-05', 8),
+('Napoleon Hill', '1883-10-26', 9),
+('Ziraldo', '1932-10-24', 10);
 
--- Insert data into FORNECEDOR
-INSERT INTO FORNECEDOR (forn_nome, forn_cnpj, forn_telefone, forn_email, forn_dataInscricao, forn_endereco) VALUES
-('Editora Arqueiro', '12.345.678/0001-01', '(11) 1234-5678', 'contato@arqueiro.com.br', '2023-01-29', 'Rua dos Livros, 100 - São Paulo, SP'),
-('Editora Rocco', '23.456.789/0001-02', '(21) 2345-6789', 'vendas@rocco.com.br', '2023-01-29', 'Av. Literária, 200 - Rio de Janeiro, RJ'),
-('Companhia das Letras', '34.567.890/0001-03', '(31) 3456-7890', 'atendimento@companhiadasletras.com.br', '2023-01-29', 'Praça das Letras, 300 - Belo Horizonte, MG'),
-('Editora Intrínseca', '45.678.901/0001-04', '(41) 4567-8901', 'sac@intrinseca.com.br', '2023-01-29', 'Alameda dos Autores, 400 - Curitiba, PR'),
-('Editora Sextante', '56.789.012/0001-05', '(51) 5678-9012', 'contato@sextante.com.br', '2023-01-29', 'Travessa dos Best-sellers, 500 - Porto Alegre, RS');
+-- Inserindo fornecedores
+INSERT INTO FORNECEDOR (forn_nome, forn_cnpj, forn_telefone, forn_email, forn_endereco) VALUES
+('Editora Arqueiro', '12.345.678/0001-01', '(11) 1234-5678', 'contato@arqueiro.com.br', 'Rua dos Livros, 123 - São Paulo/SP'),
+('Companhia das Letras', '12.345.678/0001-02', '(11) 2345-6789', 'contato@companhiadasletras.com.br', 'Av. Literária, 456 - São Paulo/SP'),
+('Editora Rocco', '12.345.678/0001-03', '(21) 3456-7890', 'contato@rocco.com.br', 'Rua das Letras, 789 - Rio de Janeiro/RJ'),
+('Editora Intrínseca', '12.345.678/0001-04', '(21) 4567-8901', 'contato@intrinseca.com.br', 'Av. Cultural, 101 - Rio de Janeiro/RJ'),
+('Editora Abril', '12.345.678/0001-05', '(11) 5678-9012', 'contato@abril.com.br', 'Rua das Revistas, 202 - São Paulo/SP'),
+('Editora Globo', '12.345.678/0001-06', '(11) 6789-0123', 'contato@globo.com.br', 'Av. da Imprensa, 303 - São Paulo/SP'),
+('Editora Record', '12.345.678/0001-07', '(21) 7890-1234', 'contato@record.com.br', 'Rua dos Editores, 404 - Rio de Janeiro/RJ'),
+('Editora Nova Fronteira', '12.345.678/0001-08', '(21) 8901-2345', 'contato@novafronteira.com.br', 'Av. dos Autores, 505 - Rio de Janeiro/RJ'),
+('Editora Melhoramentos', '12.345.678/0001-09', '(11) 9012-3456', 'contato@melhoramentos.com.br', 'Rua das Melhorias, 606 - São Paulo/SP'),
+('Editora Saraiva', '12.345.678/0001-10', '(11) 0123-4567', 'contato@saraiva.com.br', 'Av. dos Estudantes, 707 - São Paulo/SP');
 
--- Insert data into PLANO
+-- Inserindo planos
 INSERT INTO PLANO (plan_nome, plan_valor, plan_duracao, plan_descricao, plan_limite_emp) VALUES
-('Básico', 19.90, 'Mensal', 'Acesso a todos os livros com limite de 2 empréstimos simultâneos', 2),
-('Intermediário', 49.90, 'Trimestral', 'Acesso a todos os livros com limite de 3 empréstimos simultâneos', 3),
-('Avançado', 89.90, 'Semestral', 'Acesso a todos os livros com limite de 5 empréstimos simultâneos', 5),
-('Premium', 159.90, 'Anual', 'Acesso a todos os livros com limite de 7 empréstimos simultâneos e prioridade em reservas', 7),
-('Estudante', 9.90, 'Mensal', 'Plano especial para estudantes com limite de 2 empréstimos simultâneos', 2);
+('Básico', 19.90, 'Mensal', 'Plano básico com direito a 2 empréstimos simultâneos', 2),
+('Intermediário', 29.90, 'Mensal', 'Plano intermediário com direito a 4 empréstimos simultâneos', 4),
+('Premium', 49.90, 'Mensal', 'Plano premium com direito a 6 empréstimos simultâneos', 6);
 
--- Insert data into USUARIO
-INSERT INTO USUARIO (user_nome, user_cpf, user_email, user_telefone, user_senha, user_login, user_dataAdmissao, user_status, user_tipoUser) VALUES
-('Maria Silva', '111.222.333-44', 'maria.silva@alexandria.com', '(11) 91234-5678', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'msilva', '2020-01-15', 'Ativo', 'Administrador'),
-('João Santos', '222.333.444-55', 'joao.santos@alexandria.com', '(21) 92345-6789', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'jsantos', '2020-03-20', 'Ativo', 'Secretaria'),
-('Ana Oliveira', '333.444.555-66', 'ana.oliveira@alexandria.com', '(31) 93456-7890', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'aoliveira', '2021-05-10', 'Ativo', 'Almoxarife'),
-('Carlos Pereira', '444.555.666-77', 'carlos.pereira@alexandria.com', '(41) 94567-8901', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'cpereira', '2021-07-25', 'Ativo', 'Secretaria'),
-('Juliana Costa', '555.666.777-88', 'juliana.costa@alexandria.com', '(51) 95678-9012', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'jcosta', '2022-02-18', 'Ativo', 'Almoxarife');
+-- Inserindo usuários (funcionários) com hashes pré-gerados
+INSERT INTO USUARIO (user_nome, user_cpf, user_email, user_telefone, user_senha, user_login, user_tipoUser, user_status) VALUES
+('João Silva', '111.222.333-44', 'joao.silva@biblioteca.com', '(11) 91234-5678', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'joaosilva', 'Administrador', 'Ativo'),
+('Maria Santos', '222.333.444-55', 'maria.santos@biblioteca.com', '(11) 92345-6789', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'mariasantos', 'Administrador', 'Ativo'),
+('Carlos Oliveira', '333.444.555-66', 'carlos.oliveira@biblioteca.com', '(11) 93456-7890', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'carlosoli', 'Secretaria', 'Ativo'),
+('Ana Pereira', '444.555.666-77', 'ana.pereira@biblioteca.com', '(11) 94567-8901', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'anapereira', 'Secretaria', 'Ativo'),
+('Pedro Costa', '555.666.777-88', 'pedro.costa@biblioteca.com', '(11) 95678-9012', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'pedrocosta', 'Almoxarife', 'Ativo'),
+('Lucia Fernandes', '666.777.888-99', 'lucia.fernandes@biblioteca.com', '(11) 96789-0123', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'luciafer', 'Almoxarife', 'Ativo'),
+('Marcos Souza', '777.888.999-00', 'marcos.souza@biblioteca.com', '(11) 97890-1234', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'marcossouza', 'Secretaria', 'Ativo'),
+('Juliana Lima', '888.999.000-11', 'juliana.lima@biblioteca.com', '(11) 98901-2345', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'julianalima', 'Almoxarife', 'Ativo'),
+('Roberto Alves', '999.000.111-22', 'roberto.alves@biblioteca.com', '(11) 99012-3456', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'robertoalves', 'Secretaria', 'Ativo'),
+('Fernanda Rocha', '000.111.222-33', 'fernanda.rocha@biblioteca.com', '(11) 90123-4567', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'fernandarocha', 'Administrador', 'Ativo');
 
--- Insert data into MEMBRO
-INSERT INTO MEMBRO (mem_nome, mem_cpf, mem_senha, mem_email, mem_telefone, mem_dataInscricao, mem_status, fk_plan) VALUES
-('Pedro Alves', '666.777.888-99', 'membro123', 'pedro.alves@gmail.com', '(11) 96666-6666', '2023-01-10', 'Ativo', 1),
-('Mariana Rocha', '777.888.999-00', 'membro456', 'mariana.rocha@hotmail.com', '(21) 97777-7777', '2023-02-15', 'Ativo', 2),
-('Lucas Mendes', '888.999.000-11', 'membro789', 'lucas.mendes@yahoo.com', '(31) 98888-8888', '2023-03-20', 'Ativo', 3),
-('Fernanda Lima', '999.000.111-22', 'membro012', 'fernanda.lima@gmail.com', '(41) 99999-9999', '2023-04-25', 'Ativo', 4),
-('Ricardo Sousa', '000.111.222-33', 'membro345', 'ricardo.sousa@hotmail.com', '(51) 90000-0000', '2023-05-30', 'Ativo', 5),
-('Camila Castro', '111.222.333-44', 'membro678', 'camila.castro@gmail.com', '(11) 91111-1111', '2023-06-05', 'Ativo', 1),
-('Gustavo Nunes', '222.333.444-55', 'membro901', 'gustavo.nunes@yahoo.com', '(21) 92222-2222', '2023-07-10', 'Ativo', 2),
-('Patrícia Freitas', '333.444.555-66', 'membro234', 'patricia.freitas@gmail.com', '(31) 93333-3333', '2023-08-15', 'Ativo', 3),
-('Roberto Andrade', '444.555.666-77', 'membro567', 'roberto.andrade@hotmail.com', '(41) 94444-4444', '2023-09-20', 'Ativo', 4),
-('Tatiane Moraes', '555.666.777-88', 'membro890', 'tatiane.moraes@yahoo.com', '(51) 95555-5555', '2023-10-25', 'Ativo', 5);
+-- Inserindo membros com hashes pré-gerados
+INSERT INTO MEMBRO (mem_nome, mem_cpf, mem_senha, mem_email, mem_telefone, mem_status, fk_plan) VALUES
+('Lucas Mendes', '123.456.789-01', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'lucas.mendes@email.com', '(11) 91234-5678', 'Ativo', 1),
+('Amanda Costa', '234.567.890-12', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'amanda.costa@email.com', '(11) 92345-6789', 'Ativo', 2),
+('Rafael Santos', '345.678.901-23', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'rafael.santos@email.com', '(11) 93456-7890', 'Ativo', 3),
+('Patricia Oliveira', '456.789.012-34', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'patricia.oliveira@email.com', '(11) 94567-8901', 'Ativo', 1),
+('Bruno Pereira', '567.890.123-45', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'bruno.pereira@email.com', '(11) 95678-9012', 'Ativo', 2),
+('Camila Souza', '678.901.234-56', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'camila.souza@email.com', '(11) 96789-0123', 'Ativo', 3),
+('Diego Fernandes', '789.012.345-67', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'diego.fernandes@email.com', '(11) 97890-1234', 'Ativo', 1),
+('Tatiana Lima', '890.123.456-78', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'tatiana.lima@email.com', '(11) 98901-2345', 'Ativo', 2),
+('Gustavo Alves', '901.234.567-89', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'gustavo.alves@email.com', '(11) 99012-3456', 'Ativo', 3),
+('Vanessa Rocha', '012.345.678-90', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'vanessa.rocha@email.com', '(11) 90123-4567', 'Ativo', 1),
+('Rodrigo Silva', '123.456.789-10', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'rodrigo.silva@email.com', '(11) 91234-5679', 'Ativo', 2),
+('Cristina Mendonça', '234.567.890-21', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'cristina.mendonca@email.com', '(11) 92345-6790', 'Ativo', 3),
+('Marcelo Costa', '345.678.901-32', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'marcelo.costa@email.com', '(11) 93456-7901', 'Ativo', 1),
+('Isabela Santos', '456.789.012-43', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'isabela.santos@email.com', '(11) 94567-9012', 'Ativo', 2),
+('Leonardo Oliveira', '567.890.123-54', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'leonardo.oliveira@email.com', '(11) 95678-0123', 'Ativo', 3),
+('Mariana Pereira', '678.901.234-65', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'mariana.pereira@email.com', '(11) 96789-1234', 'Suspenso', 1),
+('Felipe Souza', '789.012.345-76', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'felipe.souza@email.com', '(11) 97890-2345', 'Ativo', 2),
+('Aline Fernandes', '890.123.456-87', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'aline.fernandes@email.com', '(11) 98901-3456', 'Ativo', 3),
+('Ricardo Lima', '901.234.567-98', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'ricardo.lima@email.com', '(11) 99012-4567', 'Ativo', 1),
+('Daniela Alves', '012.345.678-09', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'daniela.alves@email.com', '(11) 90123-5678', 'Ativo', 2);
+-- Inserindo livros
+INSERT INTO LIVRO (liv_titulo, liv_isbn, liv_edicao, liv_anoPublicacao, liv_sinopse, liv_estoque, liv_idioma, liv_num_paginas, liv_capa, fk_aut, fk_cat) VALUES
+('Fundação', '978-85-359-0277-1', 1, 1951, 'A história da Fundação, um grupo de cientistas que trabalha para preservar o conhecimento humano contra o colapso da galáxia.', 5, 'Português', 256, 'capa_fundacao.jpg', 1, 1),
+('O Senhor dos Anéis: A Sociedade do Anel', '978-85-359-0802-5', 3, 1954, 'A jornada de Frodo para destruir o Um Anel e salvar a Terra-média.', 7, 'Português', 576, 'capa_sociedade_anel.jpg', 2, 2),
+('Orgulho e Preconceito', '978-85-7232-314-1', 2, 1813, 'A história de Elizabeth Bennet e Mr. Darcy em uma crítica à sociedade inglesa do século XIX.', 4, 'Português', 424, 'capa_orgulho_preconceito.jpg', 3, 3),
+('Assassinato no Expresso do Oriente', '978-85-325-2345-6', 1, 1934, 'Hercule Poirot investiga um assassinato ocorrido no famoso trem.', 6, 'Português', 256, 'capa_expresso_oriente.jpg', 4, 4),
+('O Iluminado', '978-85-325-3012-6', 1, 1977, 'A história de uma família que se muda para um hotel isolado onde eventos sobrenaturais ocorrem.', 3, 'Português', 464, 'capa_iluminado.jpg', 5, 5),
+('Steve Jobs', '978-85-8057-134-6', 1, 2011, 'A biografia autorizada do cofundador da Apple.', 2, 'Português', 656, 'capa_steve_jobs.jpg', 6, 6),
+('Sapiens: Uma Breve História da Humanidade', '978-85-254-3275-0', 1, 2011, 'Uma visão abrangente da história da humanidade.', 8, 'Português', 464, 'capa_sapiens.jpg', 7, 7),
+('Cosmos', '978-85-273-0116-7', 1, 1980, 'Uma jornada através do universo e da ciência.', 5, 'Português', 384, 'capa_cosmos.jpg', 8, 8),
+('Como Fazer Amigos e Influenciar Pessoas', '978-85-7542-213-6', 1, 1936, 'Um guia clássico para melhorar habilidades sociais.', 9, 'Português', 256, 'capa_amigos.jpg', 9, 9),
+('Reinações de Narizinho', '978-85-7232-427-8', 1, 1931, 'As aventuras de Narizinho no Sítio do Picapau Amarelo.', 6, 'Português', 192, 'capa_narizinho.jpg', 10, 10),
+('2001: Uma Odisseia no Espaço', '978-85-359-0278-8', 1, 1968, 'A jornada da humanidade desde os primórdios até o encontro com um misterioso monolito no espaço.', 4, 'Português', 336, 'capa_2001.jpg', 11, 1),
+('A Guerra dos Tronos', '978-85-7542-463-5', 1, 1996, 'O primeiro livro da série As Crônicas de Gelo e Fogo.', 5, 'Português', 592, 'capa_guerra_tronos.jpg', 12, 2),
+('Dom Casmurro', '978-85-7232-293-9', 1, 1899, 'A história de Bentinho e Capitu e a dúvida sobre a traição.', 7, 'Português', 256, 'capa_dom_casmurro.jpg', 13, 3),
+('O Cão dos Baskervilles', '978-85-7232-618-0', 1, 1902, 'Sherlock Holmes investiga uma maldição familiar.', 3, 'Português', 192, 'capa_cao_baskervilles.jpg', 14, 4),
+('Frankenstein', '978-85-7232-744-6', 1, 1818, 'A história do cientista Victor Frankenstein e sua criatura.', 4, 'Português', 280, 'capa_frankenstein.jpg', 15, 5),
+('Minha História', '978-85-510-0274-8', 1, 2018, 'As memórias de Michelle Obama.', 5, 'Português', 464, 'capa_minha_historia.jpg', 16, 6),
+('Armas, Germes e Aço', '978-85-359-1304-3', 1, 1997, 'Os destinos das sociedades humanas.', 3, 'Português', 480, 'capa_armas_germes_aco.jpg', 17, 7),
+('Astrofísica para Apressados', '978-85-510-0275-5', 1, 2017, 'Os grandes mistérios do universo explicados de forma simples.', 6, 'Português', 208, 'capa_astrofisica.jpg', 18, 8),
+('Mais Esperto que o Diabo', '978-85-7542-387-4', 1, 1938, 'Um diálogo revelador sobre superação de medos e limitações.', 4, 'Português', 224, 'capa_mais_esperto.jpg', 19, 9),
+('O Menino Maluquinho', '978-85-7232-744-7', 1, 1980, 'As travessuras de um menino alegre e sapeca.', 8, 'Português', 128, 'capa_menino_maluquinho.jpg', 20, 10),
+('Eu, Robô', '978-85-359-0279-5', 1, 1950, 'Contos sobre robôs e as Três Leis da Robótica.', 5, 'Português', 320, 'capa_eu_robo.jpg', 1, 1),
+('O Hobbit', '978-85-359-0803-2', 2, 1937, 'A aventura de Bilbo Bolseiro para recuperar o tesouro dos dragões.', 6, 'Português', 336, 'capa_hobbit.jpg', 2, 2),
+('Razão e Sensibilidade', '978-85-7232-315-8', 1, 1811, 'A história das irmãs Dashwood e seus amores.', 4, 'Português', 352, 'capa_razao_sensibilidade.jpg', 3, 3),
+('Morte no Nilo', '978-85-325-2346-3', 1, 1937, 'Hercule Poirot investiga um assassinato durante um cruzeiro pelo Nilo.', 3, 'Português', 288, 'capa_morte_nilo.jpg', 4, 4),
+('It: A Coisa', '978-85-325-3013-3', 1, 1986, 'Um grupo de amigos enfrenta um ser maligno que assume várias formas.', 2, 'Português', 1104, 'capa_it.jpg', 5, 5),
+('Einstein: Sua Vida, Seu Universo', '978-85-8057-135-3', 1, 2007, 'A biografia de Albert Einstein.', 3, 'Português', 704, 'capa_einstein.jpg', 6, 6),
+('Homo Deus: Uma Breve História do Amanhã', '978-85-254-3276-7', 1, 2015, 'Uma visão sobre o futuro da humanidade.', 5, 'Português', 448, 'capa_homo_deus.jpg', 7, 7),
+('O Mundo Assombrado pelos Demônios', '978-85-273-0117-4', 1, 1995, 'A ciência como uma vela no escuro.', 4, 'Português', 480, 'capa_mundo_assombrado.jpg', 8, 8),
+('Como Evitar Preocupações e Começar a Viver', '978-85-7542-214-3', 1, 1948, 'Conselhos práticos para uma vida mais tranquila.', 6, 'Português', 272, 'capa_evitar_preocupacoes.jpg', 9, 9),
+('O Saci', '978-85-7232-428-5', 1, 1921, 'As aventuras no Sítio do Picapau Amarelo envolvendo o Saci.', 5, 'Português', 144, 'capa_saci.jpg', 10, 10),
+('O Fim da Eternidade', '978-85-359-0280-1', 1, 1955, 'Uma sociedade que controla o tempo e as consequências de suas ações.', 4, 'Português', 256, 'capa_fim_eternidade.jpg', 1, 1),
+('A Fúria dos Reis', '978-85-7542-464-2', 1, 1998, 'O segundo livro da série As Crônicas de Gelo e Fogo.', 3, 'Português', 656, 'capa_furia_reis.jpg', 12, 2),
+('Memórias Póstumas de Brás Cubas', '978-85-7232-294-6', 1, 1881, 'A autobiografia de um defunto autor.', 5, 'Português', 224, 'capa_memorias_bras_cubas.jpg', 13, 3),
+('Um Estudo em Vermelho', '978-85-7232-619-7', 1, 1887, 'A primeira aparição de Sherlock Holmes e Dr. Watson.', 4, 'Português', 160, 'capa_estudo_vermelho.jpg', 14, 4),
+('O Médico e o Monstro', '978-85-7232-745-3', 1, 1886, 'A dualidade da natureza humana.', 3, 'Português', 144, 'capa_medico_monstro.jpg', 15, 5),
+('Tornar-se', '978-85-510-0276-2', 1, 2018, 'A autobiografia de Michelle Obama.', 6, 'Português', 448, 'capa_tornar_se.jpg', 16, 6),
+('Colapso', '978-85-359-1305-0', 1, 2005, 'Como as sociedades escolhem o fracasso ou o sucesso.', 4, 'Português', 592, 'capa_colapso.jpg', 17, 7),
+('Origens', '978-85-510-0277-9', 1, 2019, 'Quatorze bilhões de anos de evolução cósmica.', 5, 'Português', 336, 'capa_origens.jpg', 18, 8),
+('A Lei do Triunfo', '978-85-7542-388-1', 1, 1928, 'Os princípios para alcançar o sucesso.', 3, 'Português', 432, 'capa_lei_triunfo.jpg', 19, 9),
+('Flicts', '978-85-7232-745-4', 1, 1969, 'A história de uma cor diferente.', 7, 'Português', 48, 'capa_flicts.jpg', 20, 10);
 
--- Insert data into LIVRO (20+ books)
-INSERT INTO LIVRO (liv_titulo, liv_isbn, liv_edicao, liv_anoPublicacao, liv_sinopse, liv_estoque, liv_dataAlteracaoEstoque, liv_idioma, liv_num_paginas, liv_capa, fk_aut, fk_cat) VALUES
-('Harry Potter e a Pedra Filosofal', '978-85-325-1108-0', 1, 2000, 'O primeiro livro da série Harry Potter', 10, '2023-01-05', 'Português', 264, 'harry_potter_1.jpg', 1, 2),
-('Harry Potter e a Câmara Secreta', '978-85-325-1109-7', 1, 2000, 'O segundo livro da série Harry Potter', 8, '2023-01-10', 'Português', 288, 'harry_potter_2.jpg', 1, 2),
-('A Guerra dos Tronos', '978-85-209-2324-1', 1, 2011, 'O primeiro livro da série As Crônicas de Gelo e Fogo', 6, '2023-02-15', 'Português', 592, 'guerra_tronos.jpg', 2, 2),
-('O Iluminado', '978-85-01-05057-1', 1, 2012, 'Um clássico do terror sobre um hotel mal-assombrado', 5, '2023-03-20', 'Português', 464, 'iluminado.jpg', 3, 4),
-('Assassinato no Expresso do Oriente', '978-85-325-3010-4', 1, 2016, 'Um dos mais famosos casos de Hercule Poirot', 7, '2023-04-25', 'Português', 256, 'expresso_oriente.jpg', 4, 5),
-('O Senhor dos Anéis: A Sociedade do Anel', '978-85-359-1547-7', 1, 2019, 'O primeiro volume da trilogia O Senhor dos Anéis', 9, '2023-05-30', 'Português', 576, 'sociedade_anel.jpg', 5, 2),
-('Fundação', '978-85-359-2175-1', 1, 2009, 'O início da saga da Fundação de Isaac Asimov', 4, '2023-06-05', 'Português', 320, 'fundacao.jpg', 6, 1),
-('Dom Casmurro', '978-85-06-07090-4', 1, 2016, 'Um clássico da literatura brasileira', 12, '2023-07-10', 'Português', 256, 'dom_casmurro.jpg', 7, 3),
-('A Hora da Estrela', '978-85-325-3012-8', 1, 2015, 'A última obra de Clarice Lispector', 6, '2023-08-15', 'Português', 96, 'hora_estrela.jpg', 8, 3),
-('Deuses Americanos', '978-85-325-2409-7', 1, 2017, 'Uma batalha entre deuses antigos e novos', 5, '2023-09-20', 'Português', 592, 'deuses_americanos.jpg', 9, 2),
-('Sapiens: Uma Breve História da Humanidade', '978-85-254-3273-0', 1, 2015, 'Uma visão abrangente da história humana', 8, '2023-10-25', 'Português', 464, 'sapiens.jpg', 10, 7),
-('Origem', '978-85-8041-566-9', 1, 2017, 'Um novo thriller de Robert Langdon', 7, '2023-11-30', 'Português', 480, 'origem.jpg', 11, 5),
-('O Alquimista', '978-85-254-1716-4', 1, 2013, 'A famosa fábula sobre seguir seus sonhos', 15, '2023-12-05', 'Português', 208, 'alquimista.jpg', 12, 10),
-('Orgulho e Preconceito', '978-85-7232-227-8', 1, 2008, 'Um clássico romance de Jane Austen', 10, '2024-01-10', 'Português', 424, 'orgulho_preconceito.jpg', 13, 3),
-('Crime e Castigo', '978-85-7232-744-0', 1, 2015, 'Uma obra-prima da literatura russa', 6, '2024-02-15', 'Português', 608, 'crime_castigo.jpg', 14, 3),
-('Cem Anos de Solidão', '978-85-010-7019-9', 1, 2014, 'O grande romance de Gabriel García Márquez', 8, '2024-03-20', 'Português', 448, 'cem_anos.jpg', 15, 3),
-('O Hobbit', '978-85-359-1546-0', 1, 2019, 'A aventura que precede O Senhor dos Anéis', 7, '2024-04-25', 'Português', 336, 'hobbit.jpg', 5, 2),
-('It: A Coisa', '978-85-01-05056-4', 1, 2014, 'Um dos mais assustadores romances de Stephen King', 5, '2024-05-30', 'Português', 1104, 'it.jpg', 3, 4),
-('O Nome da Rosa', '978-85-325-3011-1', 1, 2010, 'Um mistério medieval em um mosteiro', 6, '2024-06-05', 'Português', 496, 'nome_rosa.jpg', 16, 5),
-('1984', '978-85-221-0616-9', 1, 2009, 'Um clássico distópico de George Orwell', 9, '2024-07-10', 'Português', 416, '1984.jpg', 17, 1),
-('A Revolução dos Bichos', '978-85-221-0617-6', 1, 2007, 'Uma fábula satírica sobre poder', 11, '2024-08-15', 'Português', 152, 'revolucao_bichos.jpg', 17, 1),
-('O Pequeno Príncipe', '978-85-7232-344-2', 1, 2009, 'Um clássico da literatura mundial', 20, '2024-09-20', 'Português', 96, 'pequeno_principe.jpg', 18, 14);
-
--- Insert data into EMPRESTIMO (20+ loans)
-INSERT INTO EMPRESTIMO (emp_prazo, emp_dataEmp, emp_dataDev, emp_dataDevReal, emp_status, fk_mem, fk_user, fk_liv) VALUES
-(14, '2023-01-15', '2023-01-29', '2023-01-28', 'Finalizado', 1, 2, 1),
-(14, '2023-01-20', '2023-02-03', '2023-02-03', 'Finalizado', 2, 2, 3),
-(14, '2023-02-10', '2023-02-24', '2023-02-25', 'Finalizado', 3, 3, 5),
-(14, '2023-02-15', '2023-03-01', '2023-03-01', 'Finalizado', 4, 3, 7),
-(14, '2023-03-05', '2023-03-19', '2023-03-18', 'Finalizado', 5, 2, 9),
-(14, '2023-03-10', '2023-03-24', '2023-03-24', 'Finalizado', 6, 4, 11),
-(14, '2023-04-01', '2023-04-15', '2023-04-16', 'Finalizado', 7, 4, 13),
-(14, '2023-04-05', '2023-04-19', '2023-04-19', 'Finalizado', 8, 3, 15),
-(14, '2023-05-01', '2023-05-15', '2023-05-14', 'Finalizado', 9, 2, 17),
-(14, '2023-05-10', '2023-05-24', '2023-05-25', 'Finalizado', 10, 5, 19),
-(14, '2023-06-01', '2023-06-15', '2023-06-15', 'Finalizado', 1, 5, 2),
-(14, '2023-06-05', '2023-06-19', '2023-06-20', 'Finalizado', 2, 4, 4),
-(14, '2023-07-01', '2023-07-15', '2023-07-15', 'Finalizado', 3, 3, 6),
-(14, '2023-07-10', '2023-07-24', '2023-07-23', 'Finalizado', 4, 2, 8),
-(14, '2023-08-01', '2023-08-15', '2023-08-16', 'Finalizado', 5, 5, 10),
-(14, '2023-08-05', '2023-08-19', '2023-08-19', 'Finalizado', 6, 4, 12),
-(14, '2023-09-01', '2023-09-15', '2023-09-14', 'Finalizado', 7, 3, 14),
-(14, '2023-09-10', '2023-09-24', '2023-09-25', 'Finalizado', 8, 2, 16),
-(14, '2023-10-01', '2023-10-15', '2023-10-15', 'Finalizado', 9, 5, 18),
-(14, '2023-10-05', '2023-10-19', '2023-10-18', 'Finalizado', 10, 4, 20),
-(14, '2023-11-01', '2023-11-15', NULL, 'Empréstimo Atrasado', 1, 3, 1),
-(14, '2023-11-05', '2023-11-19', NULL, 'Empréstimo Ativo', 2, 2, 3),
-(14, '2023-12-01', '2023-12-15', NULL, 'Empréstimo Ativo', 3, 5, 5),
-(14, '2023-12-10', '2023-12-24', NULL, 'Empréstimo Ativo', 4, 4, 7);
-
--- Insert data into RESERVA
-INSERT INTO RESERVA (res_prazo, res_dataMarcada, res_dataVencimento, res_dataFinalizada, res_status, fk_mem, fk_liv, fk_user) VALUES
-(7, '2023-01-05', '2023-01-12', '2023-01-10', 'Finalizada', 1, 1, 2),
-(7, '2023-02-10', '2023-02-17', '2023-02-15', 'Finalizada', 2, 3, 2),
-(7, '2023-03-15', '2023-03-22', '2023-03-20', 'Finalizada', 3, 5, 3),
-(7, '2023-04-20', '2023-04-27', '2023-04-25', 'Finalizada', 4, 7, 3),
-(7, '2023-05-25', '2023-06-01', '2023-05-30', 'Finalizada', 5, 9, 2),
-(7, '2023-06-30', '2023-07-07', NULL, 'Aberta', 6, 11, 4),
-(7, '2023-08-05', '2023-08-12', NULL, 'Aberta', 7, 13, 4),
-(7, '2023-09-10', '2023-09-17', '2023-09-15', 'Finalizada', 8, 15, 3),
-(7, '2023-10-15', '2023-10-22', '2023-10-20', 'Finalizada', 9, 17, 2),
-(7, '2023-11-20', '2023-11-27', NULL, 'Aberta', 10, 19, 5);
-
--- Insert data into MULTA
-INSERT INTO MULTA (mul_valor, mul_qtdDias, mul_status, fk_mem, fk_emp) VALUES
-(1.50, 1, 'Finalizada', 3, 3),
-(3.00, 2, 'Finalizada', 7, 7),
-(4.50, 3, 'Finalizada', 6, 2),
-(1.50, 1, 'Finalizada', 8, 5),
-(3.00, 2, 'Finalizada', 2, 2),
-(22.50, 15, 'Aberta', 5, 6);
-
--- Insert data into PAG_PLANO
-INSERT INTO PAG_PLANO (pag_plan_preco, pag_plan_valorPag, pag_plan_dataPag, pag_plan_dataVen, pag_plan_status, fk_mem, fk_plan) VALUES
-(19.90, 19.90, '2023-01-05', '2023-02-05', 'Em dia', 1, 1),
-(49.90, 49.90, '2023-01-10', '2023-04-10', 'Em dia', 2, 2),
-(89.90, 89.90, '2023-01-15', '2023-07-15', 'Em dia', 3, 3),
-(159.90, 159.90, '2023-01-20', '2024-01-20', 'Em dia', 4, 4),
-(9.90, 9.90, '2023-01-25', '2023-02-25', 'Em dia', 5, 5),
-(19.90, 19.90, '2023-02-05', '2023-03-05', 'Em dia', 6, 1),
-(49.90, 49.90, '2023-02-10', '2023-05-10', 'Em dia', 7, 2),
-(89.90, 89.90, '2023-02-15', '2023-08-15', 'Em dia', 8, 3),
-(159.90, 159.90, '2023-02-20', '2024-02-20', 'Em dia', 9, 4),
-(9.90, 9.90, '2023-02-25', '2023-03-25', 'Em dia', 10, 5);
-
--- Insert data into REMESSA
+-- Inserindo remessas
 INSERT INTO REMESSA (rem_data, rem_qtd, fk_forn, fk_liv, fk_user) VALUES
-('2023-01-05', 10, 1, 1, 1),
-('2023-01-10', 8, 1, 2, 1),
-('2023-02-15', 6, 2, 3, 2),
-('2023-03-20', 5, 3, 4, 3),
-('2023-04-25', 7, 4, 5, 4),
-('2023-05-30', 9, 5, 6, 5),
-('2023-06-05', 4, 1, 7, 1),
-('2023-07-10', 12, 2, 8, 2),
-('2023-08-15', 6, 3, 9, 3),
-('2023-09-20', 5, 4, 10, 4);
+('2023-01-15 10:00:00', 50, 1, 1, 5),
+('2023-02-20 11:30:00', 30, 2, 2, 5),
+('2023-03-10 09:15:00', 40, 3, 3, 6),
+('2023-04-05 14:20:00', 25, 4, 4, 6),
+('2023-05-12 16:45:00', 35, 5, 5, 8);
 
--- Insert data into junction tables
--- FORN_LIV
-INSERT INTO FORN_LIV (fk_liv, fk_forn) VALUES
-(1, 1), (2, 1), (3, 2), (4, 3), (5, 4),
-(6, 5), (7, 1), (8, 2), (9, 3), (10, 4),
-(11, 5), (12, 1), (13, 2), (14, 3), (15, 4),
-(16, 5), (17, 1), (18, 2), (19, 3), (20, 4);
+-- Inserindo empréstimos
+INSERT INTO EMPRESTIMO (emp_prazo, emp_dataEmp, emp_dataDev, emp_dataDevReal, emp_status, fk_mem, fk_user, fk_liv) VALUES
+(14, '2023-01-10 10:00:00', '2023-01-24 10:00:00', '2023-01-24 09:30:00', 'Finalizado', 1, 3, 1),
+(14, '2023-01-15 11:00:00', '2023-01-29 11:00:00', '2023-01-30 10:00:00', 'Finalizado', 2, 4, 2),
+(14, '2023-02-05 14:00:00', '2023-02-19 14:00:00', '2023-02-18 15:00:00', 'Finalizado', 3, 7, 3),
+(14, '2023-02-20 09:00:00', '2023-03-06 09:00:00', NULL, 'Empréstimo Ativo', 4, 9, 4),
+(14, '2023-03-01 16:00:00', '2023-03-15 16:00:00', NULL, 'Empréstimo Atrasado', 5, 3, 5);
 
--- CAT_LIV
-INSERT INTO CAT_LIV (fk_liv, fk_cat) VALUES
-(1, 2), (2, 2), (3, 2), (4, 4), (5, 5),
-(6, 2), (7, 1), (8, 3), (9, 3), (10, 2),
-(11, 7), (12, 5), (13, 10), (14, 3), (15, 3),
-(16, 3), (17, 2), (18, 4), (19, 5), (20, 1);
+-- Inserindo reservas
+INSERT INTO RESERVA (res_prazo, res_dataMarcada, res_dataVencimento, res_status, fk_mem, fk_liv, fk_user) VALUES
+(7, '2023-01-05 10:00:00', '2023-01-12 10:00:00', 'Finalizada', 6, 6, 4),
+(7, '2023-01-12 11:00:00', '2023-01-19 11:00:00', 'Finalizada', 7, 7, 7),
+(7, '2023-02-01 14:00:00', '2023-02-08 14:00:00', 'Cancelada', 8, 8, 9),
+(7, '2023-02-15 09:00:00', '2023-02-22 09:00:00', 'Aberta', 9, 9, 3),
+(7, '2023-03-10 16:00:00', '2023-03-17 16:00:00', 'Atrasada', 10, 10, 4);
 
--- AUT_LIV
-INSERT INTO AUT_LIV (fk_liv, fk_aut) VALUES
-(1, 1), (2, 1), (3, 2), (4, 3), (5, 4),
-(6, 5), (7, 6), (8, 7), (9, 8), (10, 9),
-(11, 10), (12, 11), (13, 12), (14, 13), (15, 14),
-(16, 15), (17, 5), (18, 3), (19, 16), (20, 17);
+-- Inserindo multas
+INSERT INTO MULTA (mul_valor, mul_qtdDias, mul_status, fk_mem, fk_emp) VALUES
+(1.50, 1, 'Finalizada', 2, 2),
+(3.00, 2, 'Finalizada', 5, 5),
+(4.50, 3, 'Aberta', 10, 5),
+(6.00, 4, 'Aberta', 5, 5),
+(7.50, 5, 'Finalizada', 2, 2);
 
+-- Inserindo pagamentos de plano
+INSERT INTO PAG_PLANO (pag_plan_preco, pag_plan_valorPag, pag_plan_dataPag, pag_plan_dataVen, pag_plan_status, fk_mem, fk_plan) VALUES
+(19.90, 19.90, '2023-01-01', '2023-02-01', 'Em dia', 1, 1),
+(29.90, 29.90, '2023-01-05', '2023-02-05', 'Em dia', 2, 2),
+(49.90, 49.90, '2023-01-10', '2023-02-10', 'Em dia', 3, 3),
+(19.90, 19.90, '2023-02-01', '2023-03-01', 'Atrasado', 4, 1),
+(29.90, 29.90, '2023-02-05', '2023-03-05', 'Em dia', 5, 2);
