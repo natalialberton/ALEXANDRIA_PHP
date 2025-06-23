@@ -96,8 +96,8 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="plan_nome">Plano: </label>
-                <input list="plan_nome" name="plan_nome" required>
-                <datalist class="input-cadastro" name="plan_nome" required>
+                <input list="planos" name="plan_nome" required>
+                <datalist class="input-cadastro" id="planos">
                     <?php foreach ($planos as $plano): ?>
                         <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
                     <?php endforeach; ?>
@@ -199,9 +199,9 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="plan_nome">Plano: </label>
-                <input list="plan_nome" name="plan_nome" required
+                <input list="planos" name="plan_nome" required
                        value="<?=htmlspecialchars($planoOriginal['plan_nome']) ?? ''?>">
-                <datalist class="input-cadastro" name="plan_nome">
+                <datalist class="input-cadastro" id="planos">
                     <?php foreach ($planos as $plano): ?>
                         <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
                     <?php endforeach; ?>

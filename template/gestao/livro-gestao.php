@@ -1,28 +1,42 @@
 <?php
-require_once "../../geral.php";
-session_start();
 
-$livros = listar('livro');
+session_start();
+require_once '../../geral.php';
+
+if($_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
+}
+
+//DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if(isset($_POST['form-id'])) {
+        if($_POST['form-id'] == 'cadastrar_livro') {
+            crudLivro(1, '');
+        } elseif ($_POST['form-id'] == 'excluir_livro') {
+            crudLivro(3, $_POST['id']);
+        }
+    }
+}
+
+$_SESSION['tabela'] = 'livro';
+$categorias = listar('categoria');
+$autores = listar('autor');
 $qtdLivros = contarTotal('livro');
 $qtdCategorias = contarTotal('categoria');
 $qtdAutores = contarTotal('autor');
 
-
+//PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
 $tituloPagina = "LIVROS";
-$tituloH1 = 'Gestão Livros';
+$tituloH1 = 'GESTÃO LIVROS';
 include '../header.php';
 
 ?>
 
 <main class="main-content">
-    <div class="titulo">
-        <h2>CADASTRAMENTO</h2>
-    </div>
     <div class="top-section">
         <div class="actions-section">
-            <a href="../cadastro/livro-cadastro.php" class="action-btn">
-                <span class="plus-icon">+ NOVO LIVRO</span>
-            </a> 
+            <h2>CADASTRAMENTO</h2>
+            <button class="action-btn" onclick="abrePopup('popupCadastroLivro')"><span class="plus-icon">+</span>NOVO LIVRO</button>
         </div>
 
         <div class="stats-section">
@@ -40,63 +54,64 @@ include '../header.php';
             </div>
         </div>
     </div>
-        <div class="campo"></div>
 
-        <div class="search-section">
-            <div class="titulo">
-                <h2>LIVROS</h2>
+    <div class="search-section">
+        <h2>LIVROS</h2>
+        <div class='search-section__barra'>
+            <i class='fi fi-rs-search'></i>
+            <input type="text" class="search-input" id="pesquisaInput" size="26";
+                   placeholder="Pesquisar ID, nome ou ISBN" oninput="pesquisarDadoTabela('livro')">
+        </div>
+    </div>
+
+    <div class='titleliv'>
+        <div class="tabela" id="container-tabela">
+            <div class="tisch">
+                <?php include 'tabelas.php'; ?>
             </div>
-            <div class='barra'>
-                <form method="GET">
-                    <input type="text" class="search-input" name="busca" id="busca" placeholder="🔍 Título ou ISBN">
-                    <button type="submit">Pesquisar</button>
-                </form>
+        </div>
+    </div>
+</main>
+
+<!--POPUP CADASTRAMENTO-->
+<dialog class="popup" id="popupCadastroLivro">
+<div class="popup-content">
+<div class="container">
+<h1>CADASTRAMENTO LIVRO</h1>
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="hidden" name="form-id" value="cadastrar_livro">
+                <label for="liv_titulo">Título: </label>
+                <input type="text" name="liv_titulo" required>
+            </div>
+
+            <div class="form-group">
+                <label for="aut_dataNascimento">Data Nascimento: </label>
+                <input type="date" name="aut_dataNascimento" required>
             </div>
         </div>
 
-        <div class='titleliv'>
-            <div class="tabela">
-                <div class="tisch">
-                    <table>
-                        <tr>
-                            <th>Título</th>
-                            <th>ISBN</th>
-                            <th>Autor</th>
-                            <th>Categoria</th>
-                            <th>Edição</th>
-                            <th>Páginas</th>
-                            <th>Estoque</th>
-                            <th>Alteração Estoque</th>
-                            <th>Ação</th> 
-                        </tr>
-                        <?php foreach ($livros as $livro): ?>
-                            <tr>
-                                <?php $autor = selecionarPorId('autor', $livro["fk_aut"], 'pk_aut');
-                                      $categoria = selecionarPorId('categoria', $livro["fk_cat"], 'pk_cat'); 
-                                ?>
-                                <td><?= htmlspecialchars($livro["liv_titulo"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_isbn"]) ?></td>
-                                <td><?= htmlspecialchars($autor['aut_nome']) ?></td>
-                                <td><?= htmlspecialchars($categoria['cat_nome']) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_edicao"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_num_paginas"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_estoque"]) ?></td>
-                                <td><?= htmlspecialchars($livro["liv_dataAlteracaoEstoque"]) ?></td>
-                                <td>
-                                    <a href="../../crud/excluir-livro.php?id=<?=$livro['pk_liv']?>" >
-                                    <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                                </a>
-                                <a href="../edicao/livro-edicao.php?id=<?=$livro['pk_liv']?>">
-                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
-                                </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="label-cadastro" for="cat_nome">Gênero Literário: </label>
+                <input list="categorias" name="cat_nome" required>
+                <datalist class="input-cadastro" id="categorias">
+                    <?php foreach ($categorias as $categoria): ?>
+                        <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
+                    <?php endforeach; ?>
+                </datalist>
             </div>
         </div>
-    </main>
+
+        <div class="button-group">
+            <button class="btn btn-save" type="submit">Cadastrar</button>
+            <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroAutor')">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+</dialog>
+
 </body>
-
 </html>

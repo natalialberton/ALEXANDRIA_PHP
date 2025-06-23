@@ -93,6 +93,12 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('popupEdicaoFornecedor').showModal();
     } else if (window.location.hash === '#editarAutor') {
         document.getElementById('popupEdicaoAutor').showModal();
+    } else if (window.location.hash === '#editarCategoria') {
+        document.getElementById('popupEdicaoCategoria').showModal();
+    } else if (window.location.hash === '#editarlivro') {
+        document.getElementById('popupEdicaoLivro').showModal();
+    } else if (window.location.hash === '#editarUsuario') {
+        document.getElementById('popupEdicaoUsuario').showModal();
     }
 });
 

@@ -76,10 +76,9 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="cat_nome">Gênero Literário: </label>
-                <input list="cat_nome" name="cat_nome" required>
-                <datalist class="input-cadastro" name="cat_nome">
+                <input list="categorias" name="cat_nome" required>
+                <datalist class="input-cadastro" id="categorias">
                     <?php foreach ($categorias as $categoria): ?>
-                        <?php echo var_dump($categoria)?>
                         <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
                     <?php endforeach; ?>
                 </datalist>
@@ -140,9 +139,9 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="cat_nome">Gênero Literário: </label>
-                <input list="cat_nome" name="cat_nome" required
+                <input list="categorias" name="cat_nome" required
                        value="<?=htmlspecialchars($categoriaOriginal['cat_nome']) ?? ''?>">
-                <datalist class="input-cadastro" name="cat_nome">
+                <datalist class="input-cadastro" id="categorias">
                     <?php foreach ($categorias as $categoria): ?>
                         <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
                     <?php endforeach; ?>

@@ -1,8 +1,24 @@
 <?php
-require_once "../../funcoes.php";
-session_start();
 
-$categorias = listar('categoria');
+session_start();
+require_once "../../geral.php";
+
+if($_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
+}
+
+//DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if(isset($_POST['form-id'])) {
+        if($_POST['form-id'] == 'cadastrar_categoria') {
+            crudCategoria(1, '');
+        } elseif ($_POST['form-id'] == 'excluir_categoria') {
+            crudCategoria(3, $_POST['id']);
+        }
+    }
+}
+
+$_SESSION['tabela'] = 'categoria';
 
 $tituloPagina = "CATEGORIAS";
 $tituloH1 = 'Gestão Categorias';
@@ -11,45 +27,99 @@ include '../header.php';
 ?>
 
 <main class="main-content">
-    <div class="titulo">
-        <h2>CADASTRAMENTO</h2>
-    </div>
     <div class="top-section">
         <div class="actions-section">
-            <a class="action-btn">
-                <span class="plus-icon">+</span>
-                NOVA CATEGORIA
-            </a>
+            <h2>CADASTRAMENTO</h2>
+            <button class="action-btn" onclick="abrePopup('popupCadastroCategoria')"><span class="plus-icon">+</span>NOVA CATEGORIA</button>
+        </div>
+    </div>
+    
+    <div class="search-section">
+        <h2>CATEGORIAS</h2>
+        <div class='search-section__barra'>
+            <i class='fi fi-rs-search'></i>
+            <input type="text" class="search-input" id="pesquisaInput" size="26";
+                   placeholder="Pesquisar ID ou nome" oninput="pesquisarDadoTabela('categoria')">
         </div>
     </div>
 
-    <div class = "titulo"><h2>Categorias</h2></div>
-
-        <div class='titleliv'>
-            <div class="tabela">
-                <div class="tisch">
-                    <table>
-                        <tr>
-                            <th>Categoria</th>
-                            <!--<th>Quantidade de Livros</th>-->
-                            <th>Ação</th>
-                        </tr>
-                        <?php foreach ($categorias as $categoria): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($categoria["cat_nome"]) ?></td>
-                                <!--<td><?= htmlspecialchars($categoria["pk_cat"]) ?></td>-->
-                                <td>
-                                    <i class='fas fa-trash-alt'
-                                        style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </table>
-                </div>
+    <div class='titleliv'>
+        <div class="tabela" id="container-tabela">
+            <div class="tisch">
+                <?php include 'tabelas.php'; ?>
             </div>
         </div>
-    </main>
-</body>
+    </div>
+</main>
 
+<!--POPUP CADASTRAMENTO-->
+<dialog class="popup" id="popupCadastroCategoria">
+<div class="popup-content">
+<div class="container">
+<h1>CADASTRAMENTO CATEGORIA</h1>
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="hidden" name="form-id" value="cadastrar_categoria">
+                <label for="cat_nome">Nome: </label>
+                <input type="text" name="cat_nome" onkeypress="mascara(this,nomeMasc)" required>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-save" type="submit">Cadastrar</button>
+            <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroCategoria')">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+</dialog>
+
+<!--POPUP EDIÇÃO-->
+<dialog class="popup" id="popupEdicaoCategoria">
+<?php
+
+    if (isset($_GET['id'])) {
+        $idCategoria = $_GET['id'];
+        $categoria = selecionarPorId('categoria', $idCategoria, 'pk_cat');
+      
+        if (!$categoria) {
+            echo "<script>window.location.href='categoria-gestao.php';</script>";
+            exit();
+        }
+    }
+
+    if($_SERVER["REQUEST_METHOD"] == "POST") {
+        if(isset($_POST['form-id'])) {
+            if($_POST['form-id'] === 'editar_categoria') {
+                crudCategoria(2, $idCategoria);
+            }
+        }
+    }
+
+    if ($categoria) :
+?>
+<div class="popup-content">
+<div class="container">
+<h1>EDIÇÃO CATEGORIA</h1>
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="hidden" name="form-id" value="editar_categoria">
+                <input type="hidden" name="editar-id" value="<?= $idCategoria ?? '' ?>">
+                <label for="cat_nome">Nome: </label>
+                <input type="text" name="cat_nome" onkeypress="mascara(this,nomeMasc)" required value="<?=$categoria['cat_nome']?>">
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-save" type="submit">Alterar</button>
+            <button class="btn btn-cancel" type="button" onclick="location.href='categoria-gestao.php'">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+<?php endif; ?>
+</dialog>
+</body>
 </html>

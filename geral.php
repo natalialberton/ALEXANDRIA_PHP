@@ -474,8 +474,8 @@ function crudAutor($acao, $id) {
         $stmtCheckNome-> execute();
         $nomeExistente = $stmtCheckNome-> fetchColumn();
 
-        $stmtCheckDataN = $conexao-> prepare("SELECT aut_dataNascimento FROM autor WHERE aut_dataNascimento = :email");
-        $stmtCheckDataN-> bindParam(":email", $email, PDO::PARAM_STR);
+        $stmtCheckDataN = $conexao-> prepare("SELECT aut_dataNascimento FROM autor WHERE aut_dataNascimento = :dataNascimento");
+        $stmtCheckDataN-> bindParam(":dataNascimento", $dataNascimento, PDO::PARAM_STR);
         $stmtCheckDataN-> execute();
         $dataNExistente = $stmtCheckDataN-> fetchColumn();
 
@@ -556,6 +556,77 @@ function crudAutor($acao, $id) {
 //--------------------------------------------------- CRUD CATEGORIA ---------------------------------------------------
 function crudCategoria($acao, $id) {
     $conexao = conectaBd();
+
+    if ($acao == 1 || $acao == 2) {
+    //PUXANDO DADOS VIA POST
+        $nome = filter_input(INPUT_POST, 'cat_nome');
+
+    //TRATAMENTO DE EXCEÇÕES
+        $stmtCheckNome = $conexao-> prepare("SELECT cat_nome FROM categoria WHERE cat_nome = :nome");
+        $stmtCheckNome-> bindParam(":nome", $nome, PDO::PARAM_STR);
+        $stmtCheckNome-> execute();
+        $nomeExistente = $stmtCheckNome-> fetchColumn();
+
+        if ($acao === 1 && $nomeExistente !== false) {
+            enviarSweetAlert('categoria-gestao.php', 'erroAlerta', 'Categoria já cadastrada!');
+            exit();
+        }
+
+        if ($acao === 2) {
+            $categoriaAtual = selecionarPorId('categoria', $id, 'pk_cat');
+            $nomeAtual = $categoriaAtual['cat_nome'];
+            
+            if ($nomeExistente !== false && $nomeExistente !== $nomeAtual) {
+                enviarSweetAlert('categoria-gestao.php', 'erroAlerta', 'Categoria já cadastrada!');
+                exit();
+            }
+        }
+    
+    //CADASTRAMENTO
+        if ($acao == 1) {
+            $msgSucesso = "Categoria cadastrada com sucesso!";
+            $sql = "INSERT INTO categoria (cat_nome)
+                    VALUES (:nome)";
+            $stmt = $conexao-> prepare($sql);
+        
+    //ALTERAÇÃO
+        } elseif ($acao == 2 && $id > 0) {
+            $msgSucesso = "Categoria alterada com sucesso!";
+            $sql = "UPDATE categoria SET cat_nome=:nome
+                    WHERE pk_cat=:id";
+            $stmt = $conexao-> prepare($sql);
+            $stmt-> bindParam(":id", $id, PDO::PARAM_INT);
+        }
+
+        $stmt-> bindParam(":nome", $nome);
+
+    } elseif ($acao == 3 && $id > 0) {
+        try {
+            $msgSucesso = "Categoria excluída com sucesso!";
+            $stmtCheckLivro = $conexao-> prepare("SELECT COUNT(*) FROM livro WHERE fk_cat=:pk_cat");
+            $stmtCheckLivro-> bindParam(":pk_cat", $id, PDO::PARAM_INT);
+            $stmtCheckLivro-> execute();
+            $livros = $stmtCheckLivro-> fetchColumn();
+
+            if ($livros > 0) {
+                enviarSweetAlert('categoria-gestao.php', 'erroAlerta', 'Não é possível excluir uma categoria com livros cadastrados!');
+            }
+
+            $stmt = $conexao-> prepare("DELETE FROM categoria WHERE pk_cat = :id");
+            $stmt-> bindParam(":id", $id, PDO::PARAM_INT);
+        } catch (Exception $e) {
+            echo "<script> window.location.href = 'categoria-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
+            exit();
+        }
+    }
+    //EXECUÇÃO DO COMANDO NO BANCO DE DADOS
+    try {
+        $stmt-> execute();
+        enviarSweetAlert('categoria-gestao.php', 'sucessoAlerta', $msgSucesso);
+    } catch (PDOException $e) {
+        echo "<script> window.location.href = 'categoria-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
+        exit();
+    }
 }
 
 //--------------------------------------------------- CRUD FUNCIONÁRIO ---------------------------------------------------
@@ -564,6 +635,10 @@ function crudFuncionario($acao, $id) {
 }
 
 //--------------------------------------------------- CRUD LIVRO ---------------------------------------------------
+function crudLivro($acao, $id) {
+    $conexao = conectaBd();
+}
+
 function cadastrarLivro() {
     if ($_SERVER["REQUEST_METHOD"]=="POST"){
         $conexao = conectaBd();
