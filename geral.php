@@ -54,27 +54,6 @@ function login() {
     }
 }
 
-//FUNÇÃO PARA CHECAR SE O USUÁRIO TEM PERMISSÃO PARA ACESSAR A PÁGINA
-function permitirAcesso($statusUser, $tipoUser, $tipoUserNegado, $local) {
-    if (!empty($statusUser)) {
-        if ($statusUser === 'Ativo') {
-            if (!empty($tipoUserNegado)) {
-                if ($tipoUser !== $tipoUserNegado) {
-                    echo "<script> window.location.href = '$local'; </script>";
-                } else {
-                    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado para o cargo ' . $tipoUserNegado . '!');
-                }
-            } else {
-                echo "<script> window.location.href = '$local'; </script>";
-            }
-        } else {
-            enviarSweetAlert('index.php', 'erroAlerta', 'Você não pode acessar o site com uma conta inativa!');
-        }
-    } else {
-        enviarSweetAlert('index.php', 'erroAlerta', 'Você precisa estar logado para acessar o site!');
-    }
-}
-
 //FUNÇÃO PARA REALIZAR LOGOUT
 
 
@@ -121,7 +100,7 @@ function recuperarSenha() {
         $token = bin2hex(random_bytes(15));
         $expiracao = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-        $stmt = $conexao-> prepare("INSERT INTO recuperaSenha (fk_user, rs_token, rs_expiracao) VALUES (:fk_user, :token, :expiracao)");
+        $stmt = $conexao-> prepare("INSERT INTO recupera_senha (fk_user, rs_token, rs_expiracao) VALUES (:fk_user, :token, :expiracao)");
         $stmt-> bindParam(":fk_user", $usuario['pk_user']);
         $stmt-> bindParam(":token", $token);
         $stmt-> bindParam(":expiracao", $expiracao);
@@ -139,7 +118,7 @@ function verificarToken() {
     $token = $_POST['token'] ?? '';
 
     if (!empty($token)) {
-        $stmt = $conexao-> prepare("SELECT * FROM recuperaSenha WHERE rs_token = :token AND rs_usado = 0");
+        $stmt = $conexao-> prepare("SELECT * FROM recupera_senha WHERE rs_token = :token AND rs_usado = 0");
         $stmt-> bindParam(":token", $token);
         $stmt-> execute();
         $recuperacao = $stmt-> fetch(PDO::FETCH_ASSOC);
@@ -157,26 +136,20 @@ function verificarToken() {
 function redefinirSenha() {
     $conexao = conectaBd();
 
-    //$email = $_POST['email'];
     $idToken = $_SESSION['recuperacaoSenhaId'];
     $novaSenha = $_POST['senha'];
     $confirmaSenha = $_POST['confirma_senha'];
-
-    /*$stmt = $conexao-> prepare("SELECT * FROM usuario WHERE user_email = :email");
-    $stmt-> bindParam(':email', $email);
-    $stmt-> execute();
-    $usuario = $stmt-> fetch(PDO::FETCH_ASSOC);*/
 
     if ($idToken) {
         if ($novaSenha !== $confirmaSenha) {
             enviarSweetAlert('redefinir-senha.php', 'erroAlerta', 'As senhas não coincidem!');
         } else {
-            $stmt = $conexao-> prepare("SELECT * FROM recuperaSenha WHERE pk_rs = :id");
+            $stmt = $conexao-> prepare("SELECT * FROM recupera_senha WHERE pk_rs = :id");
             $stmt-> bindParam(":id", $idToken);
             $stmt-> execute();
             $recuperacao = $stmt-> fetch(PDO::FETCH_ASSOC);
 
-            $stmt = $conexao-> prepare("UPDATE recuperaSenha SET rs_usado = 1 WHERE pk_rs = :id");
+            $stmt = $conexao-> prepare("UPDATE recupera_senha SET rs_usado = 1 WHERE pk_rs = :id");
             $stmt-> bindParam(":id", $idToken);
             $stmt-> execute();
 
@@ -229,13 +202,21 @@ function retornoPesquisa($termoBusca, $tabela, $id, $string1, $string2) {
     $conexao = conectaBd();
 
     $termoBusca = '%' . $termoBusca . '%';
-    $sql = "SELECT * FROM $tabela WHERE $id LIKE :termoBusca
-            OR $string1 LIKE :termoBusca
-            OR $string2 LIKE :termoBusca
-            ORDER BY 
-                $id LIKE :termoBusca DESC,
-                $string1 LIKE :termoBusca DESC,
-                $string2 LIKE :termoBusca DESC";
+    if(!empty($string2)) {
+        $sql = "SELECT * FROM $tabela WHERE $id LIKE :termoBusca
+                OR $string1 LIKE :termoBusca
+                OR $string2 LIKE :termoBusca
+                ORDER BY 
+                    $id LIKE :termoBusca DESC,
+                    $string1 LIKE :termoBusca DESC,
+                    $string2 LIKE :termoBusca DESC";
+    } else {
+        $sql = "SELECT * FROM $tabela WHERE $id LIKE :termoBusca
+                OR $string1 LIKE :termoBusca
+                ORDER BY 
+                    $id LIKE :termoBusca DESC,
+                    $string1 LIKE :termoBusca DESC";
+    }
             
     $stmt = $conexao-> prepare($sql);
     $stmt-> bindParam(":termoBusca", $termoBusca);
@@ -486,6 +467,34 @@ function crudAutor($acao, $id) {
         $stmtCategoria-> bindParam(":nome", $categoriaNome);
         $stmtCategoria-> execute();
         $categoria = $stmtCategoria-> fetch(PDO::FETCH_ASSOC);
+
+    //TRATAMENTO DE EXCEÇÕES
+        $stmtCheckNome = $conexao-> prepare("SELECT aut_nome FROM autor WHERE aut_nome = :nome");
+        $stmtCheckNome-> bindParam(":nome", $nome, PDO::PARAM_STR);
+        $stmtCheckNome-> execute();
+        $nomeExistente = $stmtCheckNome-> fetchColumn();
+
+        $stmtCheckDataN = $conexao-> prepare("SELECT aut_dataNascimento FROM autor WHERE aut_dataNascimento = :email");
+        $stmtCheckDataN-> bindParam(":email", $email, PDO::PARAM_STR);
+        $stmtCheckDataN-> execute();
+        $dataNExistente = $stmtCheckDataN-> fetchColumn();
+
+        if ($acao === 1 && $nomeExistente !== false && $dataNExistente !== false) {
+            enviarSweetAlert('autor-gestao.php', 'erroAlerta', 'Autor já cadastrado!');
+            exit();
+        }
+
+        if ($acao === 2) {
+            $autorAtual = selecionarPorId('autor', $id, 'pk_aut');
+            $nomeAtual = $autorAtual['aut_nome'];
+            $dataNAtual = $autorAtual['aut_dataNascimento'];
+            
+            if ($nomeExistente !== false && $nomeExistente !== $nomeAtual && 
+                $dataNExistente !== false && $dataNExistente !== $dataNAtual) {
+                enviarSweetAlert('autor-gestao.php', 'erroAlerta', 'Autor já cadastrado!');
+                exit();
+            }
+        }
     
         if ($categoria) {
             $fk_cat = $categoria['pk_cat'];
@@ -499,7 +508,7 @@ function crudAutor($acao, $id) {
         
         //ALTERAÇÃO
             } elseif ($acao == 2 && $id > 0) {
-                $msgSucesso = "Autor cadastrado com sucesso!";
+                $msgSucesso = "Autor alterado com sucesso!";
                 $sql = "UPDATE autor SET aut_nome=:nome, aut_dataNascimento=:dataNascimento, fk_cat=:fk_cat
                         WHERE pk_aut=:pk_aut";
                 $stmt = $conexao-> prepare($sql);

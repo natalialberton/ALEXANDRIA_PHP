@@ -3,7 +3,9 @@
 session_start();
 require_once '../../geral.php';
 
-permitirAcesso($_SESSION['statusUser'], $_SESSION['tipoUser'], 'Almoxarife', 'autor-gestao.php');
+if($_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
+}
 
 //DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
 if($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -77,6 +79,7 @@ include '../header.php';
                 <input list="cat_nome" name="cat_nome" required>
                 <datalist class="input-cadastro" name="cat_nome">
                     <?php foreach ($categorias as $categoria): ?>
+                        <?php echo var_dump($categoria)?>
                         <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
                     <?php endforeach; ?>
                 </datalist>
@@ -98,7 +101,7 @@ include '../header.php';
 
     if (isset($_GET['id'])) {
         $idAutor = $_GET['id'];
-        $autor = selecionarPorId('autor', $idAutor, 'pk_forn');
+        $autor = selecionarPorId('autor', $idAutor, 'pk_aut');
         $categoriaOriginal = selecionarPorId('categoria', $autor['fk_cat'], 'pk_cat');
         
         if (!$autor) {
