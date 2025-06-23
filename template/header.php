@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!--PEGANDO O TÍTULO DEFINIDO PELA PÁGINA; 'ALEXANDRIA', CASO NÃO ESTEJA DEFINIDO-->
     <title><?php echo isset($tituloPagina) ? $tituloPagina : 'ALEXANDRIA'; ?></title>
-    <link rel="stylesheet" href="../../static/css/header.css">
-    <link rel="stylesheet" href="../../static/css/geral.css">
-    <link rel="stylesheet" href="../../static/css/popup.css">
+    <link rel="stylesheet" href="../../static/css/header.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="../../static/css/geral.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="../../static/css/popup.css?v=<?= time() ?>">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.all.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="../../static/javascript/geral.js?v=<?= time() ?>"></script>

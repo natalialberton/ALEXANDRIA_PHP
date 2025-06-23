@@ -1,7 +1,14 @@
 <?php
 
-require_once "../../funcoes.php";
+session_start();
+require_once "../../geral.php";
 
+//CHECANDO SE O USUÁRIO TEM PERMISSÃO PARA ACESSAR A PÁGINA
+if($_SESSION['user_tipoUser'] == 'Almoxarife') {
+    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado para o cargo ' . $_SESSION['user_tipoUser'] . '!');
+}
+
+//DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['form-id'])) {
         if($_POST['form-id'] === 'cadastrar_membro') {
@@ -12,7 +19,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-$GLOBALS['tabela'] = 'membro';
+$_SESSION['tabela'] = 'membro';
 $planos = listar('plano');
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
@@ -23,21 +30,19 @@ include '../header.php';
 ?>
 
 <main class="main-content">
-    <div class="titulo">
-        <h2>CADASTRAMENTO</h2>
-    </div>
     <div class="top-section">
         <div class="actions-section">
+            <h2>CADASTRAMENTO</h2>
             <button class="action-btn" onclick="abrePopup('popupCadastroMembro')"><span class="plus-icon">+</span>NOVO MEMBRO</button>
         </div>
     </div>
     
     <div class="search-section">
-        <div class="titulo">
-            <h2>MEMBROS</h2>
-        </div>
-        <div class='barra'>
-            <input type="text" class="search-input" id="pesquisaInput" placeholder="Pesquisar ID, nome ou CPF" oninput="pesquisarDadoTabela('membro')">
+        <h2>MEMBROS</h2>
+        <div class='search-section__barra'>
+            <i class='fi fi-rs-search'></i>
+            <input type="text" class="search-input" id="pesquisaInput" size="26";
+                   placeholder="Pesquisar ID, nome ou CPF" oninput="pesquisarDadoTabela('membro')">
         </div>
     </div>
 
@@ -112,7 +117,7 @@ include '../header.php';
             <input type="password" name="mem_senha" required minlength="6" maxlength="6">
         </div>
 
-        <div class="form-row">
+        <div class="button-group">
             <button class="btn btn-save" type="submit">Cadastrar</button>
             <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroMembro')">Cancelar</button>
         </div>
@@ -218,7 +223,7 @@ include '../header.php';
 
         <div class="form-row">
             <button class="btn btn-save" type="submit">Alterar</button>
-            <button class="btn btn-cancel" onclick="location.href='membro-gestao.php'">Cancelar</button>
+            <button class="btn btn-cancel" type="button" onclick="location.href='membro-gestao.php'">Cancelar</button>
         </div>
     </form>
 </div>

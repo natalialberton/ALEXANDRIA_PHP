@@ -1,9 +1,9 @@
 <?php
 
-require_once "../../funcoes.php";
+require_once "../../geral.php";
 
 $termoBusca = $_GET['termo'] ?? '';
-$tabela = $_GET['tabela'] ?? $GLOBALS['tabela'] ?? '';
+$tabela = $_GET['tabela'] ?? $_SESSION['tabela'] ?? '';
 
 $mensagem = !empty($termoBusca) ?
     "Não foi possível encontrar $tabela para a pesquisa \"" . htmlspecialchars($termoBusca) . "\"" :
@@ -13,8 +13,8 @@ switch($tabela) {
     case 'membro':
         $dados = !empty($termoBusca) ? retornoPesquisa($termoBusca, $tabela, 'pk_mem', 'mem_nome', 'mem_cpf') : listar('membro');
         break;
-    case 'funcionario':
-        $dados = !empty($termoBusca) ? retornoPesquisa($termoBusca, $tabela, 'pk_user', 'user_nome', '') : listar('funcionario');
+    case 'fornecedor':
+        $dados = !empty($termoBusca) ? retornoPesquisa($termoBusca, $tabela, 'pk_forn', 'forn_nome', 'forn_cnpj') : listar('fornecedor');
         break;
     default:
         $dados = [];
@@ -23,7 +23,7 @@ switch($tabela) {
 
 ?>
 <?php if($tabela === 'membro'): ?>
-<table id="tabela-membros">
+<table>
     <thead>
         <tr>
             <th>ID</th>
@@ -63,12 +63,55 @@ switch($tabela) {
                     </tr>
         <?php 
                 endforeach;
-            else: echo "<tr><td colspan='8' class='text-center'><i class='fas fa-search'></i> $mensagem</td></tr>";
+            else: echo "<tr><td colspan='8' class='text-center'><i class='fas fa-search'></i>$mensagem</td></tr>";
             endif;
         ?>
     </tbody>
 </table>
 
-<?php 
-    endif; 
-?>
+<?php elseif($tabela === 'fornecedor'): ?>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>CNPJ</th>
+            <th>Telefone</th>
+            <th>E-mail</th>
+            <th>Endereço</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody id="tabela-body">
+        <?php 
+            if(!empty($dados)): 
+                foreach ($dados as $dado): 
+        ?>
+                    <tr>
+                        <td><?= htmlspecialchars($dado["pk_forn"]) ?></td>
+                        <td><?= htmlspecialchars($dado["forn_nome"]) ?></td>
+                        <td><?= htmlspecialchars($dado["forn_cnpj"]) ?></td>
+                        <td><?= htmlspecialchars($dado["forn_telefone"]) ?></td>
+                        <td><?= htmlspecialchars($dado["forn_email"]) ?></td>
+                        <td><?= htmlspecialchars($dado["forn_endereco"]) ?></td>
+                        <td>
+                            <button style="background: none; border: none; padding: 0; cursor: pointer;"
+                                    onclick="confirmarExclusao('fornecedor-gestao.php', 'excluir_fornecedor', <?= $dado['pk_forn'] ?>, 'Tem certeza que deseja excluir este fornecedor?')">
+                                <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
+                            </button>
+                            <button onclick="location.href='?id=<?= $dado['pk_forn'] ?>#editarFornecedor'" 
+                                    style="background: none; border: none; padding: 0; cursor: pointer;">
+                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
+                            </button>
+                        </td>
+                    </tr>
+        <?php 
+                endforeach;
+            else: echo "<tr><td colspan='8' class='text-center'><i class='fas fa-search'></i>$mensagem</td></tr>";
+            endif;
+        ?>
+    </tbody>
+</table>
+
+
+<?php endif; ?>

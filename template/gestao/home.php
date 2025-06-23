@@ -1,5 +1,5 @@
 <?php
-require_once "../../funcoes.php";
+require_once "../../geral.php";
 session_start();
 
 $tituloPagina = "HOME";
@@ -54,7 +54,7 @@ try {
 
 <div class='titleliv'>
     <div class="tabela">
-        <div class="tisch">
+        <div class="tisch tisch-overflow">
             <table>
                 <tr>
                     <th>CPF</th>
@@ -96,7 +96,7 @@ try {
 
 <div class='titleliv'>
     <div class="tabela">
-        <div class="tisch">
+        <div class="tisch tisch-overflow">
             <table>
                 <tr>
                     <th>CPF</th>
@@ -124,7 +124,7 @@ try {
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan='8'>Nenhum empréstimo encontrado.</td>
+                        <td colspan='8'>Nenhuma reserva encontrada.</td>
                     </tr>
                 <?php endif; ?>
             </table>

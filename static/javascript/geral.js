@@ -46,6 +46,16 @@ function cpfMasc(variavel) {
     return variavel;
 }
 
+//Máscara CNPJ 12.345.678/0001-01
+function cnpjMasc(variavel) {
+    variavel = variavel.replace(/\D/g,"");
+    variavel = variavel.replace(/(\d{2})(\d)/,"$1.$2");
+    variavel = variavel.replace(/(\d{3})(\d)/,"$1.$2");
+    variavel = variavel.replace(/(\d{3})(\d)/,"$1/$2");
+    variavel = variavel.replace(/(\d{4})(\d)/,"$1-$2");
+    return variavel;
+}
+
 //Máscara Telefone
 function telefoneMasc(variavel) {
     variavel = variavel.replace(/\D/g,"");
@@ -78,6 +88,8 @@ function fechaPopup(idPopup) {
 window.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash === '#editarMembro') {
         document.getElementById('popupEdicaoMembro').showModal();
+    } else if (window.location.hash === '#editarFornecedor') {
+        document.getElementById('popupEdicaoFornecedor').showModal();
     }
 });
 
@@ -90,7 +102,7 @@ function pesquisarDadoTabela(tabela) {
         const termoBusca = document.getElementById('pesquisaInput').value;
         
         // Mostra loading (opcional)
-        document.getElementById('container-tabela').innerHTML = '<p>Carregando...</p>';
+        document.getElementById('container-tabela').innerHTML = "<tr><td colspan='2' class='text-center'><i class='fas fa-search'></i>Carregando...</td></tr>";
         
         // Faz a requisição AJAX
         fetch(`tabelas.php?tabela=${encodeURIComponent(tabela)}&termo=${encodeURIComponent(termoBusca)}`)
@@ -100,7 +112,7 @@ function pesquisarDadoTabela(tabela) {
             })
             .catch(error => {
                 console.error('Erro:', error);
-                document.getElementById('container-tabela').innerHTML = '<p>Erro ao carregar resultados</p>';
+                document.getElementById('container-tabela').innerHTML = "<tr><td colspan='2' class='text-center'><i class='fas fa-search'></i>Erro ao carregar resultados!</td></tr>";
             });
     }, 300); // Atraso de 300ms após a digitação
 }
@@ -114,8 +126,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if(mensagemErro) {
         console.log(mensagemErro);
-        mostraAlerta('erro', mensagemErro, ''); // Chama sua função do geral.js
-        sessionStorage.removeItem('erroAlerta'); // Limpa o storage
+        mostraAlerta('erro', mensagemErro, '');
+        sessionStorage.removeItem('erroAlerta');
     } else if(mensagemSucesso) {
         mostraAlerta('sucesso', mensagemSucesso, '');
         sessionStorage.removeItem('sucessoAlerta');
@@ -173,24 +185,6 @@ function alertaAviso(mensagem) {
         confirmButtonText: 'OK'
     });
 }
-
-/*function alertaAviso(urlRedirecionamento, mensagem) {
-    Swal.fire({
-        icon: 'warning',
-        title: 'Atenção!',
-        text: mensagem,
-        confirmButtonColor: '#a69c60',
-        showConfirmButton: true,
-        confirmButtonText: 'Continuar',
-        showCancelButton: true,
-        cancelButtonColor: '#d33',
-        cancelButtonText: 'Cancelar'
-    }).then((result) => {
-        if(result.isConfirmed) {
-            window.location.href = urlRedirecionamento + '&confirmado=1';    
-        }
-    });
-}*/
 
 function confirmarExclusao(arquivo, acao, id, mensagem) {
     Swal.fire({

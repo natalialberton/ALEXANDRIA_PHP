@@ -1,5 +1,5 @@
 <?php
-require_once "../../funcoes.php";
+require_once "../../geral.php";
 session_start();
 
 $livros = listar('livro');

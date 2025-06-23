@@ -1,14 +1,12 @@
-dialog::backdrop {
-    background-color: rgba(0, 0, 0, 0.3);
-}
-
 dialog {
     border: none;
-    background-color: rgba(0, 0, 0, 0.3);
-    border-radius: 0.5rem;
-    box-shadow: 0 0 1em rgba(0, 0, 0, 0.3);
-    width: 100%;
+    background-color: transparent;
+    width: 100vw;
     height: 100vh;
+}
+
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.459);
 }
 
 .popup-content {

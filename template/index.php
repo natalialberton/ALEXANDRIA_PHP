@@ -1,7 +1,7 @@
 <?php
 
 session_start();
-require ('../funcoes.php');
+require_once '../geral.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     login();
@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,9 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="../static/css/login.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.all.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <script src="../static/javascript/geral.js?v=<?= time() ?>"></script>
     <title>LOGIN</title>
 </head>
+
 <body>
     <main>
         <div class="LoginRight">
@@ -32,22 +35,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="top">
                         <h1>Login</h1>
                     </div>
-                    
+
                     <div class="entrada">
                         <div class="input-box">
-                            <img src="../static/img/perfildarkmode.png" class="imgindex" alt="Ícone de perfil">
-                            <input type="text" class="input-field" name="usuario" id="usuario" 
-                                   placeholder="Usuário" required>
+                            <i class="fas fa-user"></i>
+                            <input type="text" class="input-field" name="usuario" id="usuario" placeholder="Usuário" required>
                         </div>
                         <div class="input-box">
-                            <img src="../static/img/senhadarkmode.png" class="imgindex" alt="Ícone de senha">
-                            <input type="password" class="input-field" name="senha" id="senha" 
-                                   placeholder="Senha" required>
+                            <i class="fas fa-lock"></i>
+                            <input type="password" class="input-field" name="senha" id="senha" placeholder="Senha" required>
                             <i id="toggleSenha" class="fa-solid fa-eye"></i>
                         </div>
                     </div>
                     <div class="esqueci-senha">
-                        <a href="recuperarsenha.php" class="forgotpw">Esqueceu sua senha?</a>
+                        <a href="recuperar-senha.php" class="forgotpw">Esqueceu sua senha?</a>
                     </div>
                     <div class="right">
                         <button type="submit">Entrar</button>
@@ -56,11 +57,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </main>
-    
+
     <script>
         const toggleSenha = document.getElementById("toggleSenha");
         const inputSenha = document.getElementById("senha");
-        
+
         toggleSenha.addEventListener("click", function () {
             const tipo = inputSenha.type === "password" ? "text" : "password";
             inputSenha.type = tipo;
@@ -69,4 +70,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         });
     </script>
 </body>
+
 </html>

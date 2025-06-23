@@ -1,6 +1,7 @@
 <?php
-require_once "../../funcoes.php";
+
 session_start();
+require_once "../../geral.php";
 
 $tituloPagina = "HOME";
 $tituloH1 = "HOME | " . $_SESSION['user_nome'];
