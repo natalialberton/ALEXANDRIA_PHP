@@ -34,6 +34,7 @@ switch($tabela) {
 
 
 ?>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css">
 <?php if($tabela === 'membro'): ?>
 <table>
     <thead>
