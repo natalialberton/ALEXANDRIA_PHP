@@ -1,10 +1,9 @@
 <?php
-// dados_graficos.php - API para fornecer dados dos gráficos
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
 require_once '../../conexao.php';
-$pdo = conectarBanco(); // ✅ Aqui você define $pdo corretamente
+$pdo = conectarBanco(); 
 
 $tipo = $_GET['tipo'] ?? '';
 
@@ -12,7 +11,6 @@ $tipo = $_GET['tipo'] ?? '';
 try {
     switch($tipo) {
         case 'emprestimos_reservas_mes':
-            // Empréstimos e reservas ao longo dos meses
             $sql = "
                 SELECT 
                     DATE_FORMAT(data, '%Y-%m') as mes,
@@ -37,7 +35,7 @@ try {
             break;
 
         case 'livros_mais_emprestados':
-            // Livros mais emprestados
+           
             $sql = "
                 SELECT 
                     l.liv_titulo as titulo,
@@ -82,7 +80,7 @@ try {
             break;
 
         case 'multas_mes':
-            // Multas acumuladas ao longo dos meses
+            
             $sql = "
                 SELECT 
                     DATE_FORMAT(e.emp_dataEmp, '%Y-%m') as mes,

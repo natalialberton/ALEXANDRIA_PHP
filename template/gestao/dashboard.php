@@ -3,8 +3,8 @@
 session_start();
 require_once "../../geral.php";
 
-$tituloPagina = "HOME";
-$tituloH1 = "HOME | " . $_SESSION['user_nome'];
+$tituloPagina = "Dashboard";
+$tituloH1 = "Dashboard | " . $_SESSION['user_nome'];
 include '../header.php';
 ?>
 

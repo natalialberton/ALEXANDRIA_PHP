@@ -288,6 +288,18 @@ button:hover {
     text-decoration: underline;
 }
 
+button.cancel {
+    background-color: #23767E99;
+    color:var(--cor-roxa) !important;
+    margin-left: 10px;
+}
+
+button.cancel:hover {
+    background-color: #0f5c6399 !important;
+    color:var(--cor-roxa) !important;
+}
+
+
 @keyframes slideInRight {
     0% {
         transform: translateX(100%);

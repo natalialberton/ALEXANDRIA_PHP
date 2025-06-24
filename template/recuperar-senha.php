@@ -39,7 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="right" id="left">
                             <button type="submit">Enviar Código</button>
-                            <a href="index.php" class="return">Cancelar</a>
+                          <button type="button" class="cancel" onclick="location.href='index.php'">Cancelar</button>
+                        </div>
                         </div>
                     </div>
                 </form>

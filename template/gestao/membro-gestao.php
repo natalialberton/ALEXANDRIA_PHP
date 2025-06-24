@@ -212,11 +212,14 @@ include '../header.php';
         <div class="form-row">
             <button class="btn btn-save" type="submit">Alterar</button>
             <button class="btn btn-cancel" type="button" onclick="location.href='membro-gestao.php'">Cancelar</button>
+
         </div>
     </form>
 </div>
 </div>
 <?php endif; ?> 
 </dialog>
+
+
 </body>
 </html>
