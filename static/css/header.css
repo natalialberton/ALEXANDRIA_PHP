@@ -201,3 +201,7 @@ header {
 h1, h2, h3 {
     font-family: 'Krona One', 'sans-serif';
 }
+
+p {
+    color: var(--cor-titulo-1);
+}

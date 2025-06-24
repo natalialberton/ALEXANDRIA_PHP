@@ -20,6 +20,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $_SESSION['tabela'] = 'autor';
 $categorias = listar('categoria');
+$qtdLivros = contarTotal('livro');
+$qtdCategorias = contarTotal('categoria');
+$qtdAutores = contarTotal('autor');
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
 $tituloPagina = "AUTORES";
@@ -33,6 +36,27 @@ include '../header.php';
         <div class="actions-section">
             <h2>CADASTRAMENTO</h2>
             <button class="action-btn" onclick="abrePopup('popupCadastroAutor')"><span class="plus-icon">+</span>NOVO AUTOR</button>
+        </div>
+
+        <div class="stats-section">
+            <a href="livro-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">LIVROS</div>
+                    <div class="stat-number"><?= $qtdLivros['total'] ?></div>
+                </div>
+            </a>
+            <a href="categoria-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">CATEGORIAS</div>
+                    <div class="stat-number"><?= $qtdCategorias['total'] ?></div>
+                </div>
+            </a>
+            <a href="autor-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">AUTORES</div>
+                    <div class="stat-number"><?= $qtdAutores['total'] ?></div>
+                </div>
+            </a>
         </div>
     </div>
     
