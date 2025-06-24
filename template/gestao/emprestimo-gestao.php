@@ -53,12 +53,10 @@ include '../header.php';
                 <div class="stat-number stat-number-a-vencer"><?= $qtdLivrosAVencer['total'] ?></div>
             </div>
             </a>
-            <a href="autor-gestao.php">
-                <div class="stat-card">
-                    <div class="stat-title stat-title-no-prazo">NO PRAZO</div>
-                    <div class="stat-number stat-number-no-prazo"><?= $qtdLivrosNoPrazo['total'] ?></div>
-                </div>
-            </a>
+            <div class="stat-card">
+                <div class="stat-title stat-title-no-prazo">NO PRAZO</div>
+                <div class="stat-number stat-number-no-prazo"><?= $qtdLivrosNoPrazo['total'] ?></div>
+            </div>
         </div>
     </div>
     
@@ -91,10 +89,12 @@ include '../header.php';
                 <input type="hidden" name="form-id" value="cadastrar_emprestimo">
                 <div class="form-group">
                 <label class="label-cadastro" for="fk_mem">CPF Membro: </label>
-                <input list="membros" name="fk_mem" required>
+                <input list="membros" name="fk_mem" onkeypress="mascara(this,cpfMasc)" required>
                 <datalist class="input-cadastro" id="membros">
                     <?php foreach ($membros as $membro): ?>
                         <option value="<?=htmlspecialchars($membro['mem_cpf']); ?>">
+                            <?=htmlspecialchars($membro['mem_nome']); ?>
+                        </option>
                     <?php endforeach; ?>
                 </datalist>
             </div>
@@ -105,6 +105,8 @@ include '../header.php';
                 <datalist class="input-cadastro" id="livros">
                     <?php foreach ($livros as $livro): ?>
                         <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>">
+                            <?=htmlspecialchars($livro['liv_titulo']); ?>
+                        </option>
                     <?php endforeach; ?>
                 </datalist>
             </div>
@@ -114,17 +116,6 @@ include '../header.php';
             <div class="form-group">
                 <label for="emp_dataEmp">Data: </label>
                 <input type="date" name="emp_dataEmp" value="<?= date('Y-m-d') ?>" required>
-            </div>
-
-            <div class="form-group">
-                <label class="label-cadastro" for="emp_status">Status: </label>
-                <select class="input-cadastro" name="emp_status" required>
-                    <option value="Empréstimo Ativo" selected>Empréstimo Ativo</option>
-                    <option value="Empréstimo Atrasado">Empréstimo Atrasado</option>
-                    <option value="Renovação Ativa">Renovação Ativa</option>
-                    <option value="Renovação Atrasada">Renovação Atrasada</option>
-                    <option value="Finalizado">Finalizado</option>
-                </select>
             </div>
 
             <div class="form-group">

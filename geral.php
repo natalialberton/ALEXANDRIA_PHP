@@ -288,7 +288,7 @@ function crudMembro($acao, $id) {
     //CADASTRAMENTO
         if($acao == 1) {
             $msgSucesso = "Membro cadastrado com sucesso!";
-            $sql = "INSERT INTO membro (mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha, mem_status, fk_plan) 
+            $sql = "INSERT INTO membro (mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha, mem_status) 
                     VALUES (:nome, :cpf, :telefone, :email, :senhaHash, :status)";
             $stmt = $conexao->prepare($sql);
 
@@ -867,12 +867,11 @@ function crudEmprestimo($acao, $id) {
         $dataEmp = filter_input(INPUT_POST, 'emp_dataEmp');
         $dataDev = date('Y-m-d', strtotime("$dataEmp + $prazo days"));
         $dataDevReal = filter_input(INPUT_POST, 'emp_dataDevReal') ?? null;
-        $status = filter_input(INPUT_POST, 'emp_status');
+        $status = filter_input(INPUT_POST, 'emp_status') ?? 'Empréstimo Ativo';
         $membroNome = filter_input(INPUT_POST, 'fk_mem');
         $livroNome = filter_input(INPUT_POST, 'fk_liv');
         $usuario = $_SESSION['pk_user'];
         $membroSenha = filter_input(INPUT_POST, 'mem_senha') ?? null;
-        $membroSenhaHash = password_hash($membroSenha, PASSWORD_DEFAULT) ?? null;
 
     //PUXANDO CHAVE ESTRANGEIRA
         $stmtMembro = $conexao-> prepare("SELECT * FROM membro WHERE mem_cpf = :cpf");
@@ -896,8 +895,10 @@ function crudEmprestimo($acao, $id) {
             exit();
         }
 
-        if(!password_verify($membroSenha, $membro['mem_senha'])) {
-            enviarSweetAlert('', 'erroAlerta', 'Senha incorreta!');
+        if(!empty($membroSenha)) {
+            if(!password_verify($membroSenha, $membro['mem_senha'])) {
+                enviarSweetAlert('', 'erroAlerta', 'Senha incorreta!');
+            }
         }
     
         if ($membro && $livro) {

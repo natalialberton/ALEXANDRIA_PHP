@@ -62,13 +62,13 @@ CREATE TABLE USUARIO (
 );
 
 CREATE TABLE RECUPERA_SENHA (
-    pk_rs INT AUTO_INCREMENT PRIMARY KEY,
-    rs_token VARCHAR(64) NOT NULL,
-    rs_expiracao DATETIME NOT NULL,
-    rs_usado TINYINT DEFAULT 0,
-    rs_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    fk_user INT NOT NULL,
-    FOREIGN KEY (fk_user) REFERENCES usuario(pk_user)
+pk_rs INT AUTO_INCREMENT PRIMARY KEY,
+ rs_token VARCHAR(64) NOT NULL,
+ rs_expiracao DATETIME NOT NULL,
+ rs_usado TINYINT DEFAULT 0,
+ rs_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ fk_user INT NOT NULL,
+ FOREIGN KEY (fk_user) REFERENCES usuario(pk_user)
 );
 
 CREATE TABLE MEMBRO (
@@ -81,7 +81,6 @@ CREATE TABLE MEMBRO (
  mem_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  mem_status ENUM('Ativo', 'Suspenso')
  );
-
 
 CREATE TABLE EMPRESTIMO (
  pk_emp INT PRIMARY KEY auto_increment,
@@ -293,11 +292,11 @@ INSERT INTO LIVRO (liv_titulo, liv_isbn, liv_edicao, liv_anoPublicacao, liv_sino
 
 -- Inserindo remessas
 INSERT INTO REMESSA (rem_data, rem_qtd, fk_forn, fk_liv, fk_user) VALUES
-('2023-01-15 10:00:00', 50, 1, 1, 5),
-('2023-02-20 11:30:00', 30, 2, 2, 5),
-('2023-03-10 09:15:00', 40, 3, 3, 6),
-('2023-04-05 14:20:00', 25, 4, 4, 6),
-('2023-05-12 16:45:00', 35, 5, 5, 8);
+('2023-01-15', 50, 1, 1, 5),
+('2023-02-20', 30, 2, 2, 5),
+('2023-03-10', 40, 3, 3, 6),
+('2023-04-05', 25, 4, 4, 6),
+('2023-05-12', 35, 5, 5, 8);
 
 -- Inserindo empréstimos
 INSERT INTO EMPRESTIMO (emp_prazo, emp_dataEmp, emp_dataDev, emp_dataDevReal, emp_status, fk_mem, fk_user, fk_liv) VALUES

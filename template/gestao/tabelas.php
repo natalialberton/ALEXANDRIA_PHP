@@ -5,18 +5,64 @@ require_once "../../geral.php";
 $tabela = $_GET['tabela'] ?? $_SESSION['tabela'] ?? '';
 $termoBusca = $_GET['termo'] ?? '';
 
-// Mensagem padrão caso não haja resultados
+// MENSAGEM PADRÃO PARA NOT FOUND
 $mensagem = !empty($termoBusca)
     ? "Não foi possível encontrar $tabela para a pesquisa \"" . htmlspecialchars($termoBusca) . "\""
     : "Não foi possível encontrar $tabela";
 
-// Obter os dados da tabela correspondente
+// SWITCH DE ACORDO COM O VALOR DA TABELA
 switch($tabela) {
     case 'membro':
         $dados = !empty($termoBusca)
             ? retornoPesquisa($termoBusca, $tabela, 'pk_mem', 'mem_nome', 'mem_cpf')
             : listar('membro');
         break;
+    case 'usuario':
+        $dados = !empty($termoBusca)
+            ? retornoPesquisa($termoBusca, $tabela, 'pk_user', 'user_nome', 'user_cpf')
+            : listar('usuario');
+        break;
+    case 'autor':
+        $dados = !empty($termoBusca)
+            ? retornoPesquisa($termoBusca, $tabela, 'pk_aut', 'aut_nome', '')
+            : listar('autor');
+        break;
+    case 'categoria':
+        $dados = !empty($termoBusca)
+            ? retornoPesquisa($termoBusca, $tabela, 'pk_cat', 'cat_nome', '')
+            : listar('categoria');
+        break;
+    case 'livro':
+        $dados = !empty($termoBusca)
+            ? retornoPesquisa($termoBusca, $tabela, 'pk_liv', 'liv_titulo', 'liv_isbn')
+            : listar('livro');
+        break;
+    case 'fornecedor':
+        $dados = !empty($termoBusca)
+            ? retornoPesquisa($termoBusca, $tabela, 'pk_forn', 'forn_nome', 'forn_cnpj')
+            : listar('fornecedor');
+        break;
+    case 'emprestimo':
+        $dados = !empty($termoBusca)
+            ? retornoPesquisa($termoBusca, $tabela, 'pk_emp', 'emp_status', '')
+            : listar('emprestimo');
+        break;
+    case 'reserva':
+        $dados = !empty($termoBusca)
+            ? retornoPesquisa($termoBusca, $tabela, 'pk_res', 'res_status', '')
+            : listar('reserva');
+        break;
+    case 'remessa':
+        $dados = !empty($termoBusca)
+            ? retornoPesquisa($termoBusca, $tabela, 'pk_rem', 'rem_data', '')
+            : listar('remessa');
+        break;
+    case 'multa':
+        $dados = !empty($termoBusca)
+            ? retornoPesquisa($termoBusca, $tabela, 'pk_mul', 'mul_status', '')
+            : listar('multa');
+        break;
+                            
     default:
         $dados = [];
         break;
@@ -40,7 +86,6 @@ switch($tabela) {
         <?php 
         if (!empty($dados)): 
             foreach ($dados as $dado): 
-                $plano = selecionarPorId('plano', $dado['fk_plan'], 'pk_plan');
         ?>
             <tr>
                 <td><?= htmlspecialchars($dado["pk_mem"]) ?></td>
@@ -48,7 +93,6 @@ switch($tabela) {
                 <td><?= htmlspecialchars($dado["mem_cpf"]) ?></td>
                 <td><?= htmlspecialchars($dado["mem_telefone"]) ?></td>
                 <td><?= htmlspecialchars($dado["mem_email"]) ?></td>
-                <td><?= htmlspecialchars($plano["plan_nome"]) ?></td>
                 <td><?= htmlspecialchars($dado["mem_status"]) ?></td>
                 <td>
                     <button style="background: none; border: none; padding: 0; cursor: pointer;"
@@ -337,9 +381,9 @@ switch($tabela) {
                         <td><?= htmlspecialchars($dado["pk_emp"]) ?></td>
                         <td><?= htmlspecialchars($livro["liv_isbn"]) ?></td>
                         <td><?= htmlspecialchars($membro["mem_cpf"]) ?></td>
-                        <td><?= htmlspecialchars($dado["emp_dataEmp"]) ?? ''?></td>
-                        <td><?= htmlspecialchars($dado["emp_dataDev"]) ?? ''?></td>
-                        <td><?= htmlspecialchars($dado["emp_dataDevReal"]) ?? ''?></td>
+                        <td><?= htmlspecialchars($dado["emp_dataEmp"]) ?? null?></td>
+                        <td><?= htmlspecialchars($dado["emp_dataDev"]) ?? null?></td>
+                        <td><?= ($dado["emp_dataDevReal"]) ?? null?></td>
                         <td><?= htmlspecialchars($usuario["user_nome"]) ?></td>
                         <td><?= htmlspecialchars($dado["emp_status"]) ?></td>
                         <td>
