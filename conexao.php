@@ -3,7 +3,7 @@
 function conectarBanco() {
     $dsn = "mysql:host=localhost:3307;dbname=alexandria;charset=utf8";
     $usuario = "root";
-    $senha = "root";
+    $senha = "";
 
     try {
         $conn = new PDO($dsn, $usuario, $senha, [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION, 
