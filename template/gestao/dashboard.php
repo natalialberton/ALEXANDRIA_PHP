@@ -3,14 +3,6 @@
 session_start();
 require_once "../../geral.php";
 
-if(!isset($_SESSION['statusUser']) || $_SESSION['statusUser'] !== 'Ativo') {
-    enviarSweetAlert('../index.php', 'erroAlerta', 'Acesso a página negado!');
-}
-
-if($_SESSION['tipoUser'] !== 'Administrador') {
-    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
-}
-
 $tituloPagina = "Dashboard";
 $tituloH1 = "Dashboard | " . $_SESSION['user_nome'];
 include '../header.php';

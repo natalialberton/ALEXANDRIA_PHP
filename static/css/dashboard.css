@@ -50,13 +50,12 @@ body {
     color: var(--cor-texto);
 }
 
-/* MODIFICAÇÃO PRINCIPAL: Grid alterado para layout vertical */
 .dashboard-grid {
     display: grid;
-    grid-template-columns: 1fr; /* Uma coluna apenas */
+    grid-template-columns: 1fr; 
     gap: 25px;
     margin-bottom: 30px;
-    max-width: 800px; /* Largura máxima para melhor visualização */
+    max-width: 800px; 
     margin-left: auto;
     margin-right: auto;
 }
@@ -88,7 +87,7 @@ body {
 
 .chart-wrapper {
     position: relative;
-    height: 300px; 
+    height: 250px; 
     margin-bottom: 15px;
 }
 

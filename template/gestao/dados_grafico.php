@@ -80,7 +80,7 @@ try {
             break;
 
         case 'multas_mes':
-            // Multas acumuladas ao longo dos meses
+            
             $sql = "
                 SELECT 
                     DATE_FORMAT(e.emp_dataEmp, '%Y-%m') as mes,

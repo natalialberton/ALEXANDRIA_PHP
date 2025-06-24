@@ -24,7 +24,7 @@ $qtdLivros = contarTotal('livro');
 $qtdCategorias = contarTotal('categoria');
 $qtdAutores = contarTotal('autor');
 
-//PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
+
 $tituloPagina = "AUTORES";
 $tituloH1= "GESTÃO AUTORES";
 include '../header.php';
@@ -78,7 +78,6 @@ include '../header.php';
     </div>
 </main>
 
-<!--POPUP CADASTRAMENTO-->
 <dialog class="popup" id="popupCadastroAutor">
 <div class="popup-content">
 <div class="popup__container">
@@ -118,7 +117,7 @@ include '../header.php';
 </div>
 </dialog>
 
-<!--POPUP EDIÇÃO-->
+
 <dialog class="popup" id="popupEdicaoAutor">
 <?php
 

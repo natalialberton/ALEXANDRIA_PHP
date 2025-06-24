@@ -24,6 +24,14 @@
     text-decoration: none;
 }
 
+a{
+     text-decoration: underline 
+}
+
+a{
+     text-decoration: underline 
+}
+
 .main-content {
     padding: 3rem;
 }
@@ -648,6 +656,8 @@ textarea {
 .tituloHome{
     margin-top:80px;
 }
+
+
 
 @media (max-width: 640px) {
     .form-row {

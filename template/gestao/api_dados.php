@@ -1,15 +1,13 @@
 <?php
-// Desabilitar exibição de erros na saída
+
 ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
-// Headers JSON
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
-// Função para conectar ao banco
 function conectarBanco() {
     $dsn = "mysql:host=localhost:3307;dbname=alexandria;charset=utf8";
     $usuario = "root";
@@ -27,17 +25,15 @@ function conectarBanco() {
     }
 }
 
-// Função para retornar erro em JSON
 function retornarErro($mensagem) {
     echo json_encode(['success' => false, 'error' => $mensagem], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 try {
-    // Conectar ao banco
+   
     $pdo = conectarBanco();
-    
-    // Inicializar arrays
+
     $emprestimos = [];
     $reservas = [];
     $totais = [
@@ -47,7 +43,7 @@ try {
         'reservas_abertas' => 0
     ];
     
-    // Consulta para empréstimos por status
+    
     $sqlEmprestimos = "SELECT emp_status, COUNT(*) as quantidade FROM EMPRESTIMO GROUP BY emp_status ORDER BY quantidade DESC";
     
     try {
@@ -56,10 +52,9 @@ try {
         $emprestimos = $stmtEmp->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
         error_log("Erro ao buscar empréstimos: " . $e->getMessage());
-        // Manter array vazio em caso de erro
+      
     }
-    
-    // Consulta para reservas por status
+
     $sqlReservas = "SELECT res_status, COUNT(*) as quantidade FROM RESERVA GROUP BY res_status ORDER BY quantidade DESC";
     
     try {
@@ -68,7 +63,6 @@ try {
         $reservas = $stmtRes->fetchAll(PDO::FETCH_ASSOC);
     } catch (Exception $e) {
         error_log("Erro ao buscar reservas: " . $e->getMessage());
-        // Manter array vazio em caso de erro
     }
     
     // Totais gerais
@@ -90,10 +84,10 @@ try {
         }
     } catch (Exception $e) {
         error_log("Erro ao buscar totais: " . $e->getMessage());
-        // Manter valores padrão se der erro
+       
     }
     
-    // Preparar resposta
+  
     $response = [
         'success' => true,
         'data' => [
