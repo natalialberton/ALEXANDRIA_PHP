@@ -70,7 +70,7 @@ CREATE TABLE USUARIO (
  user_tipoUser ENUM('Administrador', 'Secretaria', 'Almoxarife')
 );
 
-CREATE TABLE recuperaSenha (
+CREATE TABLE RECUPERA_SENHA (
     pk_rs INT AUTO_INCREMENT PRIMARY KEY,
     rs_token VARCHAR(64) NOT NULL,
     rs_expiracao DATETIME NOT NULL,
@@ -361,3 +361,4 @@ INSERT INTO PAG_PLANO (pag_plan_preco, pag_plan_valorPag, pag_plan_dataPag, pag_
 (49.90, 49.90, '2023-01-10', '2023-02-10', 'Em dia', 3, 3),
 (19.90, 19.90, '2023-02-01', '2023-03-01', 'Atrasado', 4, 1),
 (29.90, 29.90, '2023-02-05', '2023-03-05', 'Em dia', 5, 2);
+

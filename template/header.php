@@ -29,9 +29,7 @@
         <div id="navegaMenu" class="menuLateral">
             <h2 id="cabecalhoMenu">Menu</h2>
             <a href="home.php" class="linkMenu" >Home</a>
-            <a href="livro-gestao.php" class="linkMenu">Livros</a>
-            <a href="categoria-gestao.php" class="linkMenu">Categorias</a>
-            <a href="autor-gestao.php" class="linkMenu">Autores</a>
+            <a href="livro-gestao.php" class="linkMenu">Acervo</a>
             <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
                 <a href="emprestimo-gestao.php" class="linkMenu">Empréstimos</a>
             <?php endif;?>
@@ -45,7 +43,7 @@
             <?php if($_SESSION['tipoUser'] === 'Administrador'): ?>
                 <a href="funcionario-gestao.php" class="linkMenu">Funcionários</a>
             <?php endif;?>
-            <?php if($_SESSION['tipoUser'] !== 'Administrador'): ?>
+            <?php if($_SESSION['tipoUser'] === 'Administrador'): ?>
                 <a href="dashboard.php" class="linkMenu">Dashboard</a>
             <?php endif;?>
         </div>
