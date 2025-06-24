@@ -1,3 +1,17 @@
+<?php
+
+require_once '../../geral.php';
+
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if(isset($_POST['logout'])) {
+        if($_POST['logout'] === 'logout') {
+            logout();
+        }
+    }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -67,14 +81,17 @@
     </button>
 
     <div class="dropdown" id="dropdownMenu">
-        <button onclick="DadosPessoais()">
+        <button onclick="abrePopup('dadosPessoais')">
             <i class="fas fa-user"></i>
             <span>Dados Pessoais</span>
         </button>
-        <button onclick="LogOut()">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Log Out</span>
-        </button>
+        <form method="POST">
+                <input type="hidden" name="logout" value="logout">
+                <button type="submit">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </button>
+        </form>
     </div>
 
     <script>
@@ -91,14 +108,6 @@
                 dropdown.classList.remove('active');
             }
         });
-
-        function DadosPessoais() {
-            window.location.href = '../index.php';
-        }
-
-        function LogOut() {
-            window.location.href = '../index.php';
-        }
     </script>
 
 

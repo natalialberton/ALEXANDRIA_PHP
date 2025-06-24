@@ -49,7 +49,7 @@ function login() {
             header("Location: gestao/home.php");
             exit();
         } else {
-            enviarSweetAlert('index.php', 'erroAlerta', 'Senha ou Usuário incorretos!');
+            enviarSweetAlert('../index.php', 'erroAlerta', 'Senha ou Usuário incorretos!');
         }
     }
 }
@@ -57,8 +57,7 @@ function login() {
 //FUNÇÃO PARA REALIZAR LOGOUT
 function logout() {
     session_destroy();
-    echo "<script> window.location.href = 'index.php'; </script>";
-    exit();
+    enviarSweetAlert('../index.php', 'sucessoAlerta', 'Até a próxima!');
 }
 
 //FUNÇÕES PARA RECUPERAÇÃO E REDEFINIÇÃO DE SENHA

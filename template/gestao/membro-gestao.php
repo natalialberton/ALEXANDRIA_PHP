@@ -3,7 +3,11 @@
 session_start();
 require_once "../../geral.php";
 
-if($_SESSION['statusUser'] !== 'Ativo' || $_SESSION['tipoUser'] === 'Almoxarife') {
+if(!isset($_SESSION['statusUser']) || $_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('../index.php', 'erroAlerta', 'Acesso a página negado!');
+}
+
+if($_SESSION['tipoUser'] === 'Almoxarife') {
     enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
 }
 
