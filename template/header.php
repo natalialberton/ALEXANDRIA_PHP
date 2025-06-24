@@ -69,27 +69,26 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             <div class="alexandria-logo">
                 <div class="img"> <img src="../../static/img/LOGO.png" class="logoGestao" alt="Logo Alexandria"> </div>
             </div>
-              <style>
 
-    </style>
-</head>
+        <button id="btnPerfil" onclick="toggleDropdown()">
+            <i class="fas fa-circle-user"></i>
+        </button>
+
+        <div class="dropdown" id="dropdownMenu">
+            <button onclick="DadosPessoais()">
+                <i class="fas fa-user"></i>
+                <span>Dados Pessoais</span>
+            </button>
+            <form>
+                <button onclick="LogOut()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Log Out</span>
+                </button>
+            </form>
+        </div>
+    </header>
+
 <body>
-
-    <button id="btnPerfil" onclick="toggleDropdown()">
-        <i class="fas fa-circle-user"></i>
-    </button>
-
-    <div class="dropdown" id="dropdownMenu">
-        <button onclick="DadosPessoais()">
-            <i class="fas fa-user"></i>
-            <span>Dados Pessoais</span>
-        </button>
-        <button onclick="LogOut()">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Log Out</span>
-        </button>
-    </div>
-
     <script>
         const dropdown = document.getElementById('dropdownMenu');
 
@@ -113,6 +112,3 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             window.location.href = '../index.php';
         }
     </script>
-
-
-    </header>

@@ -40,8 +40,7 @@ $sqlReserva =
     r.res_dataMarcada AS data_marcada,
     r.res_dataVencimento AS data_vencimento,
     r.res_dataFinalizada AS data_finalizada,
-    r.res_status AS status,
-    r.res_observacoes AS observacoes
+    r.res_status AS status
 
 FROM RESERVA r
 JOIN MEMBRO m ON r.fk_mem = m.pk_mem

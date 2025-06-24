@@ -288,7 +288,7 @@ function crudMembro($acao, $id) {
     //CADASTRAMENTO
         if($acao == 1) {
             $msgSucesso = "Membro cadastrado com sucesso!";
-            $sql = "INSERT INTO membro (mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha, mem_status, fk_plan) 
+            $sql = "INSERT INTO membro (mem_nome, mem_cpf, mem_telefone, mem_email, mem_senha, mem_status) 
                     VALUES (:nome, :cpf, :telefone, :email, :senhaHash, :status)";
             $stmt = $conexao->prepare($sql);
 
@@ -867,12 +867,11 @@ function crudEmprestimo($acao, $id) {
         $dataEmp = filter_input(INPUT_POST, 'emp_dataEmp');
         $dataDev = date('Y-m-d', strtotime("$dataEmp + $prazo days"));
         $dataDevReal = filter_input(INPUT_POST, 'emp_dataDevReal') ?? null;
-        $status = filter_input(INPUT_POST, 'emp_status');
+        $status = filter_input(INPUT_POST, 'emp_status') ?? 'Empréstimo Ativo';
         $membroNome = filter_input(INPUT_POST, 'fk_mem');
         $livroNome = filter_input(INPUT_POST, 'fk_liv');
         $usuario = $_SESSION['pk_user'];
         $membroSenha = filter_input(INPUT_POST, 'mem_senha') ?? null;
-        $membroSenhaHash = password_hash($membroSenha, PASSWORD_DEFAULT) ?? null;
 
     //PUXANDO CHAVE ESTRANGEIRA
         $stmtMembro = $conexao-> prepare("SELECT * FROM membro WHERE mem_cpf = :cpf");
@@ -893,11 +892,16 @@ function crudEmprestimo($acao, $id) {
 
         if ($acao === 1 && $membroComMulta !== false && $membroComMulta !== false) {
             enviarSweetAlert('emprestimo-gestao.php', 'erroAlerta', 'O membro selecionado tem multas pendentes!');
-            exit();
         }
 
-        if(!password_verify($membroSenha, $membro['mem_senha'])) {
-            enviarSweetAlert('', 'erroAlerta', 'Senha incorreta!');
+        if($livro['liv_estoque'] === 0) {
+            enviarSweetAlert('emprestimo-gestao.php', 'erroAlerta', 'O livro selecionado não está disponível!');
+        }
+
+        if(!empty($membroSenha)) {
+            if(!password_verify($membroSenha, $membro['mem_senha'])) {
+                enviarSweetAlert('', 'erroAlerta', 'Senha incorreta!');
+            }
         }
     
         if ($membro && $livro) {
@@ -908,11 +912,12 @@ function crudEmprestimo($acao, $id) {
                 $sql = "INSERT INTO emprestimo (emp_prazo, emp_dataEmp, emp_dataDev, emp_dataDevReal, emp_status, fk_mem, fk_user, fk_liv)
                         VALUES (:prazo, :dataEmp, :dataDev, :dataDevReal, :status, :fk_mem, :fk_user, :fk_liv)";
                 $stmt = $conexao-> prepare($sql);
+                $stmt-> bindParam(":dataEmp", $dataEmp);
         
         //ALTERAÇÃO
             } elseif ($acao == 2 && $id > 0) {
                 $msgSucesso = "Empréstimo alterado com sucesso!";
-                $sql = "UPDATE emprestimo SET emp_prazo=:prazo, emp_dataEmp=:dataEmp, emp_dataDev=:dataDev, emp_dataDevReal=:dataDevReal,
+                $sql = "UPDATE emprestimo SET emp_prazo=:prazo, emp_dataDev=:dataDev, emp_dataDevReal=:dataDevReal,
                         emp_status=:status, fk_mem=:fk_mem, fk_user=:fk_user, fk_liv=:fk_liv 
                         WHERE pk_emp=:pk_emp";
                 $stmt = $conexao-> prepare($sql);
@@ -920,7 +925,6 @@ function crudEmprestimo($acao, $id) {
             }
 
             $stmt-> bindParam(":prazo", $prazo);
-            $stmt-> bindParam(":dataEmp", $dataEmp);
             $stmt-> bindParam(":dataDev", $dataDev);
             $stmt-> bindParam(":dataDevReal", $dataDevReal);
             $stmt-> bindParam(":status", $status);
@@ -937,8 +941,9 @@ function crudEmprestimo($acao, $id) {
             $emprestimo = selecionarPorId('emprestimo', $id, 'pk_emp');
 
             if ($emprestimo['emp_status'] === 'Empréstimo Atrasado' || 
+                $emprestimo['emp_status'] === 'Empréstimo Ativo' || 
                 $emprestimo['emp_status'] === 'Renovação Atrasada' || 
-                $emprestimo['emp_status'] === 'Ativo') {
+                $emprestimo['emp_status'] === 'Renovação Ativa') {
                 enviarSweetAlert('emprestimo-gestao.php', 'erroAlerta', 'Não é possível excluir um empréstimo não finalizado!');
             }
 
