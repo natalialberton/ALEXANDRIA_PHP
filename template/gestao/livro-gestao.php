@@ -40,18 +40,24 @@ include '../header.php';
         </div>
 
         <div class="stats-section">
-            <div class="stat-card">
-                <div class="stat-title">LIVROS</div>
-                <div class="stat-number"><?= $qtdLivros['total'] ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">CATEGORIAS</div>
-                <div class="stat-number"><?= $qtdCategorias['total'] ?></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">AUTORES</div>
-                <div class="stat-number"><?= $qtdAutores['total'] ?></div>
-            </div>
+            <a href="livro-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">LIVROS</div>
+                    <div class="stat-number"><?= $qtdLivros['total'] ?></div>
+                </div>
+            </a>
+            <a href="categoria-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">CATEGORIAS</div>
+                    <div class="stat-number"><?= $qtdCategorias['total'] ?></div>
+                </div>
+            </a>
+            <a href="autor-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">AUTORES</div>
+                    <div class="stat-number"><?= $qtdAutores['total'] ?></div>
+                </div>
+            </a>
         </div>
     </div>
 
@@ -94,7 +100,16 @@ include '../header.php';
 
         <div class="form-row">
             <div class="form-group">
-                <label class="label-cadastro" for="cat_nome">Gênero Literário: </label>
+                <label class="label-cadastro" for="aut_nome">Autor: </label>
+                <input list="autores" name="aut_nome" placeholder="Selecione autores" required>
+                <datalist class="input-cadastro" id="autores">
+                    <?php foreach ($autores as $autor): ?>
+                        <option value="<?=htmlspecialchars($autor['aut_nome']); ?>">
+                    <?php endforeach; ?>
+                </datalist>
+            </div>
+            <div class="form-group">
+                <label class="label-cadastro" for="cat_nome">Categoria: </label>
                 <input list="categorias" name="cat_nome" required>
                 <datalist class="input-cadastro" id="categorias">
                     <?php foreach ($categorias as $categoria): ?>
@@ -106,12 +121,24 @@ include '../header.php';
 
         <div class="button-group">
             <button class="btn btn-save" type="submit">Cadastrar</button>
-            <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroAutor')">Cancelar</button>
+            <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroLivro')">Cancelar</button>
         </div>
     </form>
 </div>
 </div>
 </dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+<script>
+    var input = document.querySelector('input[name="aut_nome"]');
+    new Tagify(input, {
+        whitelist: Array.from(document.querySelectorAll('#autores option')).map(o => o.value),
+        dropdown: {
+            enabled: 1,
+            position: 'text'
+        }
+    });
+</script>
 
 </body>
 </html>
