@@ -29,9 +29,7 @@
         <div id="navegaMenu" class="menuLateral">
             <h2 id="cabecalhoMenu">Menu</h2>
             <a href="home.php" class="linkMenu" >Home</a>
-            <a href="livro-gestao.php" class="linkMenu">Livros</a>
-            <a href="categoria-gestao.php" class="linkMenu">Categorias</a>
-            <a href="autor-gestao.php" class="linkMenu">Autores</a>
+            <a href="livro-gestao.php" class="linkMenu">Acervo</a>
             <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
                 <a href="emprestimo-gestao.php" class="linkMenu">Empréstimos</a>
             <?php endif;?>
@@ -45,7 +43,7 @@
             <?php if($_SESSION['tipoUser'] === 'Administrador'): ?>
                 <a href="funcionario-gestao.php" class="linkMenu">Funcionários</a>
             <?php endif;?>
-            <?php if($_SESSION['tipoUser'] !== 'Administrador'): ?>
+            <?php if($_SESSION['tipoUser'] === 'Administrador'): ?>
                 <a href="dashboard.php" class="linkMenu">Dashboard</a>
             <?php endif;?>
         </div>
@@ -58,5 +56,50 @@
             <div class="alexandria-logo">
                 <div class="img"> <img src="../../static/img/LOGO.png" class="logoGestao" alt="Logo Alexandria"> </div>
             </div>
-        </div>
+              <style>
+
+    </style>
+</head>
+<body>
+
+    <button id="btnPerfil" onclick="toggleDropdown()">
+        <i class="fas fa-circle-user"></i>
+    </button>
+
+    <div class="dropdown" id="dropdownMenu">
+        <button onclick="DadosPessoais()">
+            <i class="fas fa-user"></i>
+            <span>Dados Pessoais</span>
+        </button>
+        <button onclick="LogOut()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Log Out</span>
+        </button>
+    </div>
+
+    <script>
+        const dropdown = document.getElementById('dropdownMenu');
+
+        function toggleDropdown() {
+            dropdown.classList.toggle('active');
+        }
+
+      
+        document.addEventListener('click', function (e) {
+            const button = document.getElementById('btnPerfil');
+            if (!dropdown.contains(e.target) && !button.contains(e.target)) {
+                dropdown.classList.remove('active');
+            }
+        });
+
+        function DadosPessoais() {
+            window.location.href = '../index.php';
+        }
+
+        function LogOut() {
+            window.location.href = '../index.php';
+        }
+    </script>
+
+
     </header>

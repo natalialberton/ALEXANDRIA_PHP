@@ -633,24 +633,17 @@ function crudCategoria($acao, $id) {
     }
 }
 
-//--------------------------------------------------- CRUD FUNCIONÁRIO ---------------------------------------------------
-function crudFuncionario($acao, $id) {
-    $conexao = conectaBd();
-}
 
 //--------------------------------------------------- CRUD LIVRO ---------------------------------------------------
 function crudLivro($acao, $id) {
     $conexao = conectaBd();
-}
 
-function cadastrarLivro() {
-    if ($_SERVER["REQUEST_METHOD"]=="POST"){
-        $conexao = conectaBd();
-
+    if ($acao == 1 || $acao == 2) {
+    //PUXANDO DADOS VIA POST
         $titulo = filter_input(INPUT_POST, 'liv_titulo');
         $isbn = filter_input(INPUT_POST, 'liv_isbn');
-        $autor = filter_input(INPUT_POST, 'fk_aut');
-        $categoria = filter_input(INPUT_POST, 'fk_cat');
+        $autorNome = filter_input(INPUT_POST, 'aut_nome');
+        $categoriaNome = filter_input(INPUT_POST, 'cat_nome');
         $edicao = filter_input(INPUT_POST, 'liv_edicao');
         $anoPublicacao = filter_input(INPUT_POST, 'liv_anoPublicacao');
         $dataAlteracaoEstoque = filter_input(INPUT_POST, 'liv_dataAlteracaoEstoque');
@@ -659,62 +652,59 @@ function cadastrarLivro() {
         $numPaginas = filter_input(INPUT_POST, 'liv_num_paginas');
         $sinopse = filter_input(INPUT_POST, 'liv_sinopse');
 
-        $sql = "INSERT INTO livro(liv_titulo, liv_isbn, liv_edicao, liv_anoPublicacao, liv_sinopse,  liv_estoque,
-                liv_dataAlteracaoEstoque, liv_idioma, liv_num_paginas, fk_aut, fk_cat)
-                VALUES (:liv_titulo, :liv_isbn, :liv_edicao, :liv_anoPublicacao, :liv_sinopse, :liv_estoque, 
-                :liv_dataAlteracaoEstoque, :liv_idioma, :liv_num_paginas, :fk_aut, :fk_cat)";
+    //PUXANDO CHAVE ESTRANGEIRA
+        $stmtCategoria = $conexao-> prepare("SELECT * FROM categoria WHERE cat_nome = :nome");
+        $stmtCategoria-> bindParam(":nome", $categoriaNome);
+        $stmtCategoria-> execute();
+        $categoria = $stmtCategoria-> fetch(PDO::FETCH_ASSOC);
 
-        $stmt = $conexao-> prepare($sql);
-        $stmt-> bindParam(":liv_titulo", $titulo);
-        $stmt-> bindParam(":liv_isbn", $isbn);
-        $stmt-> bindParam(":liv_edicao", $edicao);
-        $stmt-> bindParam(":liv_anoPublicacao", $anoPublicacao);
-        $stmt-> bindParam(":liv_sinopse", $sinopse);
-        $stmt-> bindParam(":liv_estoque", $estoque);
-        $stmt-> bindParam(":liv_dataAlteracaoEstoque", $dataAlteracaoEstoque);
-        $stmt-> bindParam(":liv_idioma", $idioma);
-        $stmt-> bindParam(":liv_num_paginas", $numPaginas);
-        $stmt-> bindParam(":fk_aut", $autor, PDO::PARAM_INT);
-        $stmt-> bindParam(":fk_cat", $categoria, PDO::PARAM_INT);
+        $stmtAutor = $conexao-> prepare("SELECT * FROM autor WHERE aut_nome = :nome");
+        $stmtAutor-> bindParam(":nome", $autorNome);
+        $stmtAutor-> execute();
+        $autor = $stmtAutor-> fetch(PDO::FETCH_ASSOC);
 
-        try {
-            $stmt-> execute();
-            echo "<script> window.location.href = '../gestao/livro-gestao.php';
-                            alert('Livro cadastrado com sucesso!'); 
-                  </script>";
-            exit();
-        } catch (PDOException $e) {
-            header("Location: livro-cadastro.php?erro=" . urlencode($e->getMessage()));
+    //TRATAMENTO DE EXCEÇÕES
+        $stmtCheckIsbn = $conexao-> prepare("SELECT liv_isbn FROM livro WHERE liv_isbn = :isbn");
+        $stmtCheckIsbn-> bindParam(":isbn", $isbn, PDO::PARAM_STR);
+        $stmtCheckIsbn-> execute();
+        $isbnExistente = $stmtCheckIsbn-> fetchColumn();
+
+        if ($acao === 1 && $isbnExistente !== false) {
+            enviarSweetAlert('livro-gestao.php', 'erroAlerta', 'Livro já cadastrado!');
             exit();
         }
-    } else {
-        header("Location: livro-cadastro.php");
-        exit();
-    }
-}
 
-function editarLivro($id) {
-    if ($_SERVER["REQUEST_METHOD"]=="POST"){
-        $conexao = conectaBd();
+        if ($acao === 2) {
+            $livroAtual = selecionarPorId('livro', $id, 'pk_liv');
+            $isbnAtual = $livroAtual['liv_isbn'];
+            
+            if ($isbnExistente !== false && $isbnExistente !== $isbnAtual) {
+                enviarSweetAlert('livro-gestao.php', 'erroAlerta', 'Livro já cadastrado!');
+                exit();
+            }
+        }
+    
+        if ($categoria && $autor) {
+        //CADASTRAMENTO
+            if ($acao == 1) {
+                $msgSucesso = "Livro cadastrado com sucesso!";
+                $sql = "INSERT INTO livro(liv_titulo, liv_isbn, liv_edicao, liv_anoPublicacao, liv_sinopse,  liv_estoque,
+                    liv_dataAlteracaoEstoque, liv_idioma, liv_num_paginas, fk_aut, fk_cat)
+                    VALUES (:liv_titulo, :liv_isbn, :liv_edicao, :liv_anoPublicacao, :liv_sinopse, :liv_estoque, 
+                    :liv_dataAlteracaoEstoque, :liv_idioma, :liv_num_paginas, :fk_aut, :fk_cat)";
 
-        $titulo = filter_input(INPUT_POST, 'liv_titulo');
-        $isbn = filter_input(INPUT_POST, 'liv_isbn');
-        $autor = filter_input(INPUT_POST, 'fk_aut');
-        $categoria = filter_input(INPUT_POST, 'fk_cat');
-        $edicao = filter_input(INPUT_POST, 'liv_edicao');
-        $anoPublicacao = filter_input(INPUT_POST, 'liv_anoPublicacao');
-        $dataAlteracaoEstoque = filter_input(INPUT_POST, 'liv_dataAlteracaoEstoque');
-        $estoque = filter_input(INPUT_POST, 'liv_estoque');
-        $idioma = filter_input(INPUT_POST, 'liv_idioma');
-        $numPaginas = filter_input(INPUT_POST, 'liv_num_paginas');
-        $sinopse = filter_input(INPUT_POST, 'liv_sinopse');
+                $stmt = $conexao-> prepare($sql);
+            
+        //ALTERAÇÃO
+            } elseif ($acao == 2 && $id > 0) {
+                $msgSucesso = "Livro alterado com sucesso!";
+                $sql = "UPDATE livro SET liv_titulo=:liv_titulo, liv_isbn=:liv_isbn, liv_edicao=:liv_edicao, liv_anoPublicacao=:liv_anoPublicacao, liv_sinopse=:liv_sinopse, liv_estoque=:liv_estoque, 
+                        liv_dataAlteracaoEstoque=:liv_dataAlteracaoEstoque, liv_idioma=:liv_idioma, liv_num_paginas=:liv_num_paginas, fk_aut=:fk_aut, fk_cat=:fk_cat WHERE pk_liv=:id";
 
-        if ($id > 0) {
-            $sql = "UPDATE livro SET liv_titulo=:liv_titulo, liv_isbn=:liv_isbn, liv_edicao=:liv_edicao, liv_anoPublicacao=:liv_anoPublicacao, liv_sinopse=:liv_sinopse, liv_estoque=:liv_estoque, 
-                    liv_dataAlteracaoEstoque=:liv_dataAlteracaoEstoque, liv_idioma=:liv_idioma, liv_num_paginas=:liv_num_paginas, fk_aut=:fk_aut, fk_cat=:fk_cat WHERE pk_liv=:pk_liv";
+                $stmt = $conexao-> prepare($sql);
+                $stmt-> bindParam(":id", $id, PDO::PARAM_INT);
+            }
 
-            $stmt = $conexao-> prepare($sql);
-            $stmt-> bindParam(":pk_liv", $id, PDO::PARAM_INT);
             $stmt-> bindParam(":liv_titulo", $titulo);
             $stmt-> bindParam(":liv_isbn", $isbn);
             $stmt-> bindParam(":liv_edicao", $edicao);
@@ -724,31 +714,52 @@ function editarLivro($id) {
             $stmt-> bindParam(":liv_dataAlteracaoEstoque", $dataAlteracaoEstoque);
             $stmt-> bindParam(":liv_idioma", $idioma);
             $stmt-> bindParam(":liv_num_paginas", $numPaginas);
-            $stmt-> bindParam(":fk_aut", $autor, PDO::PARAM_INT);
-            $stmt-> bindParam(":fk_cat", $categoria, PDO::PARAM_INT);
-
-            try {
-            $stmt-> execute();
-            echo "<script> window.location.href = '../gestao/livro-gestao.php';
-                            alert('Livro alterado com sucesso!'); 
-                  </script>";
-            exit();
-            } catch (PDOException $e) {
-                echo "<script> window.location.href = 'template/gestao/livro-gestao.php?erro= " . urlencode($e->getMessage()) . "';
-                               alert('Erro ao realizar alteração!'); 
-                    </script>";
-                exit();
-            }
+            $stmt-> bindParam(":fk_aut", $autor['pk_aut'], PDO::PARAM_INT);
+            $stmt-> bindParam(":fk_cat", $categoria['pk_cat'], PDO::PARAM_INT);
         } else {
-            echo "<script> window.location.href = 'template/gestao/livro-gestao.php';
-                        alert('ID Inválido!'); 
-                </script>";
+            enviarSweetAlert('livro-gestao.php', 'erroAlerta', 'Categoria ou Autor não encontrados!');
+        }
+
+    //EXCLUSÃO E TRATAMENTO DE EXCEÇÕES
+    } elseif ($acao == 3 && $id > 0) {
+        try {
+            $msgSucesso = "Livro excluído com sucesso!";
+            $stmtCheckEmp = $conexao-> prepare("SELECT COUNT(*) FROM emprestimo WHERE fk_liv=:pk_liv");
+            $stmtCheckEmp-> bindParam(":pk_liv", $id, PDO::PARAM_INT);
+            $stmtCheckEmp-> execute();
+            $emprestimos = $stmtCheckEmp-> fetchColumn();
+
+            if ($emprestimos > 0) {
+                enviarSweetAlert('livro-gestao.php', 'erroAlerta', 'Não é possível excluir um livro registrado em um empréstimo!');
+            }
+
+            $stmt = $conexao-> prepare("DELETE FROM livro WHERE pk_liv = :id");
+            $stmt-> bindParam(":id", $id, PDO::PARAM_INT);
+        } catch (Exception $e) {
+            echo "<script> window.location.href = 'livro-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
             exit();
         }
-    } else {
-        header("Location: template/gestao/livro-gestao.php");
+    }
+    //EXECUÇÃO DO COMANDO NO BANCO DE DADOS
+    try {
+        $stmt-> execute();
+        enviarSweetAlert('livro-gestao.php', 'sucessoAlerta', $msgSucesso);
+    } catch (PDOException $e) {
+        echo "<script> window.location.href = 'livro-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
         exit();
     }
+}
+
+
+//--------------------------------------------------- CRUD FUNCIONÁRIO ---------------------------------------------------
+function crudFuncionario($acao, $id) {
+    $conexao = conectaBd();
+}
+
+
+//--------------------------------------------------- CRUD EMPRÉSTIMO ---------------------------------------------------
+function crudEmprestimo($acao, $id) {
+    $conexao = conectaBd();
 }
 
 ?>

@@ -21,6 +21,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    text-decoration: none;
 }
 
 .main-content {
@@ -88,6 +89,25 @@
     min-height: 18vh;
 }
 
+.stat-card:focus {
+    outline: none;
+    animation: levantar 0.3s ease forwards;
+}
+
+.stat-card:hover {
+    animation: levantar 0.3s ease forwards;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.363); 
+}
+
+@keyframes levantar {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-5px);
+    }
+}
+
 .stat-title {
     font-size: 20px;
     margin-bottom: 15px;
@@ -99,8 +119,7 @@
 }
 
 .stat-number {
-    font-size: 40px;
-    font-weight: bold;
+    font: 400 3.5rem 'Krona One';
     color: white;
     background-color:#23767E;
     padding: 20px 10px;
@@ -513,6 +532,90 @@ textarea {
 
 .btn-save:hover {
     background-color: var(--cor-titulo-2-contraste-60);
+}
+.controle-diario {
+    color: #cfc26b;
+    margin-top: 40px;
+}
+
+.controle-diario .linha {
+    display: flex;
+    gap: 25px;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.grupo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Alinha título e blocos à esquerda */
+    background-color: var(--cor-secundaria);
+    padding: 20px;
+    width:20%;
+    border-radius:20px;
+    margin-top:10px;
+}
+
+.grupo h4 {
+    font-size: 1em;
+    margin-bottom: 8px;
+    color: #fff;
+}
+
+/* Container que deixa os blocos lado a lado, alinhados à esquerda */
+.blocos-horizontal {
+    display: flex;
+    gap: 20px; /* Espaço entre os blocos */
+    justify-content: flex-start; /* Alinha à esquerda */
+    align-items: flex-start;
+    width: 100%; /* Ocupa toda a largura do grupo */
+}
+
+/* Agrupa título + bloco */
+.bloco-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Título em cima de cada bloco */
+.titulo-bloco {
+    font-size: 0.9em;
+    color: #cfc26b;
+    margin-bottom: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+}
+
+.bloco {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #fff;
+    background: #555;
+    padding: 10px 16px;
+    border-radius: 10px;
+    margin: 0; /* removi margin vertical para evitar espaçamento extra */
+    min-width: 60px; /* para garantir tamanho mínimo */
+    text-align: center;
+}
+
+.amarelo {
+    background-color: #d7c74f;
+}
+
+.vermelho {
+    background-color: #e74c3c;
+}
+
+.azul {
+    background-color: #2c3e50;
+}
+
+.tituloHome{
+    margin-top:80px;
 }
 
 @media (max-width: 640px) {
