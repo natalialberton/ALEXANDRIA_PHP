@@ -3,8 +3,8 @@
 session_start();
 require_once "../../geral.php";
 
-if($_SESSION['statusUser'] !== 'Ativo') {
-    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
+if(!isset($_SESSION['statusUser']) || $_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('../index.php', 'erroAlerta', 'Acesso a página negado!');
 }
 
 //DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
@@ -19,6 +19,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 $_SESSION['tabela'] = 'categoria';
+$qtdLivros = contarTotal('livro');
+$qtdCategorias = contarTotal('categoria');
+$qtdAutores = contarTotal('autor');
 
 $tituloPagina = "CATEGORIAS";
 $tituloH1 = 'Gestão Categorias';
@@ -31,6 +34,27 @@ include '../header.php';
         <div class="actions-section">
             <h2>CADASTRAMENTO</h2>
             <button class="action-btn" onclick="abrePopup('popupCadastroCategoria')"><span class="plus-icon">+</span>NOVA CATEGORIA</button>
+        </div>
+
+        <div class="stats-section">
+            <a href="livro-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">LIVROS</div>
+                    <div class="stat-number"><?= $qtdLivros['total'] ?></div>
+                </div>
+            </a>
+            <a href="categoria-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">CATEGORIAS</div>
+                    <div class="stat-number"><?= $qtdCategorias['total'] ?></div>
+                </div>
+            </a>
+            <a href="autor-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">AUTORES</div>
+                    <div class="stat-number"><?= $qtdAutores['total'] ?></div>
+                </div>
+            </a>
         </div>
     </div>
     

@@ -21,6 +21,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    text-decoration: none;
 }
 
 a{
@@ -92,6 +93,25 @@ a{
     min-height: 18vh;
 }
 
+.stat-card:focus {
+    outline: none;
+    animation: levantar 0.3s ease forwards;
+}
+
+.stat-card:hover {
+    animation: levantar 0.3s ease forwards;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.363); 
+}
+
+@keyframes levantar {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-5px);
+    }
+}
+
 .stat-title {
     font-size: 20px;
     margin-bottom: 15px;
@@ -103,8 +123,7 @@ a{
 }
 
 .stat-number {
-    font-size: 40px;
-    font-weight: bold;
+    font: 400 3.5rem 'Krona One';
     color: white;
     background-color:#23767E;
     padding: 20px 10px;

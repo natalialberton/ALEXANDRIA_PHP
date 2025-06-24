@@ -3,10 +3,9 @@
 session_start();
 require_once '../../geral.php';
 
-if($_SESSION['statusUser'] !== 'Ativo') {
-    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
+if(!isset($_SESSION['statusUser']) || $_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('../index.php', 'erroAlerta', 'Acesso a página negado!');
 }
-
 
 //DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
 if($_SERVER["REQUEST_METHOD"] == "POST") {

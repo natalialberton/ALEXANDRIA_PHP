@@ -17,12 +17,20 @@ switch($tabela) {
             ? retornoPesquisa($termoBusca, $tabela, 'pk_mem', 'mem_nome', 'mem_cpf')
             : listar('membro');
         break;
+    case 'emprestimo':
+        $dados = !empty($termoBusca) ? retornoPesquisa($termoBusca, $tabela, 'pk_emp', 'emp_status', '') : listar('emprestimo');
+        break;
+    case 'reserva':
+        $dados = !empty($termoBusca) ? retornoPesquisa($termoBusca, $tabela, 'pk_res', 'res_status', '') : listar('reserva');
+        break;
+    case 'remessa':
+        $dados = !empty($termoBusca) ? retornoPesquisa($termoBusca, $tabela, 'pk_rem', '', '') : listar('remessa');
+        break;
     default:
         $dados = [];
         break;
 }
 ?>
-
 <?php if($tabela === 'membro'): ?>
 <table>
     <thead>
@@ -32,7 +40,6 @@ switch($tabela) {
             <th>CPF</th>
             <th>Telefone</th>
             <th>E-mail</th>
-            <th>Plano</th>
             <th>Status</th>
             <th>Ação</th>
         </tr>

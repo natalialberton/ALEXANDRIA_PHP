@@ -34,7 +34,7 @@ CREATE TABLE LIVRO (
  liv_anoPublicacao INT,
  liv_sinopse VARCHAR(3000),
  liv_estoque INT,
- liv_dataAlteracaoEstoque TIMESTAMP,
+ liv_dataAlteracaoEstoque DATETIME,
  liv_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  liv_idioma VARCHAR(30),
  liv_num_paginas INT,
@@ -45,15 +45,6 @@ CREATE TABLE LIVRO (
  FOREIGN KEY(fk_cat) references CATEGORIA(pk_cat)
 );
 
-CREATE TABLE PLANO ( 
- pk_plan INT PRIMARY KEY auto_increment,
- plan_nome VARCHAR(100) not null,
- plan_valor DECIMAL(10,2),
- plan_duracao VARCHAR(50),
- plan_descricao VARCHAR(3000),
- plan_limite_emp INT default 2
-);
-
 CREATE TABLE USUARIO ( 
  pk_user INT PRIMARY KEY auto_increment,
  user_nome VARCHAR(250) not null,
@@ -62,15 +53,15 @@ CREATE TABLE USUARIO (
  user_telefone VARCHAR(16),
  user_senha VARCHAR(255) not null,
  user_login VARCHAR(20) unique,
- user_dataAdmissao TIMESTAMP,
- user_dataDemissao TIMESTAMP,
+ user_dataAdmissao DATE,
+ user_dataDemissao DATE,
  user_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  user_foto VARCHAR(255),
  user_status ENUM('Ativo', 'Inativo'),
  user_tipoUser ENUM('Administrador', 'Secretaria', 'Almoxarife')
 );
 
-CREATE TABLE recuperaSenha (
+CREATE TABLE RECUPERA_SENHA (
     pk_rs INT AUTO_INCREMENT PRIMARY KEY,
     rs_token VARCHAR(64) NOT NULL,
     rs_expiracao DATETIME NOT NULL,
@@ -88,18 +79,17 @@ CREATE TABLE MEMBRO (
  mem_email VARCHAR(250),
  mem_telefone VARCHAR(16),
  mem_dataCriacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
- mem_status ENUM('Ativo', 'Suspenso'),
- fk_plan INT,
- FOREIGN KEY(fk_plan) references PLANO(pk_plan) on delete restrict on update cascade
-);
+ mem_status ENUM('Ativo', 'Suspenso')
+ );
+
 
 CREATE TABLE EMPRESTIMO (
  pk_emp INT PRIMARY KEY auto_increment,
  emp_prazo INT,
- emp_dataEmp TIMESTAMP,
- emp_dataDev TIMESTAMP,
- emp_dataDevReal TIMESTAMP,
- emp_valorMultaDiaria DECIMAL(10,2) default 1.50,
+ emp_dataEmp DATE,
+ emp_dataDev DATE,
+ emp_dataDevReal DATE,
+ emp_valorMultaDiaria DECIMAL(10,2) DEFAULT 1.50,
  emp_status ENUM('Empréstimo Ativo', 'Empréstimo Atrasado', 'Renovação Ativa', 'Renovação Atrasada', 'Finalizado') not null default 'Empréstimo Ativo',
  fk_mem INT not null,
  fk_user INT not null,
@@ -113,10 +103,9 @@ CREATE TABLE EMPRESTIMO (
 CREATE TABLE RESERVA ( 
  pk_res INT PRIMARY KEY auto_increment,
  res_prazo INT,
- res_dataMarcada TIMESTAMP,
- res_dataVencimento TIMESTAMP,
- res_dataFinalizada TIMESTAMP,
- res_observacoes VARCHAR(1000),
+ res_dataMarcada DATE,
+ res_dataVencimento DATE,
+ res_dataFinalizada DATE,
  res_status ENUM('Aberta', 'Cancelada', 'Finalizada', 'Atrasada') not null default 'Aberta',
  fk_mem INT not null,
  fk_liv INT not null,
@@ -137,23 +126,9 @@ CREATE TABLE MULTA (
  FOREIGN KEY(fk_emp) references EMPRESTIMO(pk_emp) on delete restrict on update cascade
 );
 
-CREATE TABLE PAG_PLANO ( 
- pk_pag_plan INT PRIMARY KEY auto_increment,
- pag_plan_preco DECIMAL(10,2),
- pag_plan_valorPag DECIMAL(10,2),
- pag_plan_dataPag DATE,
- pag_plan_dataVen DATE,
- pag_plan_comprovante VARCHAR(255),
- pag_plan_status ENUM('Em dia', 'Atrasado') not null,
- fk_mem INT not null,
- fk_plan INT not null,
- FOREIGN KEY(fk_mem) references MEMBRO(pk_mem) on delete restrict on update cascade,
- FOREIGN KEY(fk_plan) references PLANO(pk_plan) on delete restrict on update cascade
-);
-
 CREATE TABLE REMESSA (
  pk_rem INT PRIMARY KEY auto_increment, 
- rem_data TIMESTAMP not null,
+ rem_data TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
  rem_qtd INT not null,
  fk_forn INT not null,
  fk_liv INT not null,
@@ -238,12 +213,6 @@ INSERT INTO FORNECEDOR (forn_nome, forn_cnpj, forn_telefone, forn_email, forn_en
 ('Editora Melhoramentos', '12.345.678/0001-09', '(11) 9012-3456', 'contato@melhoramentos.com.br', 'Rua das Melhorias, 606 - São Paulo/SP'),
 ('Editora Saraiva', '12.345.678/0001-10', '(11) 0123-4567', 'contato@saraiva.com.br', 'Av. dos Estudantes, 707 - São Paulo/SP');
 
--- Inserindo planos
-INSERT INTO PLANO (plan_nome, plan_valor, plan_duracao, plan_descricao, plan_limite_emp) VALUES
-('Básico', 19.90, 'Mensal', 'Plano básico com direito a 2 empréstimos simultâneos', 2),
-('Intermediário', 29.90, 'Mensal', 'Plano intermediário com direito a 4 empréstimos simultâneos', 4),
-('Premium', 49.90, 'Mensal', 'Plano premium com direito a 6 empréstimos simultâneos', 6);
-
 -- Inserindo usuários (funcionários) com hashes pré-gerados
 INSERT INTO USUARIO (user_nome, user_cpf, user_email, user_telefone, user_senha, user_login, user_tipoUser, user_status) VALUES
 ('João Silva', '111.222.333-44', 'joao.silva@biblioteca.com', '(11) 91234-5678', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'joaosilva', 'Administrador', 'Ativo'),
@@ -258,27 +227,27 @@ INSERT INTO USUARIO (user_nome, user_cpf, user_email, user_telefone, user_senha,
 ('Fernanda Rocha', '000.111.222-33', 'fernanda.rocha@biblioteca.com', '(11) 90123-4567', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'fernandarocha', 'Administrador', 'Ativo');
 
 -- Inserindo membros com hashes pré-gerados
-INSERT INTO MEMBRO (mem_nome, mem_cpf, mem_senha, mem_email, mem_telefone, mem_status, fk_plan) VALUES
-('Lucas Mendes', '123.456.789-01', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'lucas.mendes@email.com', '(11) 91234-5678', 'Ativo', 1),
-('Amanda Costa', '234.567.890-12', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'amanda.costa@email.com', '(11) 92345-6789', 'Ativo', 2),
-('Rafael Santos', '345.678.901-23', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'rafael.santos@email.com', '(11) 93456-7890', 'Ativo', 3),
-('Patricia Oliveira', '456.789.012-34', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'patricia.oliveira@email.com', '(11) 94567-8901', 'Ativo', 1),
-('Bruno Pereira', '567.890.123-45', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'bruno.pereira@email.com', '(11) 95678-9012', 'Ativo', 2),
-('Camila Souza', '678.901.234-56', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'camila.souza@email.com', '(11) 96789-0123', 'Ativo', 3),
-('Diego Fernandes', '789.012.345-67', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'diego.fernandes@email.com', '(11) 97890-1234', 'Ativo', 1),
-('Tatiana Lima', '890.123.456-78', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'tatiana.lima@email.com', '(11) 98901-2345', 'Ativo', 2),
-('Gustavo Alves', '901.234.567-89', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'gustavo.alves@email.com', '(11) 99012-3456', 'Ativo', 3),
-('Vanessa Rocha', '012.345.678-90', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'vanessa.rocha@email.com', '(11) 90123-4567', 'Ativo', 1),
-('Rodrigo Silva', '123.456.789-10', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'rodrigo.silva@email.com', '(11) 91234-5679', 'Ativo', 2),
-('Cristina Mendonça', '234.567.890-21', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'cristina.mendonca@email.com', '(11) 92345-6790', 'Ativo', 3),
-('Marcelo Costa', '345.678.901-32', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'marcelo.costa@email.com', '(11) 93456-7901', 'Ativo', 1),
-('Isabela Santos', '456.789.012-43', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'isabela.santos@email.com', '(11) 94567-9012', 'Ativo', 2),
-('Leonardo Oliveira', '567.890.123-54', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'leonardo.oliveira@email.com', '(11) 95678-0123', 'Ativo', 3),
-('Mariana Pereira', '678.901.234-65', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'mariana.pereira@email.com', '(11) 96789-1234', 'Suspenso', 1),
-('Felipe Souza', '789.012.345-76', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'felipe.souza@email.com', '(11) 97890-2345', 'Ativo', 2),
-('Aline Fernandes', '890.123.456-87', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'aline.fernandes@email.com', '(11) 98901-3456', 'Ativo', 3),
-('Ricardo Lima', '901.234.567-98', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'ricardo.lima@email.com', '(11) 99012-4567', 'Ativo', 1),
-('Daniela Alves', '012.345.678-09', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'daniela.alves@email.com', '(11) 90123-5678', 'Ativo', 2);
+INSERT INTO MEMBRO (mem_nome, mem_cpf, mem_senha, mem_email, mem_telefone, mem_status) VALUES
+('Lucas Mendes', '123.456.789-01', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'lucas.mendes@email.com', '(11) 91234-5678', 'Ativo'),
+('Amanda Costa', '234.567.890-12', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'amanda.costa@email.com', '(11) 92345-6789', 'Ativo'),
+('Rafael Santos', '345.678.901-23', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'rafael.santos@email.com', '(11) 93456-7890', 'Ativo'),
+('Patricia Oliveira', '456.789.012-34', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'patricia.oliveira@email.com', '(11) 94567-8901', 'Ativo'),
+('Bruno Pereira', '567.890.123-45', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'bruno.pereira@email.com', '(11) 95678-9012', 'Ativo'),
+('Camila Souza', '678.901.234-56', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'camila.souza@email.com', '(11) 96789-0123', 'Ativo'),
+('Diego Fernandes', '789.012.345-67', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'diego.fernandes@email.com', '(11) 97890-1234', 'Ativo'),
+('Tatiana Lima', '890.123.456-78', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'tatiana.lima@email.com', '(11) 98901-2345', 'Ativo'),
+('Gustavo Alves', '901.234.567-89', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'gustavo.alves@email.com', '(11) 99012-3456', 'Ativo'),
+('Vanessa Rocha', '012.345.678-90', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'vanessa.rocha@email.com', '(11) 90123-4567', 'Ativo'),
+('Rodrigo Silva', '123.456.789-10', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'rodrigo.silva@email.com', '(11) 91234-5679', 'Ativo'),
+('Cristina Mendonça', '234.567.890-21', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'cristina.mendonca@email.com', '(11) 92345-6790', 'Ativo'),
+('Marcelo Costa', '345.678.901-32', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'marcelo.costa@email.com', '(11) 93456-7901', 'Ativo'),
+('Isabela Santos', '456.789.012-43', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'isabela.santos@email.com', '(11) 94567-9012', 'Ativo'),
+('Leonardo Oliveira', '567.890.123-54', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'leonardo.oliveira@email.com', '(11) 95678-0123', 'Ativo'),
+('Mariana Pereira', '678.901.234-65', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'mariana.pereira@email.com', '(11) 96789-1234', 'Suspenso'),
+('Felipe Souza', '789.012.345-76', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'felipe.souza@email.com', '(11) 97890-2345', 'Ativo'),
+('Aline Fernandes', '890.123.456-87', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'aline.fernandes@email.com', '(11) 98901-3456', 'Ativo'),
+('Ricardo Lima', '901.234.567-98', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'ricardo.lima@email.com', '(11) 99012-4567', 'Ativo'),
+('Daniela Alves', '012.345.678-09', 'ecd71870d1963316a97e3ac3408c9835ad8cf0f3c1bc703527c30265534f75ae', 'daniela.alves@email.com', '(11) 90123-5678', 'Ativo');
 -- Inserindo livros
 INSERT INTO LIVRO (liv_titulo, liv_isbn, liv_edicao, liv_anoPublicacao, liv_sinopse, liv_estoque, liv_idioma, liv_num_paginas, liv_capa, fk_aut, fk_cat) VALUES
 ('Fundação', '978-85-359-0277-1', 1, 1951, 'A história da Fundação, um grupo de cientistas que trabalha para preservar o conhecimento humano contra o colapso da galáxia.', 5, 'Português', 256, 'capa_fundacao.jpg', 1, 1),
@@ -332,19 +301,19 @@ INSERT INTO REMESSA (rem_data, rem_qtd, fk_forn, fk_liv, fk_user) VALUES
 
 -- Inserindo empréstimos
 INSERT INTO EMPRESTIMO (emp_prazo, emp_dataEmp, emp_dataDev, emp_dataDevReal, emp_status, fk_mem, fk_user, fk_liv) VALUES
-(14, '2023-01-10 10:00:00', '2023-01-24 10:00:00', '2023-01-24 09:30:00', 'Finalizado', 1, 3, 1),
-(14, '2023-01-15 11:00:00', '2023-01-29 11:00:00', '2023-01-30 10:00:00', 'Finalizado', 2, 4, 2),
-(14, '2023-02-05 14:00:00', '2023-02-19 14:00:00', '2023-02-18 15:00:00', 'Finalizado', 3, 7, 3),
-(14, '2023-02-20 09:00:00', '2023-03-06 09:00:00', NULL, 'Empréstimo Ativo', 4, 9, 4),
-(14, '2023-03-01 16:00:00', '2023-03-15 16:00:00', NULL, 'Empréstimo Atrasado', 5, 3, 5);
+(14, '2023-01-10', '2023-01-24', '2023-01-24', 'Finalizado', 1, 3, 1),
+(14, '2023-01-15', '2023-01-29', '2023-01-30', 'Finalizado', 2, 4, 2),
+(14, '2023-02-05', '2023-02-19', '2023-02-18', 'Finalizado', 3, 7, 3),
+(14, '2023-02-20', '2023-03-06', NULL, 'Empréstimo Ativo', 4, 9, 4),
+(14, '2023-03-01', '2023-03-15', NULL, 'Empréstimo Atrasado', 5, 3, 5);
 
 -- Inserindo reservas
 INSERT INTO RESERVA (res_prazo, res_dataMarcada, res_dataVencimento, res_status, fk_mem, fk_liv, fk_user) VALUES
-(7, '2023-01-05 10:00:00', '2023-01-12 10:00:00', 'Finalizada', 6, 6, 4),
-(7, '2023-01-12 11:00:00', '2023-01-19 11:00:00', 'Finalizada', 7, 7, 7),
-(7, '2023-02-01 14:00:00', '2023-02-08 14:00:00', 'Cancelada', 8, 8, 9),
-(7, '2023-02-15 09:00:00', '2023-02-22 09:00:00', 'Aberta', 9, 9, 3),
-(7, '2023-03-10 16:00:00', '2023-03-17 16:00:00', 'Atrasada', 10, 10, 4);
+(7, '2023-01-05', '2023-01-12', 'Finalizada', 6, 6, 4),
+(7, '2023-01-12', '2023-01-19', 'Finalizada', 7, 7, 7),
+(7, '2023-02-01', '2023-02-08', 'Cancelada', 8, 8, 9),
+(7, '2023-02-15', '2023-02-22', 'Aberta', 9, 9, 3),
+(7, '2023-03-10', '2023-03-17', 'Atrasada', 10, 10, 4);
 
 -- Inserindo multas
 INSERT INTO MULTA (mul_valor, mul_qtdDias, mul_status, fk_mem, fk_emp) VALUES
@@ -353,11 +322,3 @@ INSERT INTO MULTA (mul_valor, mul_qtdDias, mul_status, fk_mem, fk_emp) VALUES
 (4.50, 3, 'Aberta', 10, 5),
 (6.00, 4, 'Aberta', 5, 5),
 (7.50, 5, 'Finalizada', 2, 2);
-
--- Inserindo pagamentos de plano
-INSERT INTO PAG_PLANO (pag_plan_preco, pag_plan_valorPag, pag_plan_dataPag, pag_plan_dataVen, pag_plan_status, fk_mem, fk_plan) VALUES
-(19.90, 19.90, '2023-01-01', '2023-02-01', 'Em dia', 1, 1),
-(29.90, 29.90, '2023-01-05', '2023-02-05', 'Em dia', 2, 2),
-(49.90, 49.90, '2023-01-10', '2023-02-10', 'Em dia', 3, 3),
-(19.90, 19.90, '2023-02-01', '2023-03-01', 'Atrasado', 4, 1),
-(29.90, 29.90, '2023-02-05', '2023-03-05', 'Em dia', 5, 2);
