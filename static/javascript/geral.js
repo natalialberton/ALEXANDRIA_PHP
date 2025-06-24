@@ -99,6 +99,10 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('popupEdicaoFornecedor').showModal();
     } else if (window.location.hash === '#editarUsuario') {
         document.getElementById('popupEdicaoUsuario').showModal();
+    } else if (window.location.hash === '#editarEmprestimo') {
+        document.getElementById('popupEdicaoEmprestimo').showModal();
+    } else if (window.location.hash === '#editarReserva') {
+        document.getElementById('popupEdicaoReserva').showModal();
     }
 });
 

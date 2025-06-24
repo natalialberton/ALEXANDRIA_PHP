@@ -3,7 +3,11 @@
 session_start();
 require_once "../../geral.php";
 
-if($_SESSION['statusUser'] !== 'Ativo' || $_SESSION['tipoUser'] !== 'Administrador') {
+if(!isset($_SESSION['statusUser']) || $_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('../index.php', 'erroAlerta', 'Acesso a página negado!');
+}
+
+if($_SESSION['tipoUser'] !== 'Administrador') {
     enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
 }
 
@@ -104,8 +108,8 @@ include '../header.php';
             </div>
 
             <div class="form-group">
-                <label class="label-cadastro" for="user_status">Status: </label>
-                <select class="input-cadastro" name="user_status" required>
+                <label class="label-cadastro" for="user_tipoUser">Cargo: </label>
+                <select class="input-cadastro" name="user_tipoUser" required>
                     <option value="Administrador">Administrador</option>
                     <option value="Secretaria">Secretaria</option>
                     <option value="Almoxarife">Almoxarife</option>
@@ -209,11 +213,19 @@ include '../header.php';
             </div>
 
             <div class="form-group">
+                <label class="label-cadastro" for="user_tipoUser">Cargo: </label>
+                <select class="input-cadastro" name="user_tipoUser" required>
+                    <option value="Administrador" <?= ($usuario['user_tipoUser'] ?? '') === 'Administrador' ? 'selected' : '' ?>>Administrador</option>
+                    <option value="Secretaria" <?= ($usuario['user_tipoUser'] ?? '') === 'Secretaria' ? 'selected' : '' ?>>Secretaria</option>
+                    <option value="Almoxarife" <?= ($usuario['user_tipoUser'] ?? '') === 'Almoxarife' ? 'selected' : '' ?>>Almoxarife</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label class="label-cadastro" for="user_status">Status: </label>
                 <select class="input-cadastro" name="user_status" required>
-                    <option value="Administrador" <?= ($usuario['user_status'] ?? '') === 'Administrador' ? 'selected' : '' ?>>Administrador</option>
-                    <option value="Secretaria" <?= ($usuario['user_status'] ?? '') === 'Secretaria' ? 'selected' : '' ?>>Secretaria</option>
-                    <option value="Almoxarife" <?= ($usuario['user_status'] ?? '') === 'Almoxarife' ? 'selected' : '' ?>>Almoxarife</option>
+                    <option value="Ativo" <?= ($usuario['user_status'] ?? '') === 'Ativo' ? 'selected' : '' ?>>Ativo</option>
+                    <option value="Inativo" <?= ($usuario['user_status'] ?? '') === 'Inativo' ? 'selected' : '' ?>>Inativo</option>
                 </select>
             </div>
         </div>

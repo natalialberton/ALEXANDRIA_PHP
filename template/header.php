@@ -1,3 +1,17 @@
+<?php
+
+require_once '../../geral.php';
+
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if(isset($_POST['logout'])) {
+        if($_POST['logout'] === 'logout') {
+            logout();
+        }
+    }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -33,6 +47,9 @@
             <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
                 <a href="emprestimo-gestao.php" class="linkMenu">Empréstimos</a>
             <?php endif;?>
+            <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
+                <a href="reserva-gestao.php" class="linkMenu">Reservas</a>
+            <?php endif;?>
             <?php if($_SESSION['tipoUser'] !== 'Secretaria'): ?>
                 <a href="remessa-gestao.php" class="linkMenu">Remessas</a>
             <?php endif;?>
@@ -67,14 +84,13 @@
     </button>
 
     <div class="dropdown" id="dropdownMenu">
-        <button onclick="DadosPessoais()">
-            <i class="fas fa-user"></i>
-            <span>Dados Pessoais</span>
-        </button>
-        <button onclick="LogOut()">
-            <i class="fas fa-sign-out-alt"></i>
-            <span>Log Out</span>
-        </button>
+        <form method="POST">
+            <input type="hidden" name="logout" value="logout">
+            <button type="submit">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Log Out</span>
+            </button>
+        </form>
     </div>
 
     <script>
@@ -91,14 +107,6 @@
                 dropdown.classList.remove('active');
             }
         });
-
-        function DadosPessoais() {
-            window.location.href = '../index.php';
-        }
-
-        function LogOut() {
-            window.location.href = '../index.php';
-        }
     </script>
 
 
