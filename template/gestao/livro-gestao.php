@@ -82,7 +82,7 @@ include '../header.php';
 <!--POPUP CADASTRAMENTO-->
 <dialog class="popup" id="popupCadastroLivro">
 <div class="popup-content">
-<div class="container">
+<div class="popup__container">
 <h1>CADASTRAMENTO LIVRO</h1>
     <form method="POST">
         <div class="form-row">
@@ -193,7 +193,7 @@ include '../header.php';
     if ($livro) :
 ?>
 <div class="popup-content">
-<div class="container">
+<div class="popup__container">
 <h1>EDIÇÃO LIVRO</h1>
     <form method="POST">
         <div class="form-row">

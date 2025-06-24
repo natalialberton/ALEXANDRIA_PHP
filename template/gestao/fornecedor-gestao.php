@@ -56,7 +56,7 @@ include '../header.php';
 <!--POPUP CADASTRAMENTO-->
 <dialog class="popup" id="popupCadastroFornecedor">
 <div class="popup-content">
-<div class="container">
+<div class="popup__container">
 <h1>CADASTRAMENTO FORNECEDOR</h1>
     <form method="POST">
         <div class="form-row">
@@ -131,7 +131,7 @@ include '../header.php';
     if ($fornecedor) :
 ?>
 <div class="popup-content">
-<div class="container">
+<div class="popup__container">
 <h1>EDIÇÃO FORNECEDOR</h1>
     <form method="POST">
         <div class="form-row">

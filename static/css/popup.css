@@ -16,7 +16,7 @@ dialog::backdrop {
     margin-top: 4rem;
 }
 
-.container {
+.popup__container {
     background: rgba(41, 40, 48, 0.651);
     border-radius: 16px;
     padding: 40px;

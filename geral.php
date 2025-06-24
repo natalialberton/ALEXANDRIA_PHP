@@ -1,7 +1,5 @@
 <?php
 
-//token demomailtrap: 4d423d3edf83361234971ea3bb54b252
-
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -186,6 +184,14 @@ function listar($tabela) {
 function contarTotal($tabela) {
     $conexao = conectaBd();
     $stmt = $conexao->prepare("SELECT COUNT(*) AS total FROM $tabela");
+    $stmt->execute();
+    $variavel = $stmt->fetch(PDO::FETCH_ASSOC);
+    return $variavel;
+}
+
+function contarTotalCondicional($tabela, $condicao) {
+    $conexao = conectaBd();
+    $stmt = $conexao->prepare("SELECT COUNT(*) AS total FROM $tabela WHERE $condicao");
     $stmt->execute();
     $variavel = $stmt->fetch(PDO::FETCH_ASSOC);
     return $variavel;
@@ -857,14 +863,16 @@ function crudEmprestimo($acao, $id) {
 
     if ($acao == 1 || $acao == 2) {
     //PUXANDO DADOS VIA POST
-        $prazo = filter_input(INPUT_POST, 'emp_prazo');
+        $prazo = 7;
         $dataEmp = filter_input(INPUT_POST, 'emp_dataEmp');
         $dataDev = date('Y-m-d', strtotime("$dataEmp + $prazo days"));
-        $dataDevReal = filter_input(INPUT_POST, 'emp_dataDevReal');
+        $dataDevReal = filter_input(INPUT_POST, 'emp_dataDevReal') ?? null;
         $status = filter_input(INPUT_POST, 'emp_status');
         $membroNome = filter_input(INPUT_POST, 'fk_mem');
         $livroNome = filter_input(INPUT_POST, 'fk_liv');
         $usuario = $_SESSION['pk_user'];
+        $membroSenha = filter_input(INPUT_POST, 'mem_senha') ?? null;
+        $membroSenhaHash = password_hash($membroSenha, PASSWORD_DEFAULT) ?? null;
 
     //PUXANDO CHAVE ESTRANGEIRA
         $stmtMembro = $conexao-> prepare("SELECT * FROM membro WHERE mem_cpf = :cpf");
@@ -878,10 +886,6 @@ function crudEmprestimo($acao, $id) {
         $livro = $stmtLivro-> fetch(PDO::FETCH_ASSOC);
 
     //TRATAMENTO DE EXCEÇÕES
-        if (empty($dataDevReal)) {
-            $dataDevReal = null;
-        }
-
         $stmtCheckMembro = $conexao-> prepare("SELECT pk_mul FROM multa WHERE fk_mem = :nome");
         $stmtCheckMembro-> bindParam(":nome", $membro['pk_mem'], PDO::PARAM_STR);
         $stmtCheckMembro-> execute();
@@ -890,6 +894,10 @@ function crudEmprestimo($acao, $id) {
         if ($acao === 1 && $membroComMulta !== false && $membroComMulta !== false) {
             enviarSweetAlert('emprestimo-gestao.php', 'erroAlerta', 'O membro selecionado tem multas pendentes!');
             exit();
+        }
+
+        if(!password_verify($membroSenha, $membro['mem_senha'])) {
+            enviarSweetAlert('', 'erroAlerta', 'Senha incorreta!');
         }
     
         if ($membro && $livro) {

@@ -301,8 +301,8 @@ switch($tabela) {
                         <td><?= htmlspecialchars($dado["user_telefone"]) ?></td>
                         <td><?= htmlspecialchars($dado["user_email"]) ?></td>
                         <td><?= htmlspecialchars($dado["user_tipoUser"]) ?></td>
-                        <td><?= htmlspecialchars($dado["user_dataAdmissao"]) ?></td>
-                        <td><?= htmlspecialchars($dado["user_dataDemissao"]) ?></td>
+                        <td><?= $dado["user_dataAdmissao"] ?? ''?></td>
+                        <td><?= $dado["user_dataDemissao"] ?? '' ?></td>
                         <td><?= htmlspecialchars($dado["user_status"]) ?></td>
                         <td>
                             <?php if($_SESSION['pk_user'] !== $dado['pk_user']): ?>
@@ -352,9 +352,9 @@ switch($tabela) {
                         <td><?= htmlspecialchars($dado["pk_emp"]) ?></td>
                         <td><?= htmlspecialchars($livro["liv_isbn"]) ?></td>
                         <td><?= htmlspecialchars($membro["mem_cpf"]) ?></td>
-                        <td><?= htmlspecialchars($dado["emp_dataEmp"]) ?></td>
-                        <td><?= htmlspecialchars($dado["emp_dataDev"]) ?></td>
-                        <td><?= htmlspecialchars($dado["emp_dataDevReal"]) ?></td>
+                        <td><?= htmlspecialchars($dado["emp_dataEmp"]) ?? ''?></td>
+                        <td><?= htmlspecialchars($dado["emp_dataDev"]) ?? ''?></td>
+                        <td><?= htmlspecialchars($dado["emp_dataDevReal"]) ?? ''?></td>
                         <td><?= htmlspecialchars($usuario["user_nome"]) ?></td>
                         <td><?= htmlspecialchars($dado["emp_status"]) ?></td>
                         <td>
@@ -403,9 +403,9 @@ switch($tabela) {
                         <td><?= htmlspecialchars($dado["pk_res"]) ?></td>
                         <td><?= htmlspecialchars($livro["liv_isbn"]) ?></td>
                         <td><?= htmlspecialchars($membro["mem_cpf"]) ?></td>
-                        <td><?= htmlspecialchars($dado["res_dataMarcada"]) ?></td>
-                        <td><?= htmlspecialchars($dado["res_dataVencimento"]) ?></td>
-                        <td><?= htmlspecialchars($dado["res_dataFinalizada"]) ?></td>
+                        <td><?= $dado["res_dataMarcada"] ?? ''?></td>
+                        <td><?= $dado["res_dataVencimento"] ?? ''?></td>
+                        <td><?= $dado["res_dataFinalizada"] ?? ''?></td>
                         <td><?= htmlspecialchars($usuario["user_nome"]) ?></td>
                         <td><?= htmlspecialchars($dado["res_status"]) ?></td>
                         <td>

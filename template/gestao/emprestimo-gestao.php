@@ -26,6 +26,9 @@ $_SESSION['tabela'] = 'emprestimo';
 $livros = listar('livro');
 $membros = listar('membro');
 $usuarios = listar('usuario');
+$qtdLivroAtrasado = contarTotalCondicional('emprestimo', "emp_status = 'Empréstimo Atrasado' OR emp_status = 'Renovação Atrasada'");
+$qtdLivrosAVencer = contarTotalCondicional('emprestimo', "(emp_dataDev - emp_dataEmp) = 3");
+$qtdLivrosNoPrazo = contarTotalCondicional('emprestimo', "emp_status = 'Empréstimo Ativo' OR emp_status = 'Renovação Ativa'");
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
 $tituloPagina = "EMPRÉSTIMOS";
@@ -39,6 +42,23 @@ include '../header.php';
         <div class="actions-section">
             <h2>GERAL</h2>
             <button class="action-btn" onclick="abrePopup('popupCadastroEmprestimo')"><span class="plus-icon">+</span>NOVO EMPRÉSTIMO</button>
+        </div>
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-title stat-title-atrasado">ATRASADO</div>
+                <div class="stat-number stat-number-atrasado"><?= $qtdLivroAtrasado['total'] ?></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title stat-title-a-vencer">VENCE EM TRÊS DIAS</div>
+                <div class="stat-number stat-number-a-vencer"><?= $qtdLivrosAVencer['total'] ?></div>
+            </div>
+            </a>
+            <a href="autor-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title stat-title-no-prazo">NO PRAZO</div>
+                    <div class="stat-number stat-number-no-prazo"><?= $qtdLivrosNoPrazo['total'] ?></div>
+                </div>
+            </a>
         </div>
     </div>
     
@@ -63,7 +83,7 @@ include '../header.php';
 <!--POPUP CADASTRAMENTO-->
 <dialog class="popup" id="popupCadastroEmprestimo">
 <div class="popup-content">
-<div class="container">
+<div class="popup__container">
 <h1>NOVO EMPRÉSTIMO</h1>
     <form method="POST">
         <div class="form-row">
@@ -92,11 +112,6 @@ include '../header.php';
 
         <div class="form-row">
             <div class="form-group">
-                <label for="emp_prazo">Prazo: </label>
-                <input type="number" name="emp_prazo" required>
-            </div>
-
-            <div class="form-group">
                 <label for="emp_dataEmp">Data: </label>
                 <input type="date" name="emp_dataEmp" value="<?= date('Y-m-d') ?>" required>
             </div>
@@ -111,6 +126,11 @@ include '../header.php';
                     <option value="Finalizado">Finalizado</option>
                 </select>
             </div>
+
+            <div class="form-group">
+                <label for="mem_senha">Senha Membro: </label>
+                <input type="password" name="mem_senha" required minlength="6" maxlength="6">
+            </div>
         </div>
 
         <div class="button-group">
@@ -122,7 +142,7 @@ include '../header.php';
 </div>
 </dialog>
 
-<!--POPUP CADASTRAMENTO-->
+<!--POPUP EDIÇÃO-->
 <dialog class="popup" id="popupEdicaoEmprestimo">
 <?php
 
@@ -144,7 +164,7 @@ include '../header.php';
     if ($emprestimo) :
 ?>
 <div class="popup-content">
-<div class="container">
+<div class="popup__container">
 <h1>EDIÇÃO EMPRÉSTIMO</h1>
     <form method="POST">
         <div class="form-row">
@@ -158,7 +178,7 @@ include '../header.php';
                        value="<?=htmlspecialchars($membroOriginal['mem_cpf']) ?? ''?>">
                 <datalist class="input-cadastro" id="membros">
                     <?php foreach ($membros as $membro): ?>
-                        <option value="<?=htmlspecialchars($membro['mem_cpf']); ?>">
+                        <option value="<?=htmlspecialchars($membro['mem_cpf']); ?>"><?=htmlspecialchars($membro['mem_nome']); ?></option>
                     <?php endforeach; ?>
                 </datalist>
             </div>
@@ -169,7 +189,7 @@ include '../header.php';
                        value="<?=htmlspecialchars($livroOriginal['liv_isbn']) ?? ''?>">>
                 <datalist class="input-cadastro" id="livros">
                     <?php foreach ($livros as $livro): ?>
-                        <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>">
+                        <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>"><?=htmlspecialchars($livro['liv_nome']); ?></option>
                     <?php endforeach; ?>
                 </datalist>
             </div>
@@ -183,7 +203,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="emp_dataDevReal">Devolução Real: </label>
-                <input type="number" name="emp_dataDevReal" value="<?=$emprestimo['emp_dataDevReal']?>">
+                <input type="date" name="emp_dataDevReal" value="<?=$emprestimo['emp_dataDevReal'] ?? null?>">
             </div>
 
             <div class="form-group">
