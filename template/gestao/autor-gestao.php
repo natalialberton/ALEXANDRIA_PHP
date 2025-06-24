@@ -3,7 +3,9 @@
 session_start();
 require_once '../../geral.php';
 
-permitirAcesso($_SESSION['statusUser'], $_SESSION['tipoUser'], 'Almoxarife', 'autor-gestao.php');
+if(!isset($_SESSION['statusUser']) || $_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('../index.php', 'erroAlerta', 'Acesso a página negado!');
+}
 
 //DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
 if($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -18,6 +20,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 
 $_SESSION['tabela'] = 'autor';
 $categorias = listar('categoria');
+$qtdLivros = contarTotal('livro');
+$qtdCategorias = contarTotal('categoria');
+$qtdAutores = contarTotal('autor');
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
 $tituloPagina = "AUTORES";
@@ -31,6 +36,27 @@ include '../header.php';
         <div class="actions-section">
             <h2>CADASTRAMENTO</h2>
             <button class="action-btn" onclick="abrePopup('popupCadastroAutor')"><span class="plus-icon">+</span>NOVO AUTOR</button>
+        </div>
+
+        <div class="stats-section">
+            <a href="livro-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">LIVROS</div>
+                    <div class="stat-number"><?= $qtdLivros['total'] ?></div>
+                </div>
+            </a>
+            <a href="categoria-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">CATEGORIAS</div>
+                    <div class="stat-number"><?= $qtdCategorias['total'] ?></div>
+                </div>
+            </a>
+            <a href="autor-gestao.php">
+                <div class="stat-card">
+                    <div class="stat-title">AUTORES</div>
+                    <div class="stat-number"><?= $qtdAutores['total'] ?></div>
+                </div>
+            </a>
         </div>
     </div>
     
@@ -74,8 +100,8 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="cat_nome">Gênero Literário: </label>
-                <input list="cat_nome" name="cat_nome" required>
-                <datalist class="input-cadastro" name="cat_nome">
+                <input list="categorias" name="cat_nome" required>
+                <datalist class="input-cadastro" id="categorias">
                     <?php foreach ($categorias as $categoria): ?>
                         <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
                     <?php endforeach; ?>
@@ -98,7 +124,7 @@ include '../header.php';
 
     if (isset($_GET['id'])) {
         $idAutor = $_GET['id'];
-        $autor = selecionarPorId('autor', $idAutor, 'pk_forn');
+        $autor = selecionarPorId('autor', $idAutor, 'pk_aut');
         $categoriaOriginal = selecionarPorId('categoria', $autor['fk_cat'], 'pk_cat');
         
         if (!$autor) {
@@ -137,9 +163,9 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="cat_nome">Gênero Literário: </label>
-                <input list="cat_nome" name="cat_nome" required
+                <input list="categorias" name="cat_nome" required
                        value="<?=htmlspecialchars($categoriaOriginal['cat_nome']) ?? ''?>">
-                <datalist class="input-cadastro" name="cat_nome">
+                <datalist class="input-cadastro" id="categorias">
                     <?php foreach ($categorias as $categoria): ?>
                         <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
                     <?php endforeach; ?>

@@ -89,10 +89,20 @@ function fechaPopup(idPopup) {
 window.addEventListener('DOMContentLoaded', () => {
     if (window.location.hash === '#editarMembro') {
         document.getElementById('popupEdicaoMembro').showModal();
-    } else if (window.location.hash === '#editarFornecedor') {
-        document.getElementById('popupEdicaoFornecedor').showModal();
+    } else if (window.location.hash === '#editarLivro') {
+        document.getElementById('popupEdicaoLivro').showModal();
     } else if (window.location.hash === '#editarAutor') {
         document.getElementById('popupEdicaoAutor').showModal();
+    } else if (window.location.hash === '#editarCategoria') {
+        document.getElementById('popupEdicaoCategoria').showModal();
+    } else if (window.location.hash === '#editarFornecedor') {
+        document.getElementById('popupEdicaoFornecedor').showModal();
+    } else if (window.location.hash === '#editarUsuario') {
+        document.getElementById('popupEdicaoUsuario').showModal();
+    } else if (window.location.hash === '#editarEmprestimo') {
+        document.getElementById('popupEdicaoEmprestimo').showModal();
+    } else if (window.location.hash === '#editarReserva') {
+        document.getElementById('popupEdicaoReserva').showModal();
     }
 });
 
