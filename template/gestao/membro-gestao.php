@@ -3,7 +3,11 @@
 session_start();
 require_once "../../geral.php";
 
-if($_SESSION['statusUser'] !== 'Ativo' || $_SESSION['tipoUser'] === 'Almoxarife') {
+if(!isset($_SESSION['statusUser']) || $_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('../index.php', 'erroAlerta', 'Acesso a página negado!');
+}
+
+if($_SESSION['tipoUser'] === 'Almoxarife') {
     enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
 }
 
@@ -19,7 +23,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 
 $_SESSION['tabela'] = 'membro';
-$planos = listar('plano');
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
 $tituloPagina = "MEMBROS";
@@ -95,16 +98,6 @@ include '../header.php';
 
         <div class="form-row">
             <div class="form-group">
-                <label class="label-cadastro" for="plan_nome">Plano: </label>
-                <input list="planos" name="plan_nome" required>
-                <datalist class="input-cadastro" id="planos">
-                    <?php foreach ($planos as $plano): ?>
-                        <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
-                    <?php endforeach; ?>
-                </datalist>
-            </div>
-
-            <div class="form-group">
                 <label for="mem_senha">Senha: </label>
                 <input type="password" name="mem_senha" required minlength="6" maxlength="6">
             </div>
@@ -126,7 +119,6 @@ include '../header.php';
     if (isset($_GET['id'])) {
         $idMembro = $_GET['id'];
         $membro = selecionarPorId('membro', $idMembro, 'pk_mem');
-        $planoOriginal = selecionarPorId('plano', $membro['fk_plan'], 'pk_plan');
     }
 
     if($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -193,19 +185,6 @@ include '../header.php';
             <div class="form-group">
                 <label for="mem_senha">Senha: </label>
                 <input type="password" name="mem_senha" required minlength="6" maxlength="6">
-            </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label class="label-cadastro" for="plan_nome">Plano: </label>
-                <input list="planos" name="plan_nome" required
-                       value="<?=htmlspecialchars($planoOriginal['plan_nome']) ?? ''?>">
-                <datalist class="input-cadastro" id="planos">
-                    <?php foreach ($planos as $plano): ?>
-                        <option value="<?=htmlspecialchars($plano['plan_nome']); ?>">
-                    <?php endforeach; ?>
-                </datalist>
             </div>
         </div>
 

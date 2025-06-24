@@ -1,11 +1,30 @@
 <?php
 
+session_start();
 require_once "../../geral.php";
 
-$funcionarios = listar('usuario');
+if(!isset($_SESSION['statusUser']) || $_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('../index.php', 'erroAlerta', 'Acesso a página negado!');
+}
+
+if($_SESSION['tipoUser'] !== 'Administrador') {
+    enviarSweetAlert('home.php', 'erroAlerta', 'Acesso a página negado!');
+}
+
+//DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if(isset($_POST['form-id'])) {
+        if($_POST['form-id'] === 'cadastrar_usuario') {
+            crudFuncionario(1, '');
+        } elseif ($_POST['form-id'] === 'excluir_usuario') {
+            crudFuncionario(3, $_POST['id']);
+        }
+    }
+}
+
+$_SESSION['tabela'] = 'usuario';
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
-session_start();
 $tituloPagina = "FUNCIONÁRIOS";
 $tituloH1= "GESTÃO FUNCIONÁRIOS";
 include '../header.php';
@@ -13,55 +32,226 @@ include '../header.php';
 ?>
 
 <main class="main-content">
-    <div class="titulo">
-        <h2>CADASTRAMENTO</h2>
-    </div>
     <div class="top-section">
         <div class="actions-section">
-            <a href="funcionario-cadastro.php" class="action-btn">
-                <span class="plus-icon">+ NOVO FUNCIONÁRIO</span>
-            </a>     
+            <h2>CADASTRAMENTO</h2>
+            <button class="action-btn" onclick="abrePopup('popupCadastroUsuario')"><span class="plus-icon">+</span>NOVO FUNCIONÁRIO</button>
         </div>
     </div>
     
-    <div class = "titulo">
-        <h2>Funcionário</h2>
+    <div class="search-section">
+        <h2>FUNCIONÁRIOS</h2>
+        <div class='search-section__barra'>
+            <i class='fi fi-rs-search'></i>
+            <input type="text" class="search-input" id="pesquisaInput" size="26";
+                   placeholder="Pesquisar ID, nome ou CPF" oninput="pesquisarDadoTabela('usuario')">
+        </div>
     </div>
 
     <div class='titleliv'>
-        <div class="tabela">
+        <div class="tabela" id="container-tabela">
             <div class="tisch">
-                <table>
-                    <tr>
-                        <th>Nome</th>
-                        <th>CPF</th>
-                        <th>Telefone</th>
-                        <th>E-mail</th>
-                        <th>Admissão</th>
-                        <th>Status</th>
-                        <!--<th>Tipo Usuário</th>-->
-                        <th>Ação</th>
-                    </tr>
-                    <?php foreach ($funcionarios as $funcionario): ?>
-                        <tr>
-                            <td><?= htmlspecialchars($funcionario["user_nome"]) ?></td>
-                            <td><?= htmlspecialchars($funcionario["user_cpf"]) ?></td>
-                            <td><?= htmlspecialchars($funcionario["user_telefone"]) ?></td>
-                            <td><?= htmlspecialchars($funcionario["user_email"]) ?></td>
-                            <td><?= htmlspecialchars($funcionario["user_dataAdmissao"]) ?></td>
-                            <td><?= htmlspecialchars($funcionario["user_status"]) ?></td>
-                            <!--<td><?= htmlspecialchars($funcionario["fk_tipoUser"]) ?></td>-->
-                            <td>
-                                <i class='fas fa-trash-alt'
-                                    style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                                <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </table>
+                <?php include 'tabelas.php'; ?>
             </div>
         </div>
     </div>
 </main>
+
+<!--POPUP CADASTRAMENTO-->
+<dialog class="popup" id="popupCadastroUsuario">
+<div class="popup-content">
+<div class="container">
+<h1>CADASTRAMENTO FUNCIONÁRIO</h1>
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="hidden" name="form-id" value="cadastrar_usuario">
+                <label for="user_nome">Nome: </label>
+                <input type="text" name="user_nome" onkeypress="mascara(this,nomeMasc)" required>
+            </div>
+            <div class="form-group">
+                <label for="user_cpf">CPF: </label>
+                <input type="text" name="user_cpf" required 
+                    pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" 
+                    title="000.000.000-00"
+                    maxlength="14"
+                    onkeypress="mascara(this,cpfMasc)">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_telefone">Telefone: </label>
+                <input type="tel" name="user_telefone" required
+                    pattern="\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}" 
+                    title="(00) 00000-0000"
+                    maxlength="15"
+                    onkeypress="mascara(this,telefoneMasc)">
+            </div>
+
+            <div class="form-group">
+                <label for="user_email">Email: </label>
+                <input type="email" name="user_email" required>
+            </div>
+        </div>
+
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_dataAdmissao">Admissão: </label>
+                <input type="date" name="user_dataAdmissao" value="<?= date('Y-m-d') ?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="user_dataDemissao">Demissão: </label>
+                <input type="date" name="user_dataDemissao">
+            </div>
+
+            <div class="form-group">
+                <label class="label-cadastro" for="user_tipoUser">Cargo: </label>
+                <select class="input-cadastro" name="user_tipoUser" required>
+                    <option value="Administrador">Administrador</option>
+                    <option value="Secretaria">Secretaria</option>
+                    <option value="Almoxarife">Almoxarife</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_login">Login: </label>
+                <input type="text" name="user_login" onkeypress="mascara(this,nomeMasc)" required>
+            </div>
+            <div class="form-group">
+                <label for="user_senha">Senha: </label>
+                <input type="password" name="user_senha" required minlength="8">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <p>Confira os dados com atenção! O sistema só permite a exclusão de funcionário por 1 hora após seu cadastro!</p>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-save" type="submit">Cadastrar</button>
+            <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroUsuario')">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+</dialog>
+
+<!--POPUP EDIÇÃO-->
+<dialog class="popup" id="popupEdicaoUsuario">
+<?php
+
+    if (isset($_GET['id'])) {
+        $idFunc = $_GET['id'];
+        $usuario = selecionarPorId('usuario', $idFunc, 'pk_user');
+    }
+
+    if($_SERVER["REQUEST_METHOD"] == "POST") {
+        if(isset($_POST['form-id'])) {
+            if($_POST['form-id'] === 'editar_funcionario') {
+                crudFuncionario(2, $idFunc);
+            }
+        }
+    }
+
+    if ($usuario) :
+?>
+<div class="popup-content">
+<div class="container">
+<h1>EDIÇÃO FUNCIONÁRIO</h1>
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="hidden" name="editar-id" value="<?= $idFunc ?? '' ?>">
+                <input type="hidden" name="form-id" value="editar_funcionario">
+                <label for="user_nome">Nome: </label>
+                <input type="text" name="user_nome" onkeypress="mascara(this,nomeMasc)" 
+                       value="<?=htmlspecialchars($usuario['user_nome'])?>" required>
+            </div>
+            <div class="form-group">
+                <label for="user_cpf">CPF: </label>
+                <input type="text" name="user_cpf" required 
+                    pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" 
+                    title="000.000.000-00"
+                    maxlength="14"
+                    onkeypress="mascara(this,cpfMasc)"
+                    value="<?=htmlspecialchars($usuario['user_cpf'])?>">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_telefone">Telefone: </label>
+                <input type="tel" name="user_telefone" required
+                    pattern="\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}" 
+                    title="(00) 00000-0000"
+                    maxlength="15"
+                    onkeypress="mascara(this,telefoneMasc)"
+                    value="<?=htmlspecialchars($usuario['user_telefone'])?>">
+            </div>
+
+            <div class="form-group">
+                <label for="user_email">Email: </label>
+                <input type="email" name="user_email" value="<?=htmlspecialchars($usuario['user_email'])?>" required>
+            </div>
+        </div>
+
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_dataAdmissao">Admissão: </label>
+                <input type="date" name="user_dataAdmissao" value="<?=htmlspecialchars($usuario['user_dataAdmissao'])?>">
+            </div>
+
+            <div class="form-group">
+                <label for="user_dataDemissao">Demissão: </label>
+                <input type="date" name="user_dataDemissao" value="<?=htmlspecialchars($usuario['user_dataDemissao'])?>">
+            </div>
+
+            <div class="form-group">
+                <label class="label-cadastro" for="user_tipoUser">Cargo: </label>
+                <select class="input-cadastro" name="user_tipoUser" required>
+                    <option value="Administrador" <?= ($usuario['user_tipoUser'] ?? '') === 'Administrador' ? 'selected' : '' ?>>Administrador</option>
+                    <option value="Secretaria" <?= ($usuario['user_tipoUser'] ?? '') === 'Secretaria' ? 'selected' : '' ?>>Secretaria</option>
+                    <option value="Almoxarife" <?= ($usuario['user_tipoUser'] ?? '') === 'Almoxarife' ? 'selected' : '' ?>>Almoxarife</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="label-cadastro" for="user_status">Status: </label>
+                <select class="input-cadastro" name="user_status" required>
+                    <option value="Ativo" <?= ($usuario['user_status'] ?? '') === 'Ativo' ? 'selected' : '' ?>>Ativo</option>
+                    <option value="Inativo" <?= ($usuario['user_status'] ?? '') === 'Inativo' ? 'selected' : '' ?>>Inativo</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_login">Login: </label>
+                <input type="text" name="user_login" onkeypress="mascara(this,nomeMasc)" value="<?=htmlspecialchars($usuario['user_login'])?>" required>
+            </div>
+            <div class="form-group">
+                <label for="user_senha">Senha: </label>
+                <input type="password" name="user_senha" required minlength="8">
+            </div>
+        </div>
+
+        <div class="form-row">
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-save" type="submit">Alterar</button>
+            <button class="btn btn-cancel" type="button" onclick="location.href='funcionario-gestao.php'">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+<?php endif; ?> 
+</dialog>
 </body>
 </html>

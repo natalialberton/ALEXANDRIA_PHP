@@ -1,3 +1,17 @@
+<?php
+
+require_once '../../geral.php';
+
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if(isset($_POST['logout'])) {
+        if($_POST['logout'] === 'logout') {
+            logout();
+        }
+    }
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 

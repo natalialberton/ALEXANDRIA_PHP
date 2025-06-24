@@ -14,22 +14,22 @@ if($_SESSION['tipoUser'] === 'Almoxarife') {
 //DIRECIONANDO OS FORMULÁRIOS DE CADASTRO E EXCLUSÃO
 if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['form-id'])) {
-        if($_POST['form-id'] === 'cadastrar_emprestimo') {
-            crudEmprestimo(1, '');
-        } elseif ($_POST['form-id'] === 'excluir_emprestimo') {
-            crudEmprestimo(3, $_POST['id']);
+        if($_POST['form-id'] === 'cadastrar_reserva') {
+            crudReserva(1, '');
+        } elseif ($_POST['form-id'] === 'excluir_reserva') {
+            crudReserva(3, $_POST['id']);
         }
     }
 }
 
-$_SESSION['tabela'] = 'emprestimo';
+$_SESSION['tabela'] = 'reserva';
 $livros = listar('livro');
 $membros = listar('membro');
 $usuarios = listar('usuario');
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
-$tituloPagina = "EMPRÉSTIMOS";
-$tituloH1= "GESTÃO EMPRÉSTIMOS";
+$tituloPagina = "RESERVAS";
+$tituloH1= "GESTÃO RESERVAS";
 include '../header.php';
 
 ?>
@@ -38,16 +38,16 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>GERAL</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroEmprestimo')"><span class="plus-icon">+</span>NOVO EMPRÉSTIMO</button>
+            <button class="action-btn" onclick="abrePopup('popupCadastroReserva')"><span class="plus-icon">+</span>NOVA RESERVA</button>
         </div>
     </div>
     
     <div class="search-section">
-        <h2>EMPRÉSTIMOS</h2>
+        <h2>RESERVAS</h2>
         <div class='search-section__barra'>
             <i class='fi fi-rs-search'></i>
             <input type="text" class="search-input" id="pesquisaInput" size="26";
-                   placeholder="Pesquisar ID, status" oninput="pesquisarDadoTabela('emprestimo')">
+                   placeholder="Pesquisar ID, status" oninput="pesquisarDadoTabela('reserva')">
         </div>
     </div>
 
@@ -61,14 +61,14 @@ include '../header.php';
 </main>
 
 <!--POPUP CADASTRAMENTO-->
-<dialog class="popup" id="popupCadastroEmprestimo">
+<dialog class="popup" id="popupCadastroReserva">
 <div class="popup-content">
 <div class="container">
-<h1>NOVO EMPRÉSTIMO</h1>
+<h1>NOVA RESERVA</h1>
     <form method="POST">
         <div class="form-row">
             <div class="form-group">
-                <input type="hidden" name="form-id" value="cadastrar_emprestimo">
+                <input type="hidden" name="form-id" value="cadastrar_reserva">
                 <div class="form-group">
                 <label class="label-cadastro" for="fk_mem">CPF Membro: </label>
                 <input list="membros" name="fk_mem" required>
@@ -92,30 +92,29 @@ include '../header.php';
 
         <div class="form-row">
             <div class="form-group">
-                <label for="emp_prazo">Prazo: </label>
-                <input type="number" name="emp_prazo" required>
+                <label for="res_prazo">Prazo: </label>
+                <input type="number" name="res_prazo" required>
             </div>
 
             <div class="form-group">
-                <label for="emp_dataEmp">Data: </label>
-                <input type="date" name="emp_dataEmp" value="<?= date('Y-m-d') ?>" required>
+                <label for="res_dataMarcada">Data: </label>
+                <input type="date" name="res_dataMarcada" value="<?= date('Y-m-d') ?>" required>
             </div>
 
             <div class="form-group">
                 <label class="label-cadastro" for="emp_status">Status: </label>
                 <select class="input-cadastro" name="emp_status" required>
-                    <option value="Empréstimo Ativo" selected>Empréstimo Ativo</option>
-                    <option value="Empréstimo Atrasado">Empréstimo Atrasado</option>
-                    <option value="Renovação Ativa">Renovação Ativa</option>
-                    <option value="Renovação Atrasada">Renovação Atrasada</option>
-                    <option value="Finalizado">Finalizado</option>
+                    <option value="Aberta" selected>Aberta</option>
+                    <option value="Cancelada">Cancelada</option>
+                    <option value="Finalizada">Finalizada</option>
+                    <option value="Atrasada">Atrasada</option>
                 </select>
             </div>
         </div>
 
         <div class="button-group">
             <button class="btn btn-save" type="submit">Registrar</button>
-            <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroEmprestimo')">Cancelar</button>
+            <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroReserva')">Cancelar</button>
         </div>
     </form>
 </div>
@@ -123,34 +122,34 @@ include '../header.php';
 </dialog>
 
 <!--POPUP CADASTRAMENTO-->
-<dialog class="popup" id="popupEdicaoEmprestimo">
+<dialog class="popup" id="popupEdicaoReserva">
 <?php
 
     if (isset($_GET['id'])) {
-        $idEmp = $_GET['id'];
-        $emprestimo = selecionarPorId('emprestimo', $idEmp, 'pk_emp');
-        $membroOriginal = selecionarPorId('membro', $emprestimo['fk_mem'], 'pk_mem');
-        $livroOriginal = selecionarPorId('livro', $emprestimo['fk_liv'], 'pk_liv');
+        $idRes = $_GET['id'];
+        $reserva = selecionarPorId('reserva', $idRes, 'pk_res');
+        $membroOriginal = selecionarPorId('membro', $reserva['fk_mem'], 'pk_mem');
+        $livroOriginal = selecionarPorId('livro', $reserva['fk_liv'], 'pk_liv');
     }
 
     if($_SERVER["REQUEST_METHOD"] == "POST") {
         if(isset($_POST['form-id'])) {
-            if($_POST['form-id'] === 'editar_emprestimo') {
-                crudEmprestimo(2, $idEmp);
+            if($_POST['form-id'] === 'editar_reserva') {
+                crudReserva(2, $idRes);
             }
         }
     }
 
-    if ($emprestimo) :
+    if ($reserva) :
 ?>
 <div class="popup-content">
 <div class="container">
-<h1>EDIÇÃO EMPRÉSTIMO</h1>
+<h1>EDIÇÃO RESERVA</h1>
     <form method="POST">
         <div class="form-row">
             <div class="form-group">
-                <input type="hidden" name="editar-id" value="<?= $idEmp ?? '' ?>">
-                <input type="hidden" name="form-id" value="editar_emprestimo">
+                <input type="hidden" name="editar-id" value="<?= $idRes ?? '' ?>">
+                <input type="hidden" name="form-id" value="editar_reserva">
                 
                 <div class="form-group">
                 <label class="label-cadastro" for="fk_mem">CPF Membro: </label>
@@ -177,30 +176,29 @@ include '../header.php';
 
         <div class="form-row">
             <div class="form-group">
-                <label for="emp_dataEmp">Data Empréstimo: </label>
-                <input type="date" name="emp_dataEmp" value="<?=$emprestimo['emp_dataEmp']?>" required>
+                <label for="res_dataMarcada">Data: </label>
+                <input type="date" name="res_dataMarcada" value="<?= htmlspecialchars($reserva['res_dataMarcada']); ?>" required>
             </div>
 
             <div class="form-group">
-                <label for="emp_dataDevReal">Devolução Real: </label>
-                <input type="number" name="emp_dataDevReal" value="<?=$emprestimo['emp_dataDevReal']?>">
+                <label for="res_dataFinalizada">Finalização: </label>
+                <input type="date" name="res_dataMarcada" value="<?= htmlspecialchars($reserva['res_dataFinalizada']); ?>" required>
             </div>
 
             <div class="form-group">
                 <label class="label-cadastro" for="emp_status">Status: </label>
                 <select class="input-cadastro" name="emp_status" required>
-                    <option value="Empréstimo Ativo" <?= ($emprestimo['emp_status'] ?? '') === 'Empréstimo Ativo' ? 'selected' : '' ?>>Empréstimo Ativo</option>
-                    <option value="Empréstimo Atrasado" <?= ($emprestimo['emp_status'] ?? '') === 'Empréstimo Atrasado' ? 'selected' : '' ?>>Empréstimo Atrasado</option>
-                    <option value="Renovação Ativa" <?= ($emprestimo['emp_status'] ?? '') === 'Renovação Ativa' ? 'selected' : '' ?>>Renovação Ativa</option>
-                    <option value="Renovação Atrasada" <?= ($emprestimo['emp_status'] ?? '') === 'Renovação Atrasada' ? 'selected' : '' ?>>Renovação Atrasada</option>
-                    <option value="Finalizado" <?= ($emprestimo['emp_status'] ?? '') === 'Finalizado' ? 'selected' : '' ?>>Finalizado</option>
+                    <option value="Aberta" <?= ($reserva['res_status'] ?? '') === 'Aberta' ? 'selected' : '' ?>>Aberta</option>
+                    <option value="Cancelada" <?= ($reserva['res_status'] ?? '') === 'Cancelada' ? 'selected' : '' ?>>Cancelada</option>
+                    <option value="Finalizada" <?= ($reserva['res_status'] ?? '') === 'Finalizada' ? 'selected' : '' ?>>Finalizada</option>
+                    <option value="Atrasada" <?= ($reserva['res_status'] ?? '') === 'Atrasada' ? 'selected' : '' ?>>Atrasada</option>
                 </select>
             </div>
         </div>
 
         <div class="button-group">
             <button class="btn btn-save" type="submit">Registrar</button>
-            <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroEmprestimo')">Cancelar</button>
+            <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroReserva')">Cancelar</button>
         </div>
     </form>
 </div>

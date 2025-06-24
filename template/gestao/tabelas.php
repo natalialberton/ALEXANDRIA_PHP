@@ -32,7 +32,6 @@ switch($tabela) {
             <th>CPF</th>
             <th>Telefone</th>
             <th>E-mail</th>
-            <th>Plano</th>
             <th>Status</th>
             <th>Ação</th>
         </tr>

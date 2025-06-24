@@ -25,7 +25,6 @@ function conectarBanco() {
     }
 }
 
-
 function retornarErro($mensagem) {
     echo json_encode(['success' => false, 'error' => $mensagem], JSON_UNESCAPED_UNICODE);
     exit;
