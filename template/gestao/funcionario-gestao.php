@@ -136,5 +136,110 @@ include '../header.php';
 </div>
 </div>
 </dialog>
+
+<!--POPUP EDIÇÃO-->
+<dialog class="popup" id="popupEdicaoUsuario">
+<?php
+
+    if (isset($_GET['id'])) {
+        $idFunc = $_GET['id'];
+        $usuario = selecionarPorId('usuario', $idFunc, 'pk_user');
+    }
+
+    if($_SERVER["REQUEST_METHOD"] == "POST") {
+        if(isset($_POST['form-id'])) {
+            if($_POST['form-id'] === 'editar_funcionario') {
+                crudFuncionario(2, $idFunc);
+            }
+        }
+    }
+
+    if ($usuario) :
+?>
+<div class="popup-content">
+<div class="container">
+<h1>EDIÇÃO FUNCIONÁRIO</h1>
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="hidden" name="editar-id" value="<?= $idFunc ?? '' ?>">
+                <input type="hidden" name="form-id" value="editar_funcionario">
+                <label for="user_nome">Nome: </label>
+                <input type="text" name="user_nome" onkeypress="mascara(this,nomeMasc)" 
+                       value="<?=htmlspecialchars($usuario['user_nome'])?>" required>
+            </div>
+            <div class="form-group">
+                <label for="user_cpf">CPF: </label>
+                <input type="text" name="user_cpf" required 
+                    pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" 
+                    title="000.000.000-00"
+                    maxlength="14"
+                    onkeypress="mascara(this,cpfMasc)"
+                    value="<?=htmlspecialchars($usuario['user_cpf'])?>">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_telefone">Telefone: </label>
+                <input type="tel" name="user_telefone" required
+                    pattern="\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}" 
+                    title="(00) 00000-0000"
+                    maxlength="15"
+                    onkeypress="mascara(this,telefoneMasc)"
+                    value="<?=htmlspecialchars($usuario['user_telefone'])?>">
+            </div>
+
+            <div class="form-group">
+                <label for="user_email">Email: </label>
+                <input type="email" name="user_email" value="<?=htmlspecialchars($usuario['user_email'])?>" required>
+            </div>
+        </div>
+
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_dataAdmissao">Admissão: </label>
+                <input type="date" name="user_dataAdmissao" value="<?=htmlspecialchars($usuario['user_dataAdmissao'])?>">
+            </div>
+
+            <div class="form-group">
+                <label for="user_dataDemissao">Demissão: </label>
+                <input type="date" name="user_dataDemissao" value="<?=htmlspecialchars($usuario['user_dataDemissao'])?>">
+            </div>
+
+            <div class="form-group">
+                <label class="label-cadastro" for="user_status">Status: </label>
+                <select class="input-cadastro" name="user_status" required>
+                    <option value="Administrador" <?= ($usuario['user_status'] ?? '') === 'Administrador' ? 'selected' : '' ?>>Administrador</option>
+                    <option value="Secretaria" <?= ($usuario['user_status'] ?? '') === 'Secretaria' ? 'selected' : '' ?>>Secretaria</option>
+                    <option value="Almoxarife" <?= ($usuario['user_status'] ?? '') === 'Almoxarife' ? 'selected' : '' ?>>Almoxarife</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_login">Login: </label>
+                <input type="text" name="user_login" onkeypress="mascara(this,nomeMasc)" value="<?=htmlspecialchars($usuario['user_login'])?>" required>
+            </div>
+            <div class="form-group">
+                <label for="user_senha">Senha: </label>
+                <input type="password" name="user_senha" required minlength="8">
+            </div>
+        </div>
+
+        <div class="form-row">
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-save" type="submit">Alterar</button>
+            <button class="btn btn-cancel" type="button" onclick="location.href='funcionario-gestao.php'">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+<?php endif; ?> 
+</dialog>
 </body>
 </html>
