@@ -2,8 +2,8 @@
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-require_once '../../conexao.php';
-$pdo = conectarBanco(); 
+require_once '../../geral.php';
+$pdo = conectaBd(); 
 
 $tipo = $_GET['tipo'] ?? '';
 
@@ -13,23 +13,29 @@ try {
         case 'emprestimos_reservas_mes':
             $sql = "
                 SELECT 
-                    DATE_FORMAT(data, '%Y-%m') as mes,
+                    mes,
                     SUM(emprestimos) as emprestimos,
                     SUM(reservas) as reservas
                 FROM (
-                    SELECT emp_dataEmp as data, COUNT(*) as emprestimos, 0 as reservas
+                    SELECT 
+                        DATE_FORMAT(emp_dataEmp, '%Y-%m') as mes,
+                        COUNT(*) as emprestimos, 
+                        0 as reservas
                     FROM EMPRESTIMO 
                     WHERE emp_dataEmp >= '2023-01-01'
                     GROUP BY DATE_FORMAT(emp_dataEmp, '%Y-%m')
                     
                     UNION ALL
                     
-                    SELECT res_dataMarcada as data, 0 as emprestimos, COUNT(*) as reservas
+                    SELECT 
+                        DATE_FORMAT(res_dataMarcada, '%Y-%m') as mes,
+                        0 as emprestimos, 
+                        COUNT(*) as reservas
                     FROM RESERVA 
                     WHERE res_dataMarcada >= '2023-01-01'
                     GROUP BY DATE_FORMAT(res_dataMarcada, '%Y-%m')
                 ) AS combined
-                GROUP BY DATE_FORMAT(data, '%Y-%m')
+                GROUP BY mes
                 ORDER BY mes
             ";
             break;

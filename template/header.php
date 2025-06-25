@@ -27,6 +27,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.22.0/dist/sweetalert2.all.min.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="icon" type="image/png" href="../../static/img/favicon.png">
     <script src="../../static/javascript/geral.js?v=<?= time() ?>"></script>
@@ -52,8 +53,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="autor-gestao.php" class="linkMenu"><i class="fa-solid fa-pen-nib"></i>&nbspAutores</a>
             <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
             <a href="emprestimo-gestao.php" class="linkMenu"><i class='bx bx-folder-open'></i>&nbspEmpréstimos</a>
-            <a href="reserva-gestao.php" class="linkMenu"><i class='bx bx-folder-open'></i>&nbspReservas</a>
-            <a href="multa-gestao.php" class="linkMenu"><i class='bx bx-folder-open'></i>&nbspMultas</a>
+            <a href="reserva-gestao.php" class="linkMenu"><i class="fa-regular fa-folder"></i></i>&nbspReservas</a>
+            <a href="multa-gestao.php" class="linkMenu"><i class="fa-solid fa-money-bill"></i></i>&nbspMultas</a>
             <a href="membro-gestao.php" class="linkMenu"><i class='bx bx-group'></i>&nbspMembros</a>
             <?php endif; ?>
             <?php if($_SESSION['tipoUser'] !== 'Secretaria'): ?>
