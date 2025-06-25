@@ -52,7 +52,6 @@ include '../header.php';
                 <div class="stat-title stat-title-a-vencer">VENCE EM TRÊS DIAS</div>
                 <div class="stat-number stat-number-a-vencer"><?= $qtdLivrosAVencer['total'] ?></div>
             </div>
-            </a>
             <div class="stat-card">
                 <div class="stat-title stat-title-no-prazo">NO PRAZO</div>
                 <div class="stat-number stat-number-no-prazo"><?= $qtdLivrosNoPrazo['total'] ?></div>

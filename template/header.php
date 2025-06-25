@@ -6,9 +6,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['form-id'])) {
         if($_POST['form-id'] === 'logout') {
             logout();
+        } elseif($_POST['form-id'] === 'editar_usuarioLogado') {
+            crudFuncionario(2, $usuarioLogado['pk_user']);
         }
     }
 }
+
+$usuarioLogado = selecionarPorId('usuario', $_SESSION['pk_user'], 'pk_user')
 
 ?>
 
@@ -29,9 +33,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link rel="icon" type="image/png" href="../../static/img/favicon.png">
-
-
-
     <script src="../../static/javascript/geral.js?v=<?= time() ?>"></script>
 </head>
 
@@ -83,7 +84,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         </button>
 
         <div class="dropdown" id="dropdownMenu">
-            <button onclick="DadosPessoais()">
+            <button onclick="abrePopup('popupDadosPessoais')">
                 <i class="fas fa-user"></i>
                 <span style="font-family: 'Montserrat'">Dados Pessoais</span>
             </button>
@@ -98,6 +99,90 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     </header>
 
 <body>
+<!--POPUP DADOS PESSOAIS-->
+<dialog class="popup" id="popupDadosPessoais">
+<div class="popup-content">
+<div class="popup__container">
+<h1>DADOS PESSOAIS</h1>
+    <form method="POST">
+        <div class="form-row">
+            <div class="form-group">
+                <input type="hidden" name="form-id" value="editar_usuarioLogado">
+                <label for="user_nome">Nome: </label>
+                <input type="text" name="user_nome" onkeypress="mascara(this,nomeMasc)" 
+                       value="<?=htmlspecialchars($usuarioLogado['user_nome'])?>" required>
+            </div>
+            <div class="form-group">
+                <label for="user_cpf">CPF: </label>
+                <input type="text" name="user_cpf" required 
+                    pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" 
+                    title="000.000.000-00"
+                    maxlength="14"
+                    onkeypress="mascara(this,cpfMasc)"
+                    value="<?=htmlspecialchars($usuarioLogado['user_cpf'])?>">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_telefone">Telefone: </label>
+                <input type="tel" name="user_telefone" required
+                    pattern="\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}" 
+                    title="(00) 00000-0000"
+                    maxlength="15"
+                    onkeypress="mascara(this,telefoneMasc)"
+                    value="<?=htmlspecialchars($usuarioLogado['user_telefone'])?>">
+            </div>
+
+            <div class="form-group">
+                <label for="user_email">Email: </label>
+                <input type="email" name="user_email" value="<?=htmlspecialchars($usuarioLogado['user_email'])?>" required>
+            </div>
+        </div>
+
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_dataAdmissao">Admissão: </label>
+                <input type="date" name="user_dataAdmissao" value="<?=htmlspecialchars($usuarioLogado['user_dataAdmissao']) ?? null?>" required>
+            </div>
+
+            <div class="form-group">
+                <label for="user_dataDemissao">Demissão: </label>
+                <input type="date" name="user_dataDemissao" value="<?=htmlspecialchars($usuarioLogado['user_dataDemissao']) ?? null?>">
+            </div>
+
+            <div class="form-group">
+                <label class="label-cadastro" for="user_tipoUser">Cargo: </label>
+                <select class="input-cadastro" name="user_tipoUser" required>
+                    <option value="Administrador" <?= ($usuarioLogado['user_tipoUser'] ?? '') === 'Administrador' ? 'selected' : '' ?>>Administrador</option>
+                    <option value="Secretaria" <?= ($usuarioLogado['user_tipoUser'] ?? '') === 'Secretaria' ? 'selected' : '' ?>>Secretaria</option>
+                    <option value="Almoxarife" <?= ($usuarioLogado['user_tipoUser'] ?? '') === 'Almoxarife' ? 'selected' : '' ?>>Almoxarife</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="user_login">Login: </label>
+                <input type="text" name="user_login" onkeypress="mascara(this,nomeMasc)" 
+                       value="<?=htmlspecialchars($usuarioLogado['user_login'])?>"required>
+            </div>
+            <div class="form-group">
+                <label for="user_senha">Senha: </label>
+                <input type="password" name="user_senha" required minlength="8">
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn btn-save" type="submit">Alterar</button>
+            <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupDadosPessoais')">Cancelar</button>
+        </div>
+    </form>
+</div>
+</div>
+</dialog>
+
     <script>
         const dropdown = document.getElementById('dropdownMenu');
 

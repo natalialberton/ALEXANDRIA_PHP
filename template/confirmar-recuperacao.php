@@ -39,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                         <div class="right" id="left">
                             <button type="submit">Verificar</button>
-                            <a href="recuperar-senha.php" class="return">Voltar</a>
+                            <button type="button" class="cancel" onclick="location.href='recuperar-senha.php'">Voltar</button>
                         </div>
                     </div>
                 </form>

@@ -25,6 +25,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
 $_SESSION['tabela'] = 'multa';
 $emprestimos = listar('emprestimo');
 $membros = listar('membro');
+$qtdMultaAberta = contarTotalCondicional('multa', "mul_status = 'Aberta'");
+$qtdMultaFinalizada = contarTotalCondicional('multa', "mul_status = 'Finalizada'");
 
 //PUXANDO O HEADER, NAV E DEFININDO VARIÁVEIS 
 $tituloPagina = "MULTAS";
@@ -39,6 +41,16 @@ include '../header.php';
             <h2>GERAL</h2>
             <button class="action-btn" onclick="abrePopup('popupCadastroMulta')"><span class="plus-icon">+</span>NOVA MULTA</button>
         </div>
+
+        <div class="stats-section">
+            <div class="stat-card">
+                <div class="stat-title stat-title-atrasado">ABERTA</div>
+                <div class="stat-number stat-number-atrasado"><?= $qtdMultaAberta['total'] ?></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title stat-title-no-prazo">FINALIZADA</div>
+                <div class="stat-number stat-number-no-prazo"><?= $qtdMultaFinalizada['total'] ?></div>
+            </div>
     </div>
     
     <div class="search-section">
@@ -99,7 +111,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="mul_valor">Valor: </label>
-                <input type="text" name="mul_valor" required>
+                <input type="number" name="mul_valor" required>
             </div>
         </div>
 
@@ -142,25 +154,24 @@ include '../header.php';
                 <input type="hidden" name="form-id" value="editar_multa">
                 
                 <div class="form-group">
-                 <label class="label-cadastro" for="fk_forn">CNPJ Fornecedor: </label>
-                <input list="fornecedores" name="fk_forn" onkeypress="mascara(this,cnpjMasc)" 
-                       maxlength="18" value="<?= $fornOriginal['forn_cnpj'] ?>" required>
-                <datalist class="input-cadastro" id="fornecedores">
-                    <?php foreach ($fornecedores as $fornecedor): ?>
-                        <option value="<?=htmlspecialchars($fornecedor['forn_cnpj']); ?>">
-                            <?=htmlspecialchars($fornecedor['forn_nome']); ?>
+                <label class="label-cadastro" for="fk_mem">CPF Membro: </label>
+                <input list="membros" name="fk_mem" onkeypress="mascara(this,cpfMasc)" 
+                       maxlength="14" value="<?=htmlspecialchars($memOriginal['mem_cpf'])?>" required>
+                <datalist class="input-cadastro" id="membros">
+                    <?php foreach ($membros as $membro): ?>
+                        <option value="<?=htmlspecialchars($membro['mem_cpf']); ?>">
+                            <?=htmlspecialchars($membro['mem_nome']); ?>
                         </option>
                     <?php endforeach; ?>
                 </datalist>
             </div>
             </div>
             <div class="form-group">
-                <label class="label-cadastro" for="fk_liv">ISBN Livro: </label>
-                <input list="livros" name="fk_liv" maxlength="17" value="<?= $livroOriginal['liv_isbn'] ?>"
-                       onkeypress="mascara(this,isbnMasc)" required>
-                <datalist class="input-cadastro" id="livros">
-                    <?php foreach ($livros as $livro): ?>
-                        <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>">
+                <label class="label-cadastro" for="fk_emp">ID Empréstimo: </label>
+                <input list="emprestimos" name="fk_emp" value="<?=htmlspecialchars($multa['fk_emp'])?>" required>
+                <datalist class="input-cadastro" id="emprestimos">
+                    <?php foreach ($emprestimos as $emprestimo): ?>
+                        <option value="<?=htmlspecialchars($emprestimo['pk_emp']); ?>">
                     <?php endforeach; ?>
                 </datalist>
             </div>
@@ -168,13 +179,13 @@ include '../header.php';
 
         <div class="form-row">
             <div class="form-group">
-                <label for="rem_data">Data: </label>
-                <input type="date" name="rem_data" value="<?= $fornOriginal['forn_cnpj'] ?>" required>
+                <label for="mul_qtdDias">Dias de Atraso: </label>
+                <input type="number" name="mul_qtdDias" value="<?=htmlspecialchars($multa['mul_qtdDias'])?>" required>
             </div>
 
             <div class="form-group">
-                <label for="res_qtd">Quantidade: </label>
-                <input type="number" name="res_qtd" required>
+                <label for="mul_valor">Valor: </label>
+                <input type="number" name="mul_valor" value="<?=htmlspecialchars($multa['mul_valor'])?>" required>
             </div>
         </div>
 
