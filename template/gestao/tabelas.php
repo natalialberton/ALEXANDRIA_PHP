@@ -103,8 +103,7 @@ switch($tabela) {
                             style="background: none; border: none; padding: 0; cursor: pointer;">
                         <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
                     </button>
-                    <!-- Link corrigido para geraPdf.php na mesma pasta 'gestao' -->
-                    <a href="geraPdf.php?id_mem=<?= $dado['pk_mem'] ?>" target="_blank" 
+                    <a href="../../historicoPdf.php?id_mem=<?= $dado['pk_mem'] ?>" target="_blank" 
                        style="text-decoration: none; cursor: pointer;">
                         <i class="fas fa-file-pdf" title="Gerar Relatório em PDF" style="font-size: 20px; color: #a69c60;"></i>
                     </a>
@@ -149,12 +148,10 @@ switch($tabela) {
                                     onclick="confirmarExclusao('fornecedor-gestao.php', 'excluir_fornecedor', <?= $dado['pk_forn'] ?>, 'Tem certeza que deseja excluir este fornecedor?')">
                                 <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
                             </button>
-                            <?php if($_SESSION['tipoUser'] === 'Administrador'): ?>
                             <button onclick="location.href='?id=<?= $dado['pk_forn'] ?>#editarFornecedor'" 
                                     style="background: none; border: none; padding: 0; cursor: pointer;">
                                     <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
                             </button>
-                            <?php endif; ?>
                         </td>
                     </tr>
         <?php 
@@ -334,12 +331,6 @@ switch($tabela) {
                         <td><?= $dado["user_dataDemissao"] ?? '' ?></td>
                         <td><?= htmlspecialchars($dado["user_status"]) ?></td>
                         <td>
-                            <?php if($_SESSION['pk_user'] !== $dado['pk_user']): ?>
-                            <button style="background: none; border: none; padding: 0; cursor: pointer;"
-                                    onclick="confirmarExclusao('funcionario-gestao.php', 'excluir_usuario', <?= $dado['pk_user'] ?>, 'Tem certeza que deseja excluir este funcionário?')">
-                                <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
-                            </button>
-                            <?php endif; ?>
                             <button onclick="location.href='?id=<?= $dado['pk_user'] ?>#editarUsuario'" 
                                     style="background: none; border: none; padding: 0; cursor: pointer;">
                                     <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
@@ -388,7 +379,7 @@ switch($tabela) {
                         <td><?= htmlspecialchars($dado["emp_status"]) ?></td>
                         <td>
                             <button style="background: none; border: none; padding: 0; cursor: pointer;"
-                                    onclick="confirmarExclusao('emprestimo-gestao.php', 'excluir_emprestimo', <?= $dado['pk_emp'] ?>, 'Tem certeza que deseja excluir este registro de empréstimo?')">
+                                    onclick="confirmarExclusao('emprestimo-gestao.php', 'excluir_emprestimo', <?= $dado['pk_emp'] ?>, 'Tem certeza que deseja excluir este registro de empréstimo? Esta ação afetará o histórico de empréstimos do membro!')">
                                 <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
                             </button>
                             <button onclick="location.href='?id=<?= $dado['pk_emp'] ?>#editarEmprestimo'" 
@@ -443,6 +434,100 @@ switch($tabela) {
                                 <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
                             </button>
                             <button onclick="location.href='?id=<?= $dado['pk_res'] ?>#editarReserva'" 
+                                    style="background: none; border: none; padding: 0; cursor: pointer;">
+                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
+                            </button>
+                        </td>
+                    </tr>
+        <?php 
+                endforeach;
+            else: echo "<tr><td colspan='8' class='text-center'><i class='fas fa-search'></i>$mensagem</td></tr>";
+            endif;
+        ?>
+    </tbody>
+</table>
+
+<?php elseif($tabela === 'remessa'): ?>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Livro</th>
+            <th>Fornecedor</th>
+            <th>Data</th>
+            <th>Quantidade</th>
+            <th>Funcionário</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody id="tabela-body">
+        <?php 
+            if(!empty($dados)): 
+                foreach ($dados as $dado):
+                    $livro = selecionarPorId('livro', $dado['fk_liv'], 'pk_liv');
+                    $fornecedor = selecionarPorId('fornecedor', $dado['fk_forn'], 'pk_forn');   
+                    $usuario = selecionarPorId('usuario', $dado['fk_user'], 'pk_user');    
+        ?>
+                    <tr>
+                        <td><?= htmlspecialchars($dado["pk_rem"]) ?></td>
+                        <td><?= htmlspecialchars($livro["liv_isbn"]) ?></td>
+                        <td><?= htmlspecialchars($fornecedor["forn_cnpj"]) ?></td>
+                        <td><?= htmlspecialchars(date('d/m/Y', strtotime($dado["rem_data"]))) ?? null?></td>
+                        <td><?= htmlspecialchars($dado["rem_qtd"])?></td>
+                        <td><?= htmlspecialchars($usuario["user_nome"]) ?></td>
+                        <td>
+                            <button style="background: none; border: none; padding: 0; cursor: pointer;"
+                                    onclick="confirmarExclusao('remessa-gestao.php', 'excluir_remessa', <?= $dado['pk_rem'] ?>, 'Tem certeza que deseja excluir este registro de remessa?')">
+                                <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
+                            </button>
+                            <button onclick="location.href='?id=<?= $dado['pk_rem'] ?>#editarRemessa'" 
+                                    style="background: none; border: none; padding: 0; cursor: pointer;">
+                                    <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
+                            </button>
+                        </td>
+                    </tr>
+        <?php 
+                endforeach;
+            else: echo "<tr><td colspan='8' class='text-center'><i class='fas fa-search'></i>$mensagem</td></tr>";
+            endif;
+        ?>
+    </tbody>
+</table>
+
+<?php elseif($tabela === 'multa'): ?>
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Membro Nome</th>
+            <th>Membro CPF</th>
+            <th>ID Empréstimo</th>
+            <th>Dias Atraso</th>
+            <th>Valor</th>
+            <th>Status</th>
+            <th>Ação</th>
+        </tr>
+    </thead>
+    <tbody id="tabela-body">
+        <?php 
+            if(!empty($dados)): 
+                foreach ($dados as $dado):
+                    $membro = selecionarPorId('membro', $dado['fk_mem'], 'pk_mem');  
+        ?>
+                    <tr>
+                        <td><?= htmlspecialchars($dado["pk_mul"]) ?></td>
+                        <td><?= htmlspecialchars($membro["mem_nome"]) ?></td>
+                        <td><?= htmlspecialchars($membro["mem_cpf"]) ?></td>
+                        <td><?= htmlspecialchars($dado["fk_emp"]) ?></td>
+                        <td><?= htmlspecialchars($dado["mul_qtdDias"]) ?></td>
+                        <td><?= htmlspecialchars($dado["mul_valor"])?></td>
+                        <td><?= htmlspecialchars($dado["mul_status"]) ?></td>
+                        <td>
+                            <button style="background: none; border: none; padding: 0; cursor: pointer;"
+                                    onclick="confirmarExclusao('multa-gestao.php', 'excluir_multa', <?= $dado['pk_mul'] ?>, 'Tem certeza que deseja excluir este registro de multa?')">
+                                <i class='fas fa-trash-alt' style="font-size: 20px; color: #a69c60; margin-right: 7px;"></i>
+                            </button>
+                            <button onclick="location.href='?id=<?= $dado['pk_mul'] ?>#editarMulta'" 
                                     style="background: none; border: none; padding: 0; cursor: pointer;">
                                     <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
                             </button>

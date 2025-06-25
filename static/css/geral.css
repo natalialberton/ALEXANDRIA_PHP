@@ -108,10 +108,9 @@
     }
 }
 .stat-title {
-    font-size: 20px;
+    font: 600 1.5rem 'Montserrat';
     margin-bottom: 15px;
     opacity: 0.8;
-    font-weight: 400;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     color: white;
@@ -135,6 +134,14 @@
 
 .stat-title-no-prazo {
     color: #57D946CC;
+}
+
+.stat-title-cancelado {
+    color: #9c9ca5cc;
+}
+
+.stat-number-cancelado {
+    background-color: #4f4f61cc;
 }
 
 .stat-number-atrasado {

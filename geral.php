@@ -172,7 +172,7 @@ function redefinirSenha() {
     }
 }
 
-//FUNÇÃO DE LISTAGEM DOS DADOS ARMAZENADOS NO BANCO
+//FUNÇÕES AUXILIARES
 function listar($tabela) {
     $conexao = conectaBd();
     $stmt = $conexao->prepare("SELECT * FROM $tabela");
@@ -204,6 +204,14 @@ function selecionarPorId($tabela, $id, $chavePrimaria) {
     $stmt-> execute();
     $variavel = $stmt-> fetch(PDO::FETCH_ASSOC);
     return $variavel;
+}
+
+function atualizarEstoqueLivro($idLivro, $novoEstoque) {
+    $conexao = conectaBd();
+    $stmt = $conexao->prepare("UPDATE livro SET liv_estoque = :estoque WHERE pk_liv = :id");
+    $stmt->bindParam(':id', $idLivro, PDO::PARAM_INT);
+    $stmt->bindParam(':estoque', $novoEstoque);
+    return $stmt->execute();
 }
 
 //FUNÇÃO PARA PESQUISAR DADOS
@@ -753,17 +761,21 @@ function crudFuncionario($acao, $id) {
         $email = filter_input(INPUT_POST, 'user_email');
         $senha = filter_input(INPUT_POST, 'user_senha');
         $login = filter_input(INPUT_POST, 'user_login');
-        $admissao = filter_input(INPUT_POST, 'user_dataAdmissao');
-        $demissao = filter_input(INPUT_POST, 'user_dataDemissao');
+        $admissao = filter_input(INPUT_POST, 'user_dataAdmissao') ?? null;
+        $demissao = filter_input(INPUT_POST, 'user_dataDemissao') ?? null;
         $tipoUser = filter_input(INPUT_POST, 'user_tipoUser');
         $status = filter_input(INPUT_POST, 'user_status') ?? 'Ativo';
         $senhaHash = password_hash($senha, PASSWORD_DEFAULT);
 
     //TRATAMENTO DE EXCEÇÕES
-        if (empty($demissao)) {
+        if ($admissao === '') {
+            $admissao = null;
+        }
+
+        if ($demissao === '') {
             $demissao = null;
         }
-        
+
         $stmtCheckCpf = $conexao-> prepare("SELECT user_cpf FROM usuario WHERE user_cpf = :cpf");
         $stmtCheckCpf-> bindParam(":cpf", $cpf, PDO::PARAM_STR);
         $stmtCheckCpf-> execute();
@@ -788,6 +800,8 @@ function crudFuncionario($acao, $id) {
             $usuarioAtual = selecionarPorId('usuario', $id, 'pk_user');
             $cpfAtual = $usuarioAtual['user_cpf'];
             $emailAtual = $usuarioAtual['user_email'];
+            $login = $usuarioAtual['user_login'];
+            $senhaHash = $usuarioAtual['user_senha'];
             
             if ($cpfExistente !== false && $cpfExistente !== $cpfAtual) {
                 enviarSweetAlert('usuario-gestao.php', 'erroAlerta', 'CPF já cadastrado!');
@@ -826,26 +840,7 @@ function crudFuncionario($acao, $id) {
         $stmt->bindParam(':demissao', $demissao);
         $stmt->bindParam(':tipoUser', $tipoUser);
         $stmt->bindParam(':status', $status);
-
-    //EXCLUSÃO E TRATAMENTO DE EXCEÇÕES
-    } elseif($acao == 3 && $id > 0) {
-        try {
-            $msgSucesso = "Usuário excluído com sucesso!";
-            $usuario = selecionarPorId('usuario', $id, 'pk_user');
-
-            if ((time() - strtotime($usuario['user_dataCriacao'])) > (60*3600)) {
-                enviarSweetAlert('funcionario-gestao.php', 'erroAlerta', 'Não é possível excluir funcionários que não foram recém-cadastrados!');
-            }
-
-            $sql = "DELETE FROM usuario WHERE pk_user = :pk_user";
-            $stmt = $conexao-> prepare($sql);
-            $stmt-> bindParam(":pk_user", $id, PDO::PARAM_INT);
-        } catch(Exception $e) {
-            echo "<script> window.location.href = 'funcionario-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
-            exit();
-        }
-
-    }
+    } 
     //EXECUÇÃO DO COMANDO NO BANCO DE DADOS
     try {
         $stmt-> execute();
@@ -900,7 +895,7 @@ function crudEmprestimo($acao, $id) {
 
         if(!empty($membroSenha)) {
             if(!password_verify($membroSenha, $membro['mem_senha'])) {
-                enviarSweetAlert('', 'erroAlerta', 'Senha incorreta!');
+                enviarSweetAlert('emprestimo-gestao.php', 'erroAlerta', 'Senha incorreta!');
             }
         }
     
@@ -913,15 +908,27 @@ function crudEmprestimo($acao, $id) {
                         VALUES (:prazo, :dataEmp, :dataDev, :dataDevReal, :status, :fk_mem, :fk_user, :fk_liv)";
                 $stmt = $conexao-> prepare($sql);
                 $stmt-> bindParam(":dataEmp", $dataEmp);
+
+                $novoEstoque = $livro['liv_estoque'] - 1;
         
         //ALTERAÇÃO
             } elseif ($acao == 2 && $id > 0) {
                 $msgSucesso = "Empréstimo alterado com sucesso!";
+                $emprestimoAtual = selecionarPorId('emprestimo', $id, 'pk_emp');
                 $sql = "UPDATE emprestimo SET emp_prazo=:prazo, emp_dataDev=:dataDev, emp_dataDevReal=:dataDevReal,
                         emp_status=:status, fk_mem=:fk_mem, fk_user=:fk_user, fk_liv=:fk_liv 
                         WHERE pk_emp=:pk_emp";
                 $stmt = $conexao-> prepare($sql);
                 $stmt-> bindParam(":pk_emp", $id, PDO::PARAM_INT);
+
+                $statusAnterior = $emprestimoAtual['emp_status'];
+                $novoStatus = filter_input(INPUT_POST, 'emp_status') ?? 'Empréstimo Ativo';
+                
+                // SE MUDOU PARA FINALIZADO, AUMENTA ESTOQUE LIVRO
+                if ($statusAnterior !== 'Finalizado' && $novoStatus === 'Finalizado') {
+                    $novoEstoque = $livro['liv_estoque'] + 1;
+                    atualizarEstoqueLivro($livro['pk_liv'], $novoEstoque);
+                }
             }
 
             $stmt-> bindParam(":prazo", $prazo);
@@ -956,8 +963,12 @@ function crudEmprestimo($acao, $id) {
     }
     //EXECUÇÃO DO COMANDO NO BANCO DE DADOS
     try {
-        $stmt-> execute();
-        enviarSweetAlert('emprestimo-gestao.php', 'sucessoAlerta', $msgSucesso);
+        if ($stmt->execute()) {
+            if ($acao == 1) {
+                atualizarEstoqueLivro($livro['pk_liv'], $novoEstoque);
+            }
+            enviarSweetAlert('emprestimo-gestao.php', 'sucessoAlerta', $msgSucesso);
+        }
     } catch (PDOException $e) {
         echo "<script> window.location.href = 'emprestimo-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
         exit();
@@ -970,10 +981,10 @@ function crudReserva($acao, $id) {
 
     if ($acao == 1 || $acao == 2) {
     //PUXANDO DADOS VIA POST
-        $prazo = filter_input(INPUT_POST, 'res_prazo');
+        $prazo = 7;
         $dataMarcada = filter_input(INPUT_POST, 'res_dataMarcada');
         $dataVencimento = date('Y-m-d', strtotime("$dataMarcada + $prazo days"));
-        $dataFinalizada = filter_input(INPUT_POST, 'res_dataFinalizada');
+        $dataFinalizada = filter_input(INPUT_POST, 'res_dataFinalizada') ?? null;
         $status = filter_input(INPUT_POST, 'res_status');
         $membroNome = filter_input(INPUT_POST, 'fk_mem');
         $livroNome = filter_input(INPUT_POST, 'fk_liv');
@@ -991,10 +1002,101 @@ function crudReserva($acao, $id) {
         $livro = $stmtLivro-> fetch(PDO::FETCH_ASSOC);
 
     //TRATAMENTO DE EXCEÇÕES
-        if (empty($dataFinalizada)) {
-            $dataFinalizada = null;
-        }
+        $stmtCheckMembro = $conexao-> prepare("SELECT pk_mul FROM multa WHERE fk_mem = :nome");
+        $stmtCheckMembro-> bindParam(":nome", $membro['pk_mem'], PDO::PARAM_STR);
+        $stmtCheckMembro-> execute();
+        $membroComMulta = $stmtCheckMembro-> fetchColumn();
 
+        if ($acao === 1 && $membroComMulta !== false && $membroComMulta !== false) {
+            enviarSweetAlert('reserva-gestao.php', 'erroAlerta', 'O membro selecionado tem multas pendentes!');
+            exit();
+        }
+    
+        if ($membro && $livro) {
+
+        //CADASTRAMENTO
+            if ($acao == 1) {
+                $msgSucesso = "Reserva registrada com sucesso!";
+                $sql = "INSERT INTO reserva (res_prazo, res_dataMarcada, res_dataVencimento, res_dataFinalizada, res_status, fk_mem, fk_user, fk_liv)
+                        VALUES (:prazo, :dataMarcada, :dataVencimento, :dataFinalizada, :status, :fk_mem, :fk_user, :fk_liv)";
+                $stmt = $conexao-> prepare($sql);
+        
+        //ALTERAÇÃO
+            } elseif ($acao == 2 && $id > 0) {
+                $msgSucesso = "Reserva alterada com sucesso!";
+                $sql = "UPDATE reserva SET res_prazo=:prazo, res_dataMarcada=:dataMarcada, res_dataVencimento=:dataVencimento, res_dataFinalizada=:dataFinalizada,
+                        res_status=:status, fk_mem=:fk_mem, fk_user=:fk_user, fk_liv=:fk_liv 
+                        WHERE pk_res=:pk_res";
+                $stmt = $conexao-> prepare($sql);
+                $stmt-> bindParam(":pk_res", $id, PDO::PARAM_INT);
+            }
+
+            $stmt-> bindParam(":prazo", $prazo);
+            $stmt-> bindParam(":dataMarcada", $dataMarcada);
+            $stmt-> bindParam(":dataVencimento", $dataVencimento);
+            $stmt-> bindParam(":dataFinalizada", $dataFinalizada);
+            $stmt-> bindParam(":status", $status);
+            $stmt-> bindParam(":fk_mem", $membro['pk_mem'], PDO::PARAM_INT);
+            $stmt-> bindParam(":fk_user", $usuario, PDO::PARAM_INT);
+            $stmt-> bindParam(":fk_liv", $livro['pk_liv'], PDO::PARAM_INT);
+
+        } else {
+            enviarSweetAlert('reserva-gestao.php', 'erroAlerta', 'Membro ou livro não encontrados!');
+        }
+    } elseif ($acao == 3 && $id > 0) {
+        try {
+            $msgSucesso = "Reserva excluída com sucesso!";
+            $reserva = selecionarPorId('reserva', $id, 'pk_res');
+
+            if ($reserva['res_status'] === 'Aberta' || 
+                $reserva['res_status'] === 'Atrasada') {
+                enviarSweetAlert('reserva-gestao.php', 'erroAlerta', 'Não é possível excluir uma reserva não finalizada!');
+            }
+
+            $stmt = $conexao-> prepare("DELETE FROM reserva WHERE pk_res = :pk_res");
+            $stmt-> bindParam(":pk_res", $id, PDO::PARAM_INT);
+        } catch (Exception $e) {
+            echo "<script> window.location.href = 'reserva-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
+            exit();
+        }
+    }
+    //EXECUÇÃO DO COMANDO NO BANCO DE DADOS
+    try {
+        $stmt-> execute();
+        enviarSweetAlert('reserva-gestao.php', 'sucessoAlerta', $msgSucesso);
+    } catch (PDOException $e) {
+        echo "<script> window.location.href = 'reserva-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
+        exit();
+    }
+}
+
+//--------------------------------------------------- CRUD REMESSA ---------------------------------------------------
+function crudRemessa($acao, $id) {
+    $conexao = conectaBd();
+
+    if ($acao == 1 || $acao == 2) {
+    //PUXANDO DADOS VIA POST
+        $prazo = 7;
+        $dataMarcada = filter_input(INPUT_POST, 'res_dataMarcada');
+        $dataVencimento = date('Y-m-d', strtotime("$dataMarcada + $prazo days"));
+        $dataFinalizada = filter_input(INPUT_POST, 'res_dataFinalizada') ?? null;
+        $status = filter_input(INPUT_POST, 'res_status');
+        $membroNome = filter_input(INPUT_POST, 'fk_mem');
+        $livroNome = filter_input(INPUT_POST, 'fk_liv');
+        $usuario = $_SESSION['pk_user'];
+
+    //PUXANDO CHAVE ESTRANGEIRA
+        $stmtMembro = $conexao-> prepare("SELECT * FROM membro WHERE mem_cpf = :cpf");
+        $stmtMembro-> bindParam(":cpf", $membroNome);
+        $stmtMembro-> execute();
+        $membro = $stmtMembro-> fetch(PDO::FETCH_ASSOC);
+
+        $stmtLivro = $conexao-> prepare("SELECT * FROM livro WHERE liv_isbn = :isbn");
+        $stmtLivro-> bindParam(":isbn", $livroNome);
+        $stmtLivro-> execute();
+        $livro = $stmtLivro-> fetch(PDO::FETCH_ASSOC);
+
+    //TRATAMENTO DE EXCEÇÕES
         $stmtCheckMembro = $conexao-> prepare("SELECT pk_mul FROM multa WHERE fk_mem = :nome");
         $stmtCheckMembro-> bindParam(":nome", $membro['pk_mem'], PDO::PARAM_STR);
         $stmtCheckMembro-> execute();
@@ -1061,6 +1163,11 @@ function crudReserva($acao, $id) {
         echo "<script> window.location.href = 'reserva-gestao.php?erro= ". urlencode($e->getMessage()) . "'; </script>";
         exit();
     }
+}
+
+//--------------------------------------------------- CRUD MULTA ---------------------------------------------------
+function crudMulta($acao, $id) {
+    $conexao = conectaBd();
 }
 
 ?>

@@ -3,8 +3,8 @@
 require_once '../../geral.php';
 
 if($_SERVER["REQUEST_METHOD"] == "POST") {
-    if(isset($_POST['logout'])) {
-        if($_POST['logout'] === 'logout') {
+    if(isset($_POST['form-id'])) {
+        if($_POST['form-id'] === 'logout') {
             logout();
         }
     }
@@ -53,12 +53,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
             <a href="livro-gestao.php" class="linkMenu"><i class='bx bx-book'></i>&nbspLivros</a>
             <a href="categoria-gestao.php" class="linkMenu"><i class='bx bx-folder'></i> &nbspCategorias</a>
             <a href="autor-gestao.php" class="linkMenu"><i class="fa-solid fa-pen-nib"></i>&nbspAutores</a>
+            <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
             <a href="emprestimo-gestao.php" class="linkMenu"><i class='bx bx-folder-open'></i>&nbspEmpréstimos</a>
-            <a href="remessa-gestao.php" class="linkMenu">	<i class='bx bx-package'></i>&nbspRemessas</a>
+            <a href="reserva-gestao.php" class="linkMenu"><i class='bx bx-folder-open'></i>&nbspReservas</a>
+            <a href="multa-gestao.php" class="linkMenu"><i class='bx bx-folder-open'></i>&nbspMultas</a>
             <a href="membro-gestao.php" class="linkMenu"><i class='bx bx-group'></i>&nbspMembros</a>
+            <?php endif; ?>
+            <?php if($_SESSION['tipoUser'] !== 'Secretaria'): ?>
+            <a href="remessa-gestao.php" class="linkMenu">	<i class='bx bx-package'></i>&nbspRemessas</a>
             <a href="fornecedor-gestao.php" class="linkMenu"><i class='bx bx-receipt'></i>&nbspFornecedores</a>
+            <?php endif; ?>
+            <?php if($_SESSION['tipoUser'] === 'Administrador'): ?>
             <a href="funcionario-gestao.php" class="linkMenu"><i class='bx bx-id-card'></i>&nbspFuncionários</a>
             <a href="dashboard.php" class="linkMenu"><i class='bx bxs-grid-alt'></i>&nbspDashboard</a>
+            <?php endif; ?>
         </div>
     </nav>
     <header>
@@ -77,12 +85,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="dropdown" id="dropdownMenu">
             <button onclick="DadosPessoais()">
                 <i class="fas fa-user"></i>
-                <span>Dados Pessoais</span>
+                <span style="font-family: 'Montserrat'">Dados Pessoais</span>
             </button>
-            <form>
-                <button onclick="LogOut()">
+            <form method="POST">
+                <input type="hidden" name="form-id" value="logout">
+                <button type="submit">
                     <i class="fas fa-sign-out-alt"></i>
-                    <span>Log Out</span>
+                    <span style="font-family: 'Montserrat'">Log Out</span>
                 </button>
             </form>
         </div>
@@ -103,12 +112,4 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
                 dropdown.classList.remove('active');
             }
         });
-
-        function DadosPessoais() {
-            window.location.href = '../index.php';
-        }
-
-        function LogOut() {
-            window.location.href = '../index.php';
-        }
     </script>

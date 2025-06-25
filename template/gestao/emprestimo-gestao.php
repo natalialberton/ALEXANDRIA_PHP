@@ -89,7 +89,7 @@ include '../header.php';
                 <input type="hidden" name="form-id" value="cadastrar_emprestimo">
                 <div class="form-group">
                 <label class="label-cadastro" for="fk_mem">CPF Membro: </label>
-                <input list="membros" name="fk_mem" onkeypress="mascara(this,cpfMasc)" required>
+                <input list="membros" name="fk_mem" onkeypress="mascara(this,cpfMasc)" maxlength="14" required>
                 <datalist class="input-cadastro" id="membros">
                     <?php foreach ($membros as $membro): ?>
                         <option value="<?=htmlspecialchars($membro['mem_cpf']); ?>">
@@ -101,7 +101,7 @@ include '../header.php';
             </div>
             <div class="form-group">
                 <label class="label-cadastro" for="fk_liv">ISBN Livro: </label>
-                <input list="livros" name="fk_liv" required>
+                <input list="livros" name="fk_liv" maxlength="17" onkeypress="mascara(this,isbnMasc)" required>
                 <datalist class="input-cadastro" id="livros">
                     <?php foreach ($livros as $livro): ?>
                         <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>">
@@ -176,8 +176,8 @@ include '../header.php';
             </div>
             <div class="form-group">
                 <label class="label-cadastro" for="fk_liv">ISBN Livro: </label>
-                <input list="livros" name="fk_liv" required
-                       value="<?=htmlspecialchars($livroOriginal['liv_isbn']) ?? ''?>">>
+                <input list="livros" name="fk_liv" maxlength="17" onkeypress="mascara(this,isbnMasc)" required
+                       value="<?=htmlspecialchars($livroOriginal['liv_isbn']) ?? ''?>">
                 <datalist class="input-cadastro" id="livros">
                     <?php foreach ($livros as $livro): ?>
                         <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>"><?=htmlspecialchars($livro['liv_nome']); ?></option>

@@ -127,7 +127,7 @@ CREATE TABLE MULTA (
 
 CREATE TABLE REMESSA (
  pk_rem INT PRIMARY KEY auto_increment, 
- rem_data TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+ rem_data DATE,
  rem_qtd INT not null,
  fk_forn INT not null,
  fk_liv INT not null,

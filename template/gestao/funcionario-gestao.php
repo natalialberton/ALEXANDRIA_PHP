@@ -16,8 +16,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['form-id'])) {
         if($_POST['form-id'] === 'cadastrar_usuario') {
             crudFuncionario(1, '');
-        } elseif ($_POST['form-id'] === 'excluir_usuario') {
-            crudFuncionario(3, $_POST['id']);
         }
     }
 }
@@ -204,14 +202,17 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="user_dataAdmissao">Admissão: </label>
-                <input type="date" name="user_dataAdmissao" value="<?=htmlspecialchars($usuario['user_dataAdmissao'])?>">
+                <input type="date" name="user_dataAdmissao" value="<?=htmlspecialchars($usuario['user_dataAdmissao']) ?? null?>">
             </div>
 
             <div class="form-group">
                 <label for="user_dataDemissao">Demissão: </label>
-                <input type="date" name="user_dataDemissao" value="<?=htmlspecialchars($usuario['user_dataDemissao'])?>">
+                <input type="date" name="user_dataDemissao" value="<?=htmlspecialchars($usuario['user_dataDemissao']) ?? null?>">
             </div>
+        </div>
 
+        <div class="form-row">
+            <?php if($_SESSION['pk_user'] !== $idFunc): ?>
             <div class="form-group">
                 <label class="label-cadastro" for="user_tipoUser">Cargo: </label>
                 <select class="input-cadastro" name="user_tipoUser" required>
@@ -220,6 +221,7 @@ include '../header.php';
                     <option value="Almoxarife" <?= ($usuario['user_tipoUser'] ?? '') === 'Almoxarife' ? 'selected' : '' ?>>Almoxarife</option>
                 </select>
             </div>
+            <?php endif ?>
 
             <div class="form-group">
                 <label class="label-cadastro" for="user_status">Status: </label>
@@ -228,20 +230,6 @@ include '../header.php';
                     <option value="Inativo" <?= ($usuario['user_status'] ?? '') === 'Inativo' ? 'selected' : '' ?>>Inativo</option>
                 </select>
             </div>
-        </div>
-
-        <div class="form-row">
-            <div class="form-group">
-                <label for="user_login">Login: </label>
-                <input type="text" name="user_login" onkeypress="mascara(this,nomeMasc)" value="<?=htmlspecialchars($usuario['user_login'])?>" required>
-            </div>
-            <div class="form-group">
-                <label for="user_senha">Senha: </label>
-                <input type="password" name="user_senha" required minlength="8">
-            </div>
-        </div>
-
-        <div class="form-row">
         </div>
 
         <div class="button-group">

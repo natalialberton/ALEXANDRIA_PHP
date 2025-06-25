@@ -94,7 +94,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="liv_isbn">ISBN: </label>
-                <input type="text" name="liv_isbn" maxlength="16" maxlength="17" onkeypress="mascara(this,isbnMasc)" required>
+                <input type="text" name="liv_isbn" maxlength="17" onkeypress="mascara(this,isbnMasc)" required>
             </div>
         </div>
 

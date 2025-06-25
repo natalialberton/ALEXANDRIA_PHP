@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../../fpdf/fpdf.php';
-require_once __DIR__ . '/../../conexao.php';
+require_once __DIR__ . '../fpdf/fpdf.php';
+require_once __DIR__ . '../conexao.php';
 
 
 $pdo = conectarBanco();
@@ -14,7 +14,7 @@ $id_mem = intval($_GET['id_mem']);
 class PDF extends FPDF {
     function Header() {
         $this->SetFont('Arial','B',16);
-        $this->Cell(0,10, utf8_decode('Relatório de Empréstimos'),0,1,'C');
+        $this->Cell(0,10, utf8_decode('Relatório de Histórico de Empréstimos'),0,1,'C');
         $this->Ln(5);
     }
 
