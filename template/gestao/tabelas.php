@@ -2,7 +2,7 @@
 require_once "../../geral.php";
 
 // Definir a tabela (vinda de GET ou sessão)
-$tabela = $_GET['tabela'] ?? $_SESSION['tabela'] ?? '';
+$tabela = $_GET['tabela'] ?? $_SESSION['tabela'] ?? null;
 $termoBusca = $_GET['termo'] ?? '';
 
 // MENSAGEM PADRÃO PARA NOT FOUND
@@ -277,7 +277,7 @@ switch($tabela) {
                         <td><?= htmlspecialchars($autor["aut_nome"]) ?></td>
                         <td><?= htmlspecialchars($categoria["cat_nome"]) ?></td>
                         <td><?= htmlspecialchars($dado["liv_edicao"]) ?></td>
-                        <td><?= htmlspecialchars($dado["liv_estoque"]) ?></td>
+                        <td><?= $dado["liv_estoque"] ?? 0 ?></td>
                         <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
                         <td>
                             <button style="background: none; border: none; padding: 0; cursor: pointer;"

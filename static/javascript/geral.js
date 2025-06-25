@@ -107,6 +107,8 @@ window.addEventListener('DOMContentLoaded', () => {
         document.getElementById('popupEdicaoRemessa').showModal();
     } else if (window.location.hash === '#editarMulta') {
         document.getElementById('popupEdicaoMulta').showModal();
+    } else if (window.location.hash === '#dadosPessoais') {
+        document.getElementById('popupDadosPessoais').showModal();
     }
 });
 

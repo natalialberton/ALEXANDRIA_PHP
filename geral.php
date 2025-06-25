@@ -138,7 +138,7 @@ function redefinirSenha() {
     $conexao = conectaBd();
 
     $idToken = $_SESSION['recuperacaoSenhaId'];
-    $novaSenha = validarSenha('redefinir-senha', $_POST['senha']);
+    $novaSenha = validarSenha('redefinir-senha.php', $_POST['senha']);
     $confirmaSenha = $_POST['confirma_senha'];
 
     if ($idToken) {
@@ -773,7 +773,7 @@ function crudFuncionario($acao, $id) {
         $cpf = filter_input(INPUT_POST, 'user_cpf');
         $telefone = filter_input(INPUT_POST, 'user_telefone');
         $email = filter_input(INPUT_POST, 'user_email');
-        $senha = validarSenha('', filter_input(INPUT_POST, 'user_senha'));
+        $senha = !empty($senha) ? validarSenha('', filter_input(INPUT_POST, 'user_senha')) : '';
         $login = filter_input(INPUT_POST, 'user_login');
         $admissao = filter_input(INPUT_POST, 'user_dataAdmissao') ?? null;
         $demissao = filter_input(INPUT_POST, 'user_dataDemissao') ?? null;
@@ -818,12 +818,12 @@ function crudFuncionario($acao, $id) {
             $senhaHash = $usuarioAtual['user_senha'];
             
             if ($cpfExistente !== false && $cpfExistente !== $cpfAtual) {
-                enviarSweetAlert('usuario-gestao.php', 'erroAlerta', 'CPF já cadastrado!');
+                enviarSweetAlert('funcionario-gestao.php', 'erroAlerta', 'CPF já cadastrado!');
                 exit();
             }
 
             if ($emailExistente !== false && $emailExistente !== $emailAtual) {
-                enviarSweetAlert('usuario-gestao.php', 'erroAlerta', 'Email já cadastrado!');
+                enviarSweetAlert('funcionario-gestao.php', 'erroAlerta', 'Email já cadastrado!');
                 exit();
             }
         }

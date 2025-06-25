@@ -51,6 +51,7 @@ include '../header.php';
                 <div class="stat-title stat-title-no-prazo">FINALIZADA</div>
                 <div class="stat-number stat-number-no-prazo"><?= $qtdMultaFinalizada['total'] ?></div>
             </div>
+        </div>
     </div>
     
     <div class="search-section">
@@ -111,7 +112,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="mul_valor">Valor: </label>
-                <input type="number" name="mul_valor" required>
+                <input type="text" name="mul_valor" required>
             </div>
         </div>
 
@@ -185,7 +186,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="mul_valor">Valor: </label>
-                <input type="number" name="mul_valor" value="<?=htmlspecialchars($multa['mul_valor'])?>" required>
+                <input type="text" name="mul_valor" value="<?=htmlspecialchars($multa['mul_valor'])?>" required>
             </div>
         </div>
 

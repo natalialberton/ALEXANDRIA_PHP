@@ -99,8 +99,8 @@ include '../header.php';
             </div>
 
             <div class="form-group">
-                <label for="res_qtd">Quantidade: </label>
-                <input type="number" name="res_qtd" required>
+                <label for="rem_qtd">Quantidade: </label>
+                <input type="number" name="rem_qtd" required>
             </div>
         </div>
 

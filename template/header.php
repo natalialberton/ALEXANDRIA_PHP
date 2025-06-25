@@ -6,13 +6,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST") {
     if(isset($_POST['form-id'])) {
         if($_POST['form-id'] === 'logout') {
             logout();
-        } elseif($_POST['form-id'] === 'editar_usuarioLogado') {
-            crudFuncionario(2, $usuarioLogado['pk_user']);
         }
     }
 }
-
-$usuarioLogado = selecionarPorId('usuario', $_SESSION['pk_user'], 'pk_user')
 
 ?>
 
@@ -84,7 +80,7 @@ $usuarioLogado = selecionarPorId('usuario', $_SESSION['pk_user'], 'pk_user')
         </button>
 
         <div class="dropdown" id="dropdownMenu">
-            <button onclick="abrePopup('popupDadosPessoais')">
+            <button onclick="location.href='?id=<?= $_SESSION['pk_user'] ?>#dadosPessoais'">
                 <i class="fas fa-user"></i>
                 <span style="font-family: 'Montserrat'">Dados Pessoais</span>
             </button>
@@ -101,6 +97,23 @@ $usuarioLogado = selecionarPorId('usuario', $_SESSION['pk_user'], 'pk_user')
 <body>
 <!--POPUP DADOS PESSOAIS-->
 <dialog class="popup" id="popupDadosPessoais">
+<?php
+
+if (isset($_GET['id'])) {
+    $idUser = $_GET['id'];
+    $usuarioLogado = selecionarPorId('usuario', $idUser, 'pk_user');
+}
+
+if($_SERVER["REQUEST_METHOD"] == "POST") {
+    if(isset($_POST['form-id'])) {
+        if($_POST['form-id'] === 'editar_usuarioLogado') {
+            crudFuncionario(2, $idUser);
+        }
+    }
+}
+
+if ($usuarioLogado) :
+?>
 <div class="popup-content">
 <div class="popup__container">
 <h1>DADOS PESSOAIS</h1>
@@ -108,6 +121,7 @@ $usuarioLogado = selecionarPorId('usuario', $_SESSION['pk_user'], 'pk_user')
         <div class="form-row">
             <div class="form-group">
                 <input type="hidden" name="form-id" value="editar_usuarioLogado">
+                <input type="hidden" name="editar-id" value="<?= $idUser ?? '' ?>">
                 <label for="user_nome">Nome: </label>
                 <input type="text" name="user_nome" onkeypress="mascara(this,nomeMasc)" 
                        value="<?=htmlspecialchars($usuarioLogado['user_nome'])?>" required>
@@ -176,11 +190,12 @@ $usuarioLogado = selecionarPorId('usuario', $_SESSION['pk_user'], 'pk_user')
 
         <div class="button-group">
             <button class="btn btn-save" type="submit">Alterar</button>
-            <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupDadosPessoais')">Cancelar</button>
+            <button class="btn btn-cancel" type="button" onclick="location.href=''">Cancelar</button>
         </div>
     </form>
 </div>
 </div>
+<?php endif; ?>
 </dialog>
 
     <script>
