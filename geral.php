@@ -47,7 +47,7 @@ function login() {
             header("Location: gestao/home.php");
             exit();
         } else {
-            enviarSweetAlert('../index.php', 'erroAlerta', 'Senha ou Usuário incorretos!');
+            enviarSweetAlert('index.php', 'erroAlerta', 'Senha ou Usuário incorretos!');
         }
     }
 }

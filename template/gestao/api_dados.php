@@ -8,22 +8,8 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET');
 header('Access-Control-Allow-Headers: Content-Type');
 
-function conectarBanco() {
-    $dsn = "mysql:host=localhost:3307;dbname=alexandria;charset=utf8";
-    $usuario = "root";
-    $senha = "";
-
-    try {
-        $conn = new PDO($dsn, $usuario, $senha, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, 
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-        ]);  
-        return $conn;
-    } catch (PDOException $e) {
-        error_log("Erro ao conectar ao banco: " . $e->getMessage());
-        die(json_encode(['success' => false, 'error' => 'Erro ao conectar ao banco']));
-    }
-}
+require_once '../../geral.php';
+$pdo = conectaBd();
 
 function retornarErro($mensagem) {
     echo json_encode(['success' => false, 'error' => $mensagem], JSON_UNESCAPED_UNICODE);
