@@ -38,7 +38,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>GERAL</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroRemessa')"><span class="plus-icon">+</span>NOVA remessa</button>
+            <button class="action-btn" onclick="abrePopup('popupCadastroRemessa')"><span class="plus-icon">+</span>NOVA REMESSA</button>
         </div>
     </div>
     
@@ -87,6 +87,8 @@ include '../header.php';
                 <datalist class="input-cadastro" id="livros">
                     <?php foreach ($livros as $livro): ?>
                         <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>">
+                            <?=htmlspecialchars($livro['liv_titulo']); ?>
+                        </option>
                     <?php endforeach; ?>
                 </datalist>
             </div>
