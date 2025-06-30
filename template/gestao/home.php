@@ -13,8 +13,8 @@ include '../header.php';
 
 $conexao = conectaBd();
 
-$sql = "
-    SELECT 
+$sql = 
+    "SELECT 
         u.user_cpf AS cpf,
         u.user_nome AS nome,
         u.user_email AS email,
@@ -26,7 +26,8 @@ $sql = "
     FROM EMPRESTIMO e
     JOIN USUARIO u ON e.fk_user = u.pk_user
     JOIN LIVRO l ON e.fk_liv = l.pk_liv
-    ORDER BY e.emp_dataEmp DESC
+    WHERE e.emp_status != 'Finalizado'
+    ORDER BY e.emp_status DESC
 ";
 
 $sqlReserva =
@@ -46,7 +47,8 @@ FROM RESERVA r
 JOIN MEMBRO m ON r.fk_mem = m.pk_mem
 JOIN LIVRO l ON r.fk_liv = l.pk_liv
 JOIN USUARIO u ON r.fk_user = u.pk_user
-ORDER BY r.res_dataMarcada DESC";
+WHERE r.res_status = 'Aberta' OR r.res_status = 'Atrasada'
+ORDER BY r.res_status DESC";
 
 try {
     $stmtReserva = $conexao->prepare($sqlReserva);
@@ -126,7 +128,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="semanal.js"></script>
+    <script src="../../static/javascript/semanal.js"></script>
     <style>
         * {
             margin: 0;
@@ -381,7 +383,7 @@ try {
                             <td><?php echo htmlspecialchars($linha['id_emprestimo']); ?></td>
                             <td><?php echo htmlspecialchars($linha['livro']); ?></td>
                             <td><?php echo htmlspecialchars($linha['data_emprestimo']); ?></td>
-                            <td><?php echo $linha['data_devolucao'] ? htmlspecialchars($linha['data_devolucao']) : 'Pendente'; ?>
+                            <td><?php echo $linha['data_devolucao'] ? htmlspecialchars($linha['data_devolucao']) : ''; ?>
                             </td>
                             <td><?php echo htmlspecialchars($linha['status']); ?></td>
                         </tr>
@@ -418,13 +420,14 @@ try {
         <div class="tisch tisch-overflow">
             <table>
                 <tr>
+                    <th>ID</th>
                     <th>CPF</th>
                     <th>Nome</th>
                     <th>Email</th>
-                    <th>ID Emp</th>
                     <th>Livro</th>
-                    <th>Data Emp</th>
-                    <th>Data Dev</th>
+                    <th>Data Marc</th>
+                    <th>Data Venc</th>
+                    <th>Data Final</th>
                     <th>Status</th>
                 </tr>
                 <?php if (count($resultadoReservas) > 0): ?>
@@ -435,13 +438,11 @@ try {
                             <td><?= htmlspecialchars($linha['nome_membro'] ?? '') ?></td>
                             <td><?= htmlspecialchars($linha['email_membro'] ?? '') ?></td>
                             <td><?= htmlspecialchars($linha['titulo_livro'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($linha['nome_usuario'] ?? '') ?></td>
                             <td><?= htmlspecialchars($linha['data_marcada'] ?? '') ?></td>
                             <td><?= $linha['data_vencimento'] ? htmlspecialchars($linha['data_vencimento']) : 'Não informada'; ?>
                             </td>
-                            <td><?= $linha['data_finalizada'] ? htmlspecialchars($linha['data_finalizada']) : 'Aberta'; ?></td>
+                            <td><?= $linha['data_finalizada'] ? htmlspecialchars($linha['data_finalizada']) : ''; ?></td>
                             <td><?= htmlspecialchars($linha['status'] ?? '') ?></td>
-                            <td><?= htmlspecialchars($linha['observacoes'] ?? '') ?></td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>

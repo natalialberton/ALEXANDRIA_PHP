@@ -3,8 +3,8 @@
 session_start();
 require_once "../../geral.php";
 
-$tituloPagina = "Dashboard";
-$tituloH1 = "Dashboard | " . $_SESSION['user_nome'];
+$tituloPagina = "DASHBOARD";
+$tituloH1 = "Dashboard";
 include '../header.php';
 ?>
 
@@ -15,7 +15,7 @@ include '../header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Alexandria - Sistema de Biblioteca</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
-    <script src="scripts.js"></script>
+    <script src="../../static/javascript/scripts.js"></script>
 
 </head>
 <body>
