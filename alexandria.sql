@@ -137,297 +137,353 @@ CREATE TABLE REMESSA (
  FOREIGN KEY(fk_user) references USUARIO(pk_user) on delete restrict on update cascade
 );
 
-/*--------------------- TABELAS JUNÇÃO ---------------------*/
-CREATE TABLE FORN_LIV ( 
- fk_liv INT,
- fk_forn INT,
- PRIMARY KEY(fk_liv, fk_forn),
- FOREIGN KEY(fk_liv) references LIVRO(pk_liv) on delete restrict on update cascade,
- FOREIGN KEY(fk_forn) references FORNECEDOR(pk_forn) on delete restrict on update cascade
-);
+DELIMITER //
 
-CREATE TABLE CAT_LIV ( 
- fk_liv INT,
- fk_cat INT,
- PRIMARY KEY(fk_liv, fk_cat),
- FOREIGN KEY(fk_liv) references LIVRO(pk_liv) on delete restrict on update cascade,
- FOREIGN KEY(fk_cat) references CATEGORIA(pk_cat) on delete restrict on update cascade
-);
+CREATE PROCEDURE atualizacao_diaria_biblioteca()
+BEGIN
+    -- ATUALIZANDO EMPRÉSTIMOS ATRASADOS
+    UPDATE EMPRESTIMO 
+    SET emp_status = 'Empréstimo Atrasado'
+    WHERE emp_status = 'Empréstimo Ativo' AND emp_dataDev < CURDATE();
+    
+    UPDATE EMPRESTIMO 
+    SET emp_status = 'Renovação Atrasada'
+    WHERE emp_status = 'Renovação Ativa' AND emp_dataDev < CURDATE();
+    
+    -- GERANDO MULTAS
+    INSERT INTO MULTA (mul_valor, mul_qtdDias, mul_status, fk_mem, fk_emp)
+    SELECT 
+        DATEDIFF(CURDATE(), e.emp_dataDev) * e.emp_valorMultaDiaria,
+        DATEDIFF(CURDATE(), e.emp_dataDev),
+        'Aberta',
+        e.fk_mem,
+        e.pk_emp
+    FROM EMPRESTIMO e
+    LEFT JOIN MULTA m ON m.fk_emp = e.pk_emp
+    WHERE (e.emp_status = 'Empréstimo Atrasado' OR e.emp_status = 'Renovação Atrasada')
+    AND m.pk_mul IS NULL -- Garante que não existe multa já criada
+    AND e.emp_dataDev < CURDATE();
+    
+    -- ATUALIZANDO MULTAS EXISTENTES
+    UPDATE MULTA m
+    JOIN EMPRESTIMO e ON m.fk_emp = e.pk_emp
+    SET 
+        m.mul_qtdDias = DATEDIFF(CURDATE(), e.emp_dataDev),
+        m.mul_valor = DATEDIFF(CURDATE(), e.emp_dataDev) * e.emp_valorMultaDiaria
+    WHERE m.mul_status = 'Aberta' AND e.emp_dataDev < CURDATE();
+    
+    -- ATUALIZANDO RESERVAS ATRASADAS
+    UPDATE RESERVA 
+    SET res_status = 'Atrasada'
+    WHERE res_status = 'Aberta' AND res_dataVencimento < CURDATE();
+END//
 
-CREATE TABLE AUT_LIV ( 
- fk_liv INT,
- fk_aut INT,
- PRIMARY KEY(fk_liv, fk_aut),
- FOREIGN KEY(fk_liv) references LIVRO(pk_liv) on delete restrict on update cascade,
- FOREIGN KEY(fk_aut) references AUTOR(pk_aut) on delete restrict on update cascade
-);
+DELIMITER ;
+
+-- RODA EVENTO DIARIAMENTE
+CREATE EVENT evento_atualizacao_diaria
+ON SCHEDULE EVERY 1 DAY
+STARTS TIMESTAMP(CURRENT_DATE, '00:05:00')
+DO
+CALL atualizacao_diaria_biblioteca();
+
+SET GLOBAL event_scheduler = ON;
 
 /*INSERT DE DADOS | IA UTILIZADA: DEEPSEEK*/
 INSERT INTO CATEGORIA (cat_nome) VALUES 
+('Literatura Brasileira'),
 ('Ficção Científica'),
 ('Fantasia'),
 ('Romance'),
-('Terror'),
 ('Biografia'),
 ('História'),
-('Ciência'),
-('Tecnologia'),
 ('Autoajuda'),
-('Infantil');
+('Terror'),
+('Infantil'),
+('Técnico/Científico');
 
-INSERT INTO AUTOR (aut_nome, aut_dataNascimento, fk_cat) VALUES 
-('Isaac Asimov', '1920-01-02', 1),
-('J.R.R. Tolkien', '1892-01-03', 2),
-('Jane Austen', '1775-12-16', 3),
-('Stephen King', '1947-09-21', 4),
+INSERT INTO AUTOR (aut_nome, aut_dataNascimento, fk_cat) VALUES
+('Machado de Assis', '1839-06-21', 1),
+('Clarice Lispector', '1920-12-10', 1),
+('Jorge Amado', '1912-08-10', 1),
+('Isaac Asimov', '1920-01-02', 2),
+('Philip K. Dick', '1928-12-16', 2),
+('J.R.R. Tolkien', '1892-01-03', 3),
+('George R.R. Martin', '1948-09-20', 3),
+('Jane Austen', '1775-12-16', 4),
+('Nicholas Sparks', '1965-12-31', 4),
 ('Walter Isaacson', '1952-05-20', 5),
-('Yuval Noah Harari', '1976-02-24', 6),
-('Carl Sagan', '1934-11-09', 7),
-('Bill Gates', '1955-10-28', 8),
-('Dale Carnegie', '1888-11-24', 9),
-('Monteiro Lobato', '1882-04-18', 10),
-('Arthur C. Clarke', '1917-12-16', 1),
-('George R.R. Martin', '1948-09-20', 2),
-('Nicholas Sparks', '1965-12-31', 3),
-('H.P. Lovecraft', '1890-08-20', 4),
-('Michelle Obama', '1964-01-17', 5),
-('Jared Diamond', '1937-09-10', 6),
-('Neil deGrasse Tyson', '1958-10-05', 7),
-('Elon Musk', '1971-06-28', 8),
-('Napoleon Hill', '1883-10-26', 9),
-('Ziraldo', '1932-10-24', 10);
+('Laurentino Gomes', '1956-02-11', 6),
+('Eduardo Bueno', '1958-10-30', 6),
+('Augusto Cury', '1958-10-02', 7),
+('Stephen King', '1947-09-21', 8),
+('H.P. Lovecraft', '1890-08-20', 8),
+('Monteiro Lobato', '1882-04-18', 9),
+('Ziraldo', '1932-10-24', 9),
+('Carl Sagan', '1934-11-09', 10),
+('Neil deGrasse Tyson', '1958-10-05', 10),
+('Yuval Noah Harari', '1976-02-24', 6);
 
-INSERT INTO FORNECEDOR (forn_nome, forn_cnpj, forn_telefone, forn_email, forn_endereco) VALUES 
-('Livraria Cultura', '12.345.678/0001-00', '(11) 1234-5678', 'contato@culturacultura.com.br', 'Av. Paulista, 123 - São Paulo/SP'),
-('Saraiva', '23.456.789/0001-11', '(21) 2345-6789', 'contato@saraiva.com.br', 'Rua do Ouvidor, 98 - Rio de Janeiro/RJ'),
-('Amazon Brasil', '34.567.890/0001-22', '(31) 3456-7890', 'contato@amazon.com.br', 'Av. Amazonas, 1000 - Belo Horizonte/MG'),
-('Editora Abril', '45.678.901/0001-33', '(41) 4567-8901', 'contato@abril.com.br', 'Rua da Paz, 45 - Curitiba/PR'),
-('Editora Globo', '56.789.012/0001-44', '(51) 5678-9012', 'contato@globo.com.br', 'Av. Ipiranga, 2000 - Porto Alegre/RS'),
-('Livraria Leitura', '67.890.123/0001-55', '(61) 6789-0123', 'contato@leitura.com.br', 'SCS Quadra 8 - Brasília/DF'),
-('Editora Record', '78.901.234/0001-66', '(71) 7890-1234', 'contato@record.com.br', 'Av. Sete de Setembro, 100 - Salvador/BA'),
-('Companhia das Letras', '89.012.345/0001-77', '(81) 8901-2345', 'contato@companhiadasletras.com.br', 'Rua do Sol, 300 - Recife/PE'),
-('Editora Intrínseca', '90.123.456/0001-88', '(85) 9012-3456', 'contato@intrinseca.com.br', 'Av. Santos Dumont, 1500 - Fortaleza/CE'),
-('Editora Arqueiro', '01.234.567/0001-99', '(91) 0123-4567', 'contato@arqueiro.com.br', 'Travessa Frutuoso Guimarães, 65 - Belém/PA');
+INSERT INTO FORNECEDOR (forn_nome, forn_cnpj, forn_telefone, forn_email, forn_endereco) VALUES
+('Editora Abril', '12.345.678/0001-01', '(11) 1234-5678', 'contato@abril.com.br', 'Rua das Editoras, 100 - São Paulo/SP'),
+('Companhia das Letras', '23.456.789/0001-02', '(11) 2345-6789', 'contato@companhiadasletras.com.br', 'Av. dos Livros, 200 - Rio de Janeiro/RJ'),
+('Editora Record', '34.567.890/0001-03', '(21) 3456-7890', 'contato@record.com.br', 'Rua dos Autores, 300 - Rio de Janeiro/RJ'),
+('Editora Intrínseca', '45.678.901/0001-04', '(21) 4567-8901', 'contato@intrinseca.com.br', 'Av. Cultural, 400 - Rio de Janeiro/RJ'),
+('Editora Rocco', '56.789.012/0001-05', '(21) 5678-9012', 'contato@rocco.com.br', 'Rua Literária, 500 - Rio de Janeiro/RJ'),
+('Editora Globo', '67.890.123/0001-06', '(11) 6789-0123', 'contato@globo.com.br', 'Av. das Publicações, 600 - São Paulo/SP'),
+('Editora Saraiva', '78.901.234/0001-07', '(11) 7890-1234', 'contato@saraiva.com.br', 'Rua das Livrarias, 700 - São Paulo/SP'),
+('Editora Moderna', '89.012.345/0001-08', '(11) 8901-2345', 'contato@moderna.com.br', 'Av. Educacional, 800 - São Paulo/SP'),
+('Editora Melhoramentos', '90.123.456/0001-09', '(11) 9012-3456', 'contato@melhoramentos.com.br', 'Rua das Melhorias, 900 - São Paulo/SP'),
+('Editora Arqueiro', '01.234.567/0001-10', '(31) 1234-5678', 'contato@arqueiro.com.br', 'Av. dos Best-sellers, 1000 - Belo Horizonte/MG');
 
-INSERT INTO LIVRO (liv_titulo, liv_isbn, liv_edicao, liv_anoPublicacao, liv_sinopse, liv_estoque, liv_idioma, liv_num_paginas, liv_capa, fk_aut, fk_cat) VALUES 
-('Fundação', '978-85-359-0277-5', 1, 1951, 'Clássico da ficção científica sobre o declínio de um império galáctico', 10, 'Português', 320, 'capa_fundacao.jpg', 1, 1),
-('O Senhor dos Anéis: A Sociedade do Anel', '978-85-359-0802-9', 3, 1954, 'Primeiro volume da trilogia épica sobre a Terra Média', 15, 'Português', 576, 'capa_sociedade_anel.jpg', 2, 2),
-('Orgulho e Preconceito', '978-85-823-8001-2', 5, 1813, 'Romance clássico sobre Elizabeth Bennet e Mr. Darcy', 8, 'Português', 424, 'capa_orgulho.jpg', 3, 3),
-('It: A Coisa', '978-85-01-10175-7', 1, 1986, 'História de terror sobre um grupo de amigos e um palhaço maligno', 12, 'Português', 1104, 'capa_it.jpg', 4, 4),
-('Steve Jobs', '978-85-8057-134-3', 1, 2011, 'Biografia autorizada do cofundador da Apple', 7, 'Português', 656, 'capa_jobs.jpg', 5, 5),
-('Sapiens: Uma Breve História da Humanidade', '978-85-254-3228-5', 10, 2011, 'Visão geral da história da humanidade', 20, 'Português', 464, 'capa_sapiens.jpg', 6, 6),
-('Cosmos', '978-85-273-0085-5', 2, 1980, 'Exploração do universo e nosso lugar nele', 9, 'Português', 384, 'capa_cosmos.jpg', 7, 7),
-('Como Evitar um Desastre Climático', '978-85-510-0274-8', 1, 2021, 'Soluções para a crise climática', 11, 'Português', 320, 'capa_clima.jpg', 8, 8),
-('Como Fazer Amigos e Influenciar Pessoas', '978-85-7542-429-0', 50, 1936, 'Clássico sobre habilidades sociais', 25, 'Português', 256, 'capa_amigos.jpg', 9, 9),
-('Reinações de Narizinho', '978-85-7232-427-3', 20, 1931, 'Aventuras no Sítio do Picapau Amarelo', 18, 'Português', 192, 'capa_narizinho.jpg', 10, 10),
-('2001: Uma Odisseia no Espaço', '978-85-325-1498-3', 3, 1968, 'Jornada da humanidade ao encontro de um misterioso monolito', 14, 'Português', 336, 'capa_2001.jpg', 11, 1),
-('A Guerra dos Tronos', '978-85-7542-643-0', 5, 1996, 'Primeiro livro da série de fantasia medieval', 16, 'Português', 592, 'capa_tronos.jpg', 12, 2),
-('Diário de Uma Paixão', '978-85-7542-273-9', 10, 1996, 'História de amor entre Noah e Allie', 13, 'Português', 224, 'capa_paixao.jpg', 13, 3),
-('O Chamado de Cthulhu', '978-85-747-0987-5', 2, 1928, 'Conto de terror cósmico', 10, 'Português', 160, 'capa_cthulhu.jpg', 14, 4),
-('Minha História', '978-85-510-0291-5', 1, 2018, 'Memórias de Michelle Obama', 12, 'Português', 464, 'capa_michelle.jpg', 15, 5),
-('Armas, Germes e Aço', '978-85-713-9984-6', 3, 1997, 'História das sociedades humanas', 9, 'Português', 496, 'capa_armas.jpg', 16, 6),
-('Astrofísica para Apressados', '978-85-510-0205-2', 2, 2017, 'Introdução à astrofísica', 11, 'Português', 224, 'capa_astrofisica.jpg', 17, 7),
-('O Homem que Venceu Hitler', '978-85-7542-987-5', 1, 2020, 'Biografia de Elon Musk', 8, 'Português', 384, 'capa_musk.jpg', 18, 5),
-('Quem Pensa Enriquece', '978-85-7542-429-1', 30, 1937, 'Clássico sobre desenvolvimento pessoal', 22, 'Português', 256, 'capa_quem_pensa.jpg', 19, 9),
-('O Menino Maluquinho', '978-85-7232-152-4', 15, 1980, 'História de um menino travesso', 20, 'Português', 128, 'capa_menino.jpg', 20, 10),
-('Eu, Robô', '978-85-359-0278-2', 2, 1950, 'Contos sobre robôs e as três leis da robótica', 10, 'Português', 320, 'capa_robo.jpg', 1, 1),
-('O Hobbit', '978-85-359-0801-2', 5, 1937, 'Aventura de Bilbo Bolseiro', 15, 'Português', 336, 'capa_hobbit.jpg', 2, 2),
-('Razão e Sensibilidade', '978-85-823-8002-9', 4, 1811, 'História das irmãs Dashwood', 8, 'Português', 384, 'capa_razao.jpg', 3, 3),
-('O Iluminado', '978-85-01-10176-4', 3, 1977, 'Terror psicológico em um hotel isolado', 12, 'Português', 464, 'capa_iluminado.jpg', 4, 4),
-('Leonardo da Vinci', '978-85-8057-135-0', 1, 2017, 'Biografia do gênio renascentista', 7, 'Português', 624, 'capa_davinci.jpg', 5, 5),
-('Homo Deus', '978-85-254-3229-2', 5, 2015, 'Futuro da humanidade', 20, 'Português', 448, 'capa_homo_deus.jpg', 6, 6),
-('O Mundo Assombrado pelos Demônios', '978-85-273-0086-2', 2, 1995, 'Ciência como uma vela no escuro', 9, 'Português', 480, 'capa_demonios.jpg', 7, 7),
-('A Estrada do Futuro', '978-85-510-0275-5', 1, 1995, 'Visão de Bill Gates sobre tecnologia', 11, 'Português', 352, 'capa_estrada.jpg', 8, 8),
-('Como Desfrutar a Vida e o Trabalho', '978-85-7542-430-7', 20, 1936, 'Conselhos para uma vida melhor', 25, 'Português', 224, 'capa_desfrutar.jpg', 9, 9),
-('O Saci', '978-85-7232-428-0', 15, 1921, 'Aventuras com o personagem folclórico', 18, 'Português', 144, 'capa_saci.jpg', 10, 10),
-('2010: Odisseia Dois', '978-85-325-1499-0', 2, 1982, 'Continuação de 2001', 14, 'Português', 320, 'capa_2010.jpg', 11, 1),
-('A Fúria dos Reis', '978-85-7542-644-7', 5, 1998, 'Segundo livro da série de fantasia', 16, 'Português', 656, 'capa_furia.jpg', 12, 2),
-('Um Amor para Recordar', '978-85-7542-274-6', 8, 1999, 'História de amor entre Landon e Jamie', 13, 'Português', 240, 'capa_amor.jpg', 13, 3),
-('Nas Montanhas da Loucura', '978-85-747-0988-2', 2, 1936, 'Expedição à Antártida revela horrores', 10, 'Português', 192, 'capa_montanhas.jpg', 14, 4),
-('Tornando-se', '978-85-510-0292-2', 1, 2018, 'Memórias de Michelle Obama (edição juvenil)', 12, 'Português', 320, 'capa_tornando.jpg', 15, 5),
-('Colapso', '978-85-713-9985-3', 2, 2005, 'Como as sociedades escolhem fracassar ou ter sucesso', 9, 'Português', 592, 'capa_colapso.jpg', 16, 6),
-('Origens', '978-85-510-0206-9', 1, 2019, 'Quatorze bilhões de anos de evolução cósmica', 11, 'Português', 352, 'capa_origens.jpg', 17, 7),
-('Tesla: Inventor do Século', '978-85-7542-988-2', 1, 2021, 'Biografia de Nikola Tesla', 8, 'Português', 320, 'capa_tesla.jpg', 18, 5),
-('A Lei do Triunfo', '978-85-7542-430-8', 15, 1928, 'Princípios para o sucesso', 22, 'Português', 448, 'capa_triunfo.jpg', 19, 9),
-('Flicts', '978-85-7232-153-1', 10, 1969, 'História de uma cor diferente', 20, 'Português', 48, 'capa_flicts.jpg', 20, 10);
+INSERT INTO LIVRO (liv_titulo, liv_isbn, liv_edicao, liv_anoPublicacao, liv_sinopse, liv_estoque, liv_idioma, liv_num_paginas, liv_capa, fk_aut, fk_cat) VALUES
+('Dom Casmurro', '978-85-7232-227-1', 1, 1899, 'Clássico da literatura brasileira sobre ciúme e amor', 15, 'Português', 256, 'dom_casmurro.jpg', 1, 1),
+('A Hora da Estrela', '978-85-325-0264-2', 3, 1977, 'Último romance de Clarice Lispector', 10, 'Português', 96, 'hora_estrela.jpg', 2, 1),
+('Capitães da Areia', '978-85-01-05192-3', 5, 1937, 'Romance sobre meninos de rua em Salvador', 12, 'Português', 264, 'capitaes_areia.jpg', 3, 1),
+('Fundação', '978-85-359-0917-4', 2, 1951, 'Primeiro livro da trilogia da Fundação', 8, 'Português', 320, 'fundacao.jpg', 4, 2),
+('Androides Sonham com Ovelhas Elétricas?', '978-85-359-1300-5', 1, 1968, 'Livro que inspirou Blade Runner', 6, 'Português', 256, 'androides.jpg', 5, 2),
+('O Senhor dos Anéis: A Sociedade do Anel', '978-85-359-0645-6', 10, 1954, 'Primeiro volume da trilogia épica', 20, 'Português', 576, 'sociedade_anel.jpg', 6, 3),
+('As Crônicas de Gelo e Fogo: A Guerra dos Tronos', '978-85-01-05054-7', 1, 1996, 'Primeiro livro da série Game of Thrones', 18, 'Português', 592, 'guerra_tronos.jpg', 7, 3),
+('Orgulho e Preconceito', '978-85-7232-227-8', 5, 1813, 'Clássico romance de Jane Austen', 14, 'Português', 424, 'orgulho_preconceito.jpg', 8, 4),
+('Diário de uma Paixão', '978-85-325-2074-9', 3, 1996, 'Romance emocionante sobre amor eterno', 9, 'Português', 224, 'diario_paixao.jpg', 9, 4),
+('Steve Jobs', '978-85-8057-156-0', 1, 2011, 'Biografia do cofundador da Apple', 7, 'Português', 656, 'steve_jobs.jpg', 10, 5),
+('1808', '978-85-7302-939-1', 10, 2007, 'Sobre a fuga da família real portuguesa para o Brasil', 11, 'Português', 408, '1808.jpg', 11, 6),
+('Brasil: Uma História', '978-85-01-05663-2', 2, 2003, 'História do Brasil de forma acessível', 8, 'Português', 464, 'brasil_historia.jpg', 12, 6),
+('O Vendedor de Sonhos', '978-85-7542-296-3', 5, 2008, 'Sobre um homem que vende sonhos nas ruas', 10, 'Português', 224, 'vendedor_sonhos.jpg', 13, 7),
+('O Iluminado', '978-85-01-05054-1', 8, 1977, 'Clássico do terror sobre um hotel mal-assombrado', 12, 'Português', 464, 'iluminado.jpg', 14, 8),
+('O Chamado de Cthulhu', '978-85-66631-41-2', 1, 1928, 'Conto que introduz o mito de Cthulhu', 5, 'Português', 96, 'cthulhu.jpg', 15, 8),
+('Reinações de Narizinho', '978-85-7232-227-2', 20, 1931, 'Primeiro livro do Sítio do Picapau Amarelo', 15, 'Português', 192, 'reinações.jpg', 16, 9),
+('O Menino Maluquinho', '978-85-7232-227-3', 15, 1980, 'Clássico infantil brasileiro', 20, 'Português', 128, 'menino_maluquinho.jpg', 17, 9),
+('Cosmos', '978-85-7542-296-4', 3, 1980, 'Sobre a evolução do universo e da ciência', 8, 'Português', 384, 'cosmos.jpg', 18, 10),
+('Astrofísica para Apressados', '978-85-7542-296-5', 2, 2017, 'Introdução à astrofísica em linguagem acessível', 9, 'Português', 224, 'astrofisica.jpg', 19, 10),
+('Sapiens: Uma Breve História da Humanidade', '978-85-7542-296-6', 5, 2011, 'Sobre a evolução da espécie humana', 12, 'Português', 464, 'sapiens.jpg', 20, 6),
+('Memórias Póstumas de Brás Cubas', '978-85-7232-227-4', 1, 1881, 'Romance inovador de Machado de Assis', 10, 'Português', 288, 'bras_cubas.jpg', 1, 1),
+('Quincas Borba', '978-85-7232-227-5', 1, 1891, 'Outro clássico de Machado de Assis', 8, 'Português', 320, 'quincas_borba.jpg', 1, 1),
+('A Paixão Segundo G.H.', '978-85-325-0264-3', 2, 1964, 'Obra complexa de Clarice Lispector', 6, 'Português', 192, 'paixao_gh.jpg', 2, 1),
+('Gabriela, Cravo e Canela', '978-85-01-05192-4', 5, 1958, 'Romance ambientado no cacau da Bahia', 10, 'Português', 352, 'gabriela.jpg', 3, 1),
+('Eu, Robô', '978-85-359-0917-5', 3, 1950, 'Coletânea de contos sobre robôs', 7, 'Português', 320, 'eu_robo.jpg', 4, 2),
+('O Homem do Castelo Alto', '978-85-359-1300-6', 1, 1962, 'Ficção sobre história alternativa', 5, 'Português', 272, 'castelo_alto.jpg', 5, 2),
+('O Hobbit', '978-85-359-0645-7', 10, 1937, 'Aventura que precede O Senhor dos Anéis', 15, 'Português', 336, 'hobbit.jpg', 6, 3),
+('As Crônicas de Gelo e Fogo: A Fúria dos Reis', '978-85-01-05054-8', 1, 1998, 'Segundo livro da série', 12, 'Português', 656, 'furia_reis.jpg', 7, 3),
+('Razão e Sensibilidade', '978-85-7232-227-9', 3, 1811, 'Outro clássico de Jane Austen', 8, 'Português', 384, 'razao_sensibilidade.jpg', 8, 4),
+('Um Amor para Recordar', '978-85-325-2074-0', 2, 1999, 'Romance emocionante sobre amor e perda', 7, 'Português', 240, 'amor_recordar.jpg', 9, 4),
+('Einstein: Sua Vida, Seu Universo', '978-85-8057-156-1', 1, 2007, 'Biografia de Albert Einstein', 6, 'Português', 704, 'einstein.jpg', 10, 5),
+('1822', '978-85-7302-939-2', 5, 2010, 'Sobre a independência do Brasil', 9, 'Português', 352, '1822.jpg', 11, 6),
+('A Viagem do Descobrimento', '978-85-01-05663-3', 1, 1998, 'Sobre o descobrimento do Brasil', 7, 'Português', 224, 'viagem_descobrimento.jpg', 12, 6),
+('Ansiedade: Como Enfrentar o Mal do Século', '978-85-7542-296-7', 3, 2013, 'Sobre controle da ansiedade', 10, 'Português', 192, 'ansiedade.jpg', 13, 7),
+('It: A Coisa', '978-85-01-05054-2', 5, 1986, 'Clássico do terror sobre um palhaço maligno', 11, 'Português', 1104, 'it.jpg', 14, 8),
+('O Caso de Charles Dexter Ward', '978-85-66631-41-3', 1, 1941, 'Novela de terror lovecraftiana', 4, 'Português', 160, 'charles_ward.jpg', 15, 8),
+('O Saci', '978-85-7232-227-6', 15, 1921, 'Clássico infantil sobre o personagem folclórico', 12, 'Português', 96, 'saci.jpg', 16, 9),
+('Flicts', '978-85-7232-227-7', 10, 1969, 'Livro infantil sobre cores e diferenças', 10, 'Português', 48, 'flicts.jpg', 17, 9),
+('O Mundo Assombrado pelos Demônios', '978-85-7542-296-8', 2, 1995, 'Sobre o pensamento cético e científico', 8, 'Português', 480, 'mundo_assombrado.jpg', 18, 10),
+('Origens', '978-85-7542-296-9', 1, 2014, 'Sobre as origens do universo e da vida', 7, 'Português', 352, 'origens.jpg', 19, 10),
+('Homo Deus: Uma Breve História do Amanhã', '978-85-7542-296-0', 2, 2015, 'Sobre o futuro da humanidade', 9, 'Português', 448, 'homo_deus.jpg', 20, 6);
 
-INSERT INTO USUARIO (user_nome, user_cpf, user_email, user_telefone, user_senha, user_login, user_dataAdmissao, user_status, user_tipoUser) VALUES 
-('Ana Silva', '111.222.333-44', 'ana.silva@alexandria.com', '(11) 91111-1111', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ana.silva', '2015-03-15', 'Ativo', 'Administrador'),
-('Carlos Oliveira', '222.333.444-55', 'carlos.oliveira@alexandria.com', '(11) 92222-2222', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'carlos.oliveira', '2016-05-20', 'Ativo', 'Secretaria'),
-('Mariana Santos', '333.444.555-66', 'mariana.santos@alexandria.com', '(11) 93333-3333', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'mariana.santos', '2017-07-10', 'Ativo', 'Almoxarife'),
-('Pedro Almeida', '444.555.666-77', 'pedro.almeida@alexandria.com', '(11) 94444-4444', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'pedro.almeida', '2018-01-25', 'Ativo', 'Secretaria'),
-('Juliana Costa', '555.666.777-88', 'juliana.costa@alexandria.com', '(11) 95555-5555', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'juliana.costa', '2019-09-05', 'Ativo', 'Almoxarife'),
-('Ricardo Pereira', '666.777.888-99', 'ricardo.pereira@alexandria.com', '(11) 96666-6666', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ricardo.pereira', '2020-02-18', 'Ativo', 'Secretaria'),
-('Fernanda Lima', '777.888.999-00', 'fernanda.lima@alexandria.com', '(11) 97777-7777', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'fernanda.lima', '2014-11-30', 'Inativo', 'Secretaria'),
-('Lucas Martins', '888.999.000-11', 'lucas.martins@alexandria.com', '(11) 98888-8888', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'lucas.martins', '2016-08-22', 'Ativo', 'Almoxarife'),
-('Patricia Rocha', '999.000.111-22', 'patricia.rocha@alexandria.com', '(11) 99999-9999', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'patricia.rocha', '2017-04-14', 'Ativo', 'Secretaria'),
-('Roberto Nunes', '000.111.222-33', 'roberto.nunes@alexandria.com', '(11) 90000-0000', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'roberto.nunes', '2018-12-03', 'Ativo', 'Administrador');
+INSERT INTO USUARIO (user_nome, user_cpf, user_email, user_telefone, user_senha, user_login, user_dataAdmissao, user_status, user_tipoUser) VALUES
+('João Silva', '111.222.333-44', 'joao.silva@biblioteca.com', '(11) 91234-5678', '$2y$10$g/8TNtHHDSIaZwUOqtAdT.s8FaHhlKHe7nUUIPeMT7ngpBUcX0zui', 'joao.silva', '2018-03-15', 'Ativo', 'Administrador'),
+('Maria Oliveira', '222.333.444-55', 'maria.oliveira@biblioteca.com', '(11) 92345-6789', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'maria.oliveira', '2019-05-20', 'Ativo', 'Secretaria'),
+('Carlos Pereira', '333.444.555-66', 'carlos.pereira@biblioteca.com', '(11) 93456-7890', '15e2b0d3c33891ebb0f1ef609ec419420c20e320ce94c65fbc8c3312448eb225', 'carlos.pereira', '2020-01-10', 'Ativo', 'Almoxarife'),
+('Ana Santos', '444.555.666-77', 'ana.santos@biblioteca.com', '(11) 94567-8901', 'a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3', 'ana.santos', '2017-11-05', 'Ativo', 'Secretaria'),
+('Pedro Costa', '555.666.777-88', 'pedro.costa@biblioteca.com', '(11) 95678-9012', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', 'pedro.costa', '2019-08-25', 'Ativo', 'Almoxarife'),
+('Luiza Fernandes', '666.777.888-99', 'luiza.fernandes@biblioteca.com', '(11) 96789-0123', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'luiza.fernandes', '2020-07-30', 'Ativo', 'Secretaria'),
+('Ricardo Almeida', '777.888.999-00', 'ricardo.almeida@biblioteca.com', '(11) 97890-1234', 'd4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35', 'ricardo.almeida', '2018-09-12', 'Ativo', 'Administrador'),
+('Fernanda Lima', '888.999.000-11', 'fernanda.lima@biblioteca.com', '(11) 98901-2345', '4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce', 'fernanda.lima', '2019-04-18', 'Ativo', 'Secretaria'),
+('Marcos Souza', '999.000.111-22', 'marcos.souza@biblioteca.com', '(11) 99012-3456', '4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a', 'marcos.souza', '2020-02-22', 'Ativo', 'Almoxarife'),
+('Juliana Rocha', '000.111.222-33', 'juliana.rocha@biblioteca.com', '(11) 90123-4567', '4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8', 'juliana.rocha', '2017-12-01', 'Inativo', 'Secretaria');
 
-INSERT INTO MEMBRO (mem_nome, mem_cpf, mem_senha, mem_email, mem_telefone, mem_status) VALUES 
-('João Souza', '123.456.789-01', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'joao.souza@email.com', '(11) 91234-5678', 'Ativo'),
-('Maria Oliveira', '234.567.890-12', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'maria.oliveira@email.com', '(11) 92345-6789', 'Ativo'),
-('Carlos Pereira', '345.678.901-23', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'carlos.pereira@email.com', '(11) 93456-7890', 'Ativo'),
-('Ana Costa', '456.789.012-34', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ana.costa@email.com', '(11) 94567-8901', 'Ativo'),
-('Paulo Santos', '567.890.123-45', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'paulo.santos@email.com', '(11) 95678-9012', 'Ativo'),
-('Juliana Lima', '678.901.234-56', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'juliana.lima@email.com', '(11) 96789-0123', 'Ativo'),
-('Marcos Almeida', '789.012.345-67', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'marcos.almeida@email.com', '(11) 97890-1234', 'Suspenso'),
-('Fernanda Rocha', '890.123.456-78', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'fernanda.rocha@email.com', '(11) 98901-2345', 'Ativo'),
-('Ricardo Silva', '901.234.567-89', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'ricardo.silva@email.com', '(11) 99012-3456', 'Ativo'),
-('Patricia Nunes', '012.345.678-90', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'patricia.nunes@email.com', '(11) 90123-4567', 'Ativo'),
-('Lucas Martins', '111.222.333-44', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'lucas.martins@email.com', '(11) 91111-1111', 'Ativo'),
-('Camila Oliveira', '222.333.444-55', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'camila.oliveira@email.com', '(11) 92222-2222', 'Ativo'),
-('Gustavo Pereira', '333.444.555-66', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'gustavo.pereira@email.com', '(11) 93333-3333', 'Suspenso'),
-('Amanda Costa', '444.555.666-77', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'amanda.costa@email.com', '(11) 94444-4444', 'Ativo'),
-('Rodrigo Santos', '555.666.777-88', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'rodrigo.santos@email.com', '(11) 95555-5555', 'Ativo'),
-('Tatiana Lima', '666.777.888-99', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'tatiana.lima@email.com', '(11) 96666-6666', 'Ativo'),
-('Bruno Almeida', '777.888.999-00', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'bruno.almeida@email.com', '(11) 97777-7777', 'Ativo'),
-('Vanessa Rocha', '888.999.000-11', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'vanessa.rocha@email.com', '(11) 98888-8888', 'Ativo'),
-('Felipe Silva', '999.000.111-22', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'felipe.silva@email.com', '(11) 99999-9999', 'Ativo'),
-('Daniela Nunes', '000.111.222-33', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'daniela.nunes@email.com', '(11) 90000-0000', 'Ativo');
+INSERT INTO MEMBRO (mem_nome, mem_cpf, mem_senha, mem_email, mem_telefone, mem_status) VALUES
+('Lucas Martins', '123.456.789-01', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'lucas.martins@email.com', '(11) 91234-5678', 'Ativo'),
+('Amanda Silva', '222.222.222-22', '4cc8f4d609b717356701c57a03e737e5ac8fe885da8c7163d3de47e01849c635', 'amanda.silva@email.com', '(11) 92345-6789', 'Ativo'),
+('Rafael Oliveira', '345.678.901-23', '5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef', 'rafael.oliveira@email.com', '(11) 93456-7890', 'Ativo'),
+('Patricia Costa', '456.789.012-34', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'patricia.costa@email.com', '(11) 94567-8901', 'Ativo'),
+('Daniel Santos', '567.890.123-45', '5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef', 'daniel.santos@email.com', '(11) 95678-9012', 'Ativo'),
+('Camila Pereira', '678.901.234-56', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'camila.pereira@email.com', '(11) 96789-0123', 'Ativo'),
+('Bruno Almeida', '789.012.345-67', '5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef', 'bruno.almeida@email.com', '(11) 97890-1234', 'Ativo'),
+('Tatiane Lima', '890.123.456-78', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'tatiane.lima@email.com', '(11) 98901-2345', 'Ativo'),
+('Gustavo Fernandes', '901.234.567-89', '5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef', 'gustavo.fernandes@email.com', '(11) 99012-3456', 'Ativo'),
+('Vanessa Souza', '012.345.678-90', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'vanessa.souza@email.com', '(11) 90123-4567', 'Ativo'),
+('Roberto Rocha', '321.654.987-09', '5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef', 'roberto.rocha@email.com', '(11) 93216-5498', 'Suspenso'),
+('Carla Mendes', '432.765.098-18', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'carla.mendes@email.com', '(11) 94327-6509', 'Suspenso'),
+('Felipe Gonçalves', '543.876.109-27', '5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef', 'felipe.goncalves@email.com', '(11) 95438-7610', 'Ativo'),
+('Isabela Torres', '654.987.210-36', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'isabela.torres@email.com', '(11) 96549-8721', 'Ativo'),
+('Marcelo Castro', '765.098.321-45', '5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef', 'marcelo.castro@email.com', '(11) 97650-9832', 'Ativo'),
+('Larissa Nunes', '876.109.432-54', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'larissa.nunes@email.com', '(11) 98761-0943', 'Ativo'),
+('Rodrigo Pires', '987.210.543-63', '5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef', 'rodrigo.pires@email.com', '(11) 99872-1054', 'Suspenso'),
+('Simone Cardoso', '098.321.654-72', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'simone.cardoso@email.com', '(11) 90983-2165', 'Ativo'),
+('Eduardo Ramos', '109.432.765-81', '5f70bf18a086007016e948b04aed3b82103a36bea41755b6cddfaf10ace3c6ef', 'eduardo.ramos@email.com', '(11) 91094-3276', 'Ativo'),
+('Mariana Duarte', '210.543.876-90', '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b', 'mariana.duarte@email.com', '(11) 92105-4387', 'Ativo');
 
-INSERT INTO RESERVA (res_prazo, res_dataMarcada, res_dataVencimento, res_status, fk_mem, fk_liv, fk_user) VALUES 
-(7, '2023-01-05', '2023-01-12', 'Finalizada', 1, 1, 2),
-(7, '2023-01-10', '2023-01-17', 'Finalizada', 2, 2, 2),
-(7, '2023-01-15', '2023-01-22', 'Finalizada', 3, 3, 4),
-(7, '2023-01-20', '2023-01-27', 'Finalizada', 4, 4, 4),
-(7, '2023-01-25', '2023-02-01', 'Finalizada', 5, 5, 6),
-(7, '2023-02-01', '2023-02-08', 'Finalizada', 6, 6, 6),
-(7, '2023-02-05', '2023-02-12', 'Finalizada', 7, 7, 9),
-(7, '2023-02-10', '2023-02-17', 'Finalizada', 8, 8, 9),
-(7, '2023-02-15', '2023-02-22', 'Finalizada', 9, 9, 2),
-(7, '2023-02-20', '2023-02-27', 'Finalizada', 10, 10, 4),
-(7, '2023-03-01', '2023-03-08', 'Finalizada', 11, 11, 6),
-(7, '2023-03-05', '2023-03-12', 'Finalizada', 12, 12, 6),
-(7, '2023-03-10', '2023-03-17', 'Finalizada', 13, 13, 9),
-(7, '2023-03-15', '2023-03-22', 'Finalizada', 14, 14, 9),
-(7, '2023-03-20', '2023-03-27', 'Finalizada', 15, 15, 2),
-(7, '2023-04-01', '2023-04-08', 'Finalizada', 16, 16, 4),
-(7, '2023-04-05', '2023-04-12', 'Finalizada', 17, 17, 6),
-(7, '2023-04-10', '2023-04-17', 'Finalizada', 18, 18, 6),
-(7, '2023-04-15', '2023-04-22', 'Finalizada', 19, 19, 9),
-(7, '2023-04-20', '2023-04-27', 'Finalizada', 20, 20, 9),
-(7, '2023-05-01', '2023-05-08', 'Aberta', 1, 21, 2),
-(7, '2023-05-05', '2023-05-12', 'Aberta', 2, 22, 4),
-(7, '2023-05-10', '2023-05-17', 'Aberta', 3, 23, 6),
-(7, '2023-05-15', '2023-05-22', 'Aberta', 4, 24, 6),
-(7, '2023-05-20', '2023-05-27', 'Aberta', 5, 25, 9),
-(7, '2023-06-01', '2023-06-08', 'Aberta', 6, 26, 2),
-(7, '2023-06-05', '2023-06-12', 'Aberta', 7, 27, 4),
-(7, '2023-06-10', '2023-06-17', 'Aberta', 8, 28, 6),
-(7, '2023-06-15', '2023-06-22', 'Aberta', 9, 29, 6),
-(7, '2023-06-20', '2023-06-27', 'Aberta', 10, 30, 9),
-(7, '2023-07-01', '2023-07-08', 'Aberta', 11, 31, 2),
-(7, '2023-07-05', '2023-07-12', 'Aberta', 12, 32, 4),
-(7, '2023-07-10', '2023-07-17', 'Aberta', 13, 33, 6),
-(7, '2023-07-15', '2023-07-22', 'Aberta', 14, 34, 6),
-(7, '2023-07-20', '2023-07-27', 'Aberta', 15, 35, 9),
-(7, '2023-08-01', '2023-08-08', 'Aberta', 16, 36, 2),
-(7, '2023-08-05', '2023-08-12', 'Aberta', 17, 37, 4),
-(7, '2023-08-10', '2023-08-17', 'Aberta', 18, 38, 6),
-(7, '2023-08-15', '2023-08-22', 'Aberta', 19, 39, 6),
-(7, '2023-08-20', '2023-08-27', 'Aberta', 20, 40, 9);
+-- Inserir novos registros
+INSERT INTO EMPRESTIMO (emp_prazo, emp_dataEmp, emp_dataDev, emp_dataDevReal, emp_status, fk_mem, fk_user, fk_liv) VALUES
+-- 20 empréstimos finalizados
+(7, '2025-01-05', '2025-01-12', '2025-01-11', 'Finalizado', 1, 2, 1),
+(7, '2025-01-10', '2025-01-17', '2025-01-16', 'Finalizado', 2, 4, 5),
+(7, '2025-01-15', '2025-01-22', '2025-01-21', 'Finalizado', 3, 6, 10),
+(7, '2025-01-20', '2025-01-27', '2025-01-26', 'Finalizado', 4, 8, 15),
+(7, '2025-01-25', '2025-02-01', '2025-01-31', 'Finalizado', 5, 2, 20),
+(7, '2025-02-01', '2025-02-08', '2025-02-07', 'Finalizado', 6, 4, 25),
+(7, '2025-02-05', '2025-02-12', '2025-02-11', 'Finalizado', 7, 6, 30),
+(7, '2025-02-10', '2025-02-17', '2025-02-16', 'Finalizado', 8, 8, 35),
+(7, '2025-02-15', '2025-02-22', '2025-02-21', 'Finalizado', 9, 2, 2),
+(7, '2025-02-20', '2025-02-27', '2025-02-26', 'Finalizado', 10, 4, 7),
+(7, '2025-03-01', '2025-03-08', '2025-03-07', 'Finalizado', 11, 6, 12),
+(7, '2025-03-05', '2025-03-12', '2025-03-11', 'Finalizado', 12, 8, 17),
+(7, '2025-03-10', '2025-03-17', '2025-03-16', 'Finalizado', 13, 2, 22),
+(7, '2025-03-15', '2025-03-22', '2025-03-21', 'Finalizado', 14, 4, 27),
+(7, '2025-03-20', '2025-03-27', '2025-03-26', 'Finalizado', 15, 6, 32),
+(7, '2025-03-25', '2025-04-01', '2025-03-31', 'Finalizado', 16, 8, 37),
+(7, '2025-04-01', '2025-04-08', '2025-04-07', 'Finalizado', 17, 2, 4),
+(7, '2025-04-05', '2025-04-12', '2025-04-11', 'Finalizado', 18, 4, 9),
+(7, '2025-04-10', '2025-04-17', '2025-04-16', 'Finalizado', 19, 6, 14),
+(7, '2025-04-15', '2025-04-22', '2025-04-21', 'Finalizado', 20, 8, 19),
 
-INSERT INTO EMPRESTIMO (emp_prazo, emp_dataEmp, emp_dataDev, emp_dataDevReal, emp_status, fk_mem, fk_user, fk_liv) VALUES 
-(14, '2023-01-05', '2023-01-19', '2023-01-18', 'Finalizado', 1, 2, 1),
-(14, '2023-01-10', '2023-01-24', '2023-01-23', 'Finalizado', 2, 4, 2),
-(14, '2023-01-15', '2023-01-29', '2023-01-28', 'Finalizado', 3, 6, 3),
-(14, '2023-01-20', '2023-02-03', '2023-02-02', 'Finalizado', 4, 8, 4),
-(14, '2023-02-01', '2023-02-15', '2023-02-14', 'Finalizado', 5, 10, 5),
-(14, '2023-02-05', '2023-02-19', '2023-02-18', 'Finalizado', 6, 2, 6),
-(14, '2023-02-10', '2023-02-24', '2023-02-23', 'Finalizado', 7, 4, 7),
-(14, '2023-02-15', '2023-03-01', '2023-02-28', 'Finalizado', 8, 6, 8),
-(14, '2023-02-20', '2023-03-06', '2023-03-05', 'Finalizado', 9, 8, 9),
-(14, '2023-03-01', '2023-03-15', '2023-03-14', 'Finalizado', 10, 10, 10),
-(14, '2023-03-05', '2023-03-19', '2023-03-18', 'Finalizado', 11, 2, 11),
-(14, '2023-03-10', '2023-03-24', '2023-03-23', 'Finalizado', 12, 4, 12),
-(14, '2023-03-15', '2023-03-29', '2023-03-28', 'Finalizado', 13, 6, 13),
-(14, '2023-03-20', '2023-04-03', '2023-04-02', 'Finalizado', 14, 8, 14),
-(14, '2023-04-01', '2023-04-15', '2023-04-14', 'Finalizado', 15, 10, 15),
-(14, '2023-04-05', '2023-04-19', '2023-04-18', 'Finalizado', 16, 2, 16),
-(14, '2023-04-10', '2023-04-24', '2023-04-23', 'Finalizado', 17, 4, 17),
-(14, '2023-04-15', '2023-04-29', '2023-04-28', 'Finalizado', 18, 6, 18),
-(14, '2023-04-20', '2023-05-04', '2023-05-03', 'Finalizado', 19, 8, 19),
-(14, '2023-05-01', '2023-05-15', '2023-05-14', 'Finalizado', 20, 10, 20),
-(14, '2023-05-05', '2023-05-19', NULL, 'Empréstimo Ativo', 1, 2, 21),
-(14, '2023-05-10', '2023-05-24', NULL, 'Empréstimo Ativo', 2, 4, 22),
-(14, '2023-05-15', '2023-05-29', NULL, 'Empréstimo Ativo', 3, 6, 23),
-(14, '2023-05-20', '2023-06-03', NULL, 'Empréstimo Ativo', 4, 8, 24),
-(14, '2023-06-01', '2023-06-15', NULL, 'Empréstimo Ativo', 5, 10, 25),
-(14, '2023-06-05', '2023-06-19', NULL, 'Empréstimo Ativo', 6, 2, 26),
-(14, '2023-06-10', '2023-06-24', NULL, 'Empréstimo Ativo', 7, 4, 27),
-(14, '2023-06-15', '2023-06-29', NULL, 'Empréstimo Ativo', 8, 6, 28),
-(14, '2023-06-20', '2023-07-04', NULL, 'Empréstimo Ativo', 9, 8, 29),
-(14, '2023-07-01', '2023-07-15', NULL, 'Empréstimo Ativo', 10, 10, 30),
-(14, '2023-07-05', '2023-07-19', '2023-07-25', 'Empréstimo Atrasado', 11, 2, 31),
-(14, '2023-07-10', '2023-07-24', '2023-07-26', 'Empréstimo Atrasado', 12, 4, 32),
-(14, '2023-07-15', '2023-07-29', '2023-08-01', 'Empréstimo Atrasado', 13, 6, 33),
-(14, '2023-07-20', '2023-08-03', '2023-08-05', 'Empréstimo Atrasado', 14, 8, 34),
-(14, '2023-08-01', '2023-08-15', NULL, 'Empréstimo Ativo', 15, 10, 35),
-(14, '2023-08-05', '2023-08-19', NULL, 'Empréstimo Ativo', 16, 2, 36),
-(14, '2023-08-10', '2023-08-24', NULL, 'Empréstimo Ativo', 17, 4, 37),
-(14, '2023-08-15', '2023-08-29', NULL, 'Empréstimo Ativo', 18, 6, 38),
-(14, '2023-08-20', '2023-09-03', NULL, 'Empréstimo Ativo', 19, 8, 39),
-(14, '2023-09-01', '2023-09-15', NULL, 'Empréstimo Ativo', 20, 10, 40);
+-- 8 empréstimos atrasados (datas de devolução no passado sem data de devolução real)
+(7, '2025-05-01', '2025-05-08', NULL, 'Empréstimo Atrasado', 1, 2, 24),
+(7, '2025-05-05', '2025-05-12', NULL, 'Empréstimo Atrasado', 2, 4, 29),
+(7, '2025-05-10', '2025-05-17', NULL, 'Empréstimo Atrasado', 3, 6, 34),
+(7, '2025-05-15', '2025-05-22', NULL, 'Empréstimo Atrasado', 4, 8, 39),
+(7, '2025-05-20', '2025-05-27', NULL, 'Empréstimo Atrasado', 5, 2, 6),
+(7, '2025-05-25', '2025-06-01', NULL, 'Empréstimo Atrasado', 6, 4, 11),
+(7, '2025-06-01', '2025-06-08', NULL, 'Empréstimo Atrasado', 7, 6, 16),
+(7, '2025-06-05', '2025-06-12', NULL, 'Empréstimo Atrasado', 8, 8, 21),
 
-INSERT INTO REMESSA (rem_data, rem_qtd, fk_forn, fk_liv, fk_user) VALUES 
-('2023-01-10', 5, 1, 1, 3),
-('2023-01-15', 3, 2, 2, 5),
-('2023-01-20', 4, 3, 3, 3),
-('2023-02-05', 6, 4, 4, 5),
-('2023-02-10', 2, 5, 5, 3),
-('2023-02-15', 5, 6, 6, 5),
-('2023-03-01', 3, 7, 7, 3),
-('2023-03-05', 4, 8, 8, 5),
-('2023-03-10', 6, 9, 9, 3),
-('2023-03-15', 2, 10, 10, 5),
-('2023-04-01', 5, 1, 11, 3),
-('2023-04-05', 3, 2, 12, 5),
-('2023-04-10', 4, 3, 13, 3),
-('2023-04-15', 6, 4, 14, 5),
-('2023-05-01', 2, 5, 15, 3),
-('2023-05-05', 5, 6, 16, 5),
-('2023-05-10', 3, 7, 17, 3),
-('2023-05-15', 4, 8, 18, 5),
-('2023-06-01', 6, 9, 19, 3),
-('2023-06-05', 2, 10, 20, 5),
-('2023-06-10', 5, 1, 21, 3),
-('2023-06-15', 3, 2, 22, 5),
-('2023-07-01', 4, 3, 23, 3),
-('2023-07-05', 6, 4, 24, 5),
-('2023-07-10', 2, 5, 25, 3),
-('2023-07-15', 5, 6, 26, 5),
-('2023-08-01', 3, 7, 27, 3),
-('2023-08-05', 4, 8, 28, 5),
-('2023-08-10', 6, 9, 29, 3),
-('2023-08-15', 2, 10, 30, 5);
+-- 20 empréstimos ativos (datas de devolução no futuro)
+(7, '2025-06-10', '2025-06-17', NULL, 'Empréstimo Ativo', 9, 2, 26),
+(7, '2025-06-15', '2025-06-22', NULL, 'Empréstimo Ativo', 10, 4, 31),
+(7, '2025-06-20', '2025-06-27', NULL, 'Empréstimo Ativo', 11, 6, 36),
+(7, '2025-06-25', '2025-07-02', NULL, 'Empréstimo Ativo', 12, 8, 3),
+(7, '2025-07-01', '2025-07-08', NULL, 'Empréstimo Ativo', 13, 2, 8),
+(7, '2025-07-05', '2025-07-12', NULL, 'Empréstimo Ativo', 14, 4, 13),
+(7, '2025-07-10', '2025-07-17', NULL, 'Empréstimo Ativo', 15, 6, 18),
+(7, '2025-07-15', '2025-07-22', NULL, 'Empréstimo Ativo', 16, 8, 23),
+(7, '2025-07-20', '2025-07-27', NULL, 'Empréstimo Ativo', 17, 2, 28),
+(7, '2025-07-25', '2025-08-01', NULL, 'Empréstimo Ativo', 18, 4, 33),
+(7, '2025-08-01', '2025-08-08', NULL, 'Empréstimo Ativo', 19, 6, 38),
+(7, '2025-08-05', '2025-08-12', NULL, 'Empréstimo Ativo', 20, 8, 40),
+(7, '2025-08-10', '2025-08-17', NULL, 'Empréstimo Ativo', 1, 2, 1),
+(7, '2025-08-15', '2025-08-22', NULL, 'Empréstimo Ativo', 2, 4, 5),
+(7, '2025-08-20', '2025-08-27', NULL, 'Empréstimo Ativo', 3, 6, 10),
+(7, '2025-08-25', '2025-09-01', NULL, 'Empréstimo Ativo', 4, 8, 15),
+(7, '2025-09-01', '2025-09-08', NULL, 'Empréstimo Ativo', 5, 2, 20),
+(7, '2025-09-05', '2025-09-12', NULL, 'Empréstimo Ativo', 6, 4, 25),
+(7, '2025-09-10', '2025-09-17', NULL, 'Empréstimo Ativo', 7, 6, 30),
+(7, '2025-09-15', '2025-09-22', NULL, 'Empréstimo Ativo', 8, 8, 35),
 
-INSERT INTO MULTA (mul_valor, mul_qtdDias, mul_status, fk_mem, fk_emp) VALUES 
-(7.50, 5, 'Finalizada', 11, 31),
-(9.00, 6, 'Finalizada', 12, 32),
-(10.50, 7, 'Finalizada', 13, 33),
-(12.00, 8, 'Aberta', 14, 34),
-(4.50, 3, 'Aberta', 15, 35);
+-- 5 renovações ativas (datas de devolução no futuro com status 'Renovação Ativa')
+(7, '2025-09-20', '2025-09-27', NULL, 'Renovação Ativa', 9, 2, 2),
+(7, '2025-09-25', '2025-10-02', NULL, 'Renovação Ativa', 10, 4, 7),
+(7, '2025-10-01', '2025-10-08', NULL, 'Renovação Ativa', 11, 6, 12),
+(7, '2025-10-05', '2025-10-12', NULL, 'Renovação Ativa', 12, 8, 17),
+(7, '2025-10-10', '2025-10-17', NULL, 'Renovação Ativa', 13, 2, 22),
 
--- FORN_LIV
-INSERT INTO FORN_LIV (fk_liv, fk_forn) VALUES 
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 4),
-(5, 5);
+-- 2 renovações atrasadas (datas de devolução no passado com status 'Renovação Atrasada')
+(7, '2025-10-15', '2025-10-22', NULL, 'Renovação Atrasada', 14, 4, 27),
+(7, '2025-10-20', '2025-10-27', NULL, 'Renovação Atrasada', 15, 6, 32);
 
--- CAT_LIV
-INSERT INTO CAT_LIV (fk_liv, fk_cat) VALUES 
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 4),
-(5, 5);
+-- Inserir novos registros
+INSERT INTO RESERVA (res_prazo, res_dataMarcada, res_dataVencimento, res_dataFinalizada, res_status, fk_mem, fk_liv, fk_user) VALUES
+-- 5 reservas canceladas
+(3, '2025-01-05', '2025-01-08', '2025-01-06', 'Cancelada', 1, 1, 2),
+(3, '2025-01-10', '2025-01-13', '2025-01-11', 'Cancelada', 2, 5, 4),
+(3, '2025-01-15', '2025-01-18', '2025-01-16', 'Cancelada', 3, 10, 6),
+(3, '2025-01-20', '2025-01-23', '2025-01-21', 'Cancelada', 4, 15, 8),
+(3, '2025-01-25', '2025-01-28', '2025-01-26', 'Cancelada', 5, 20, 2),
 
--- AUT_LIV
-INSERT INTO AUT_LIV (fk_liv, fk_aut) VALUES 
-(1, 1),
-(2, 2),
-(3, 3),
-(4, 4),
-(5, 5);
+-- 17 reservas abertas (datas de vencimento no futuro)
+(3, '2025-06-01', '2025-06-04', NULL, 'Aberta', 6, 25, 4),
+(3, '2025-06-05', '2025-06-08', NULL, 'Aberta', 7, 30, 6),
+(3, '2025-06-10', '2025-06-13', NULL, 'Aberta', 8, 35, 8),
+(3, '2025-06-15', '2025-06-18', NULL, 'Aberta', 9, 2, 2),
+(3, '2025-06-20', '2025-06-23', NULL, 'Aberta', 10, 7, 4),
+(3, '2025-06-25', '2025-06-28', NULL, 'Aberta', 11, 12, 6),
+(3, '2025-07-01', '2025-07-04', NULL, 'Aberta', 12, 17, 8),
+(3, '2025-07-05', '2025-07-08', NULL, 'Aberta', 13, 22, 2),
+(3, '2025-07-10', '2025-07-13', NULL, 'Aberta', 14, 27, 4),
+(3, '2025-07-15', '2025-07-18', NULL, 'Aberta', 15, 32, 6),
+(3, '2025-07-20', '2025-07-23', NULL, 'Aberta', 16, 37, 8),
+(3, '2025-07-25', '2025-07-28', NULL, 'Aberta', 17, 4, 2),
+(3, '2025-08-01', '2025-08-04', NULL, 'Aberta', 18, 9, 4),
+(3, '2025-08-05', '2025-08-08', NULL, 'Aberta', 19, 14, 6),
+(3, '2025-08-10', '2025-08-13', NULL, 'Aberta', 20, 19, 8),
+(3, '2025-08-15', '2025-08-18', NULL, 'Aberta', 1, 24, 2),
+(3, '2025-08-20', '2025-08-23', NULL, 'Aberta', 2, 29, 4),
+
+-- 3 reservas atrasadas (datas de vencimento no passado sem data finalizada)
+(3, '2025-05-01', '2025-05-04', NULL, 'Atrasada', 3, 34, 6),
+(3, '2025-05-05', '2025-05-08', NULL, 'Atrasada', 4, 39, 8),
+(3, '2025-05-10', '2025-05-13', NULL, 'Atrasada', 5, 6, 2),
+
+-- 22 reservas finalizadas
+(3, '2025-02-01', '2025-02-04', '2025-02-03', 'Finalizada', 6, 11, 4),
+(3, '2025-02-05', '2025-02-08', '2025-02-07', 'Finalizada', 7, 16, 6),
+(3, '2025-02-10', '2025-02-13', '2025-02-12', 'Finalizada', 8, 21, 8),
+(3, '2025-02-15', '2025-02-18', '2025-02-17', 'Finalizada', 9, 26, 2),
+(3, '2025-02-20', '2025-02-23', '2025-02-22', 'Finalizada', 10, 31, 4),
+(3, '2025-02-25', '2025-02-28', '2025-02-27', 'Finalizada', 11, 36, 6),
+(3, '2025-03-01', '2025-03-04', '2025-03-03', 'Finalizada', 12, 3, 8),
+(3, '2025-03-05', '2025-03-08', '2025-03-07', 'Finalizada', 13, 8, 2),
+(3, '2025-03-10', '2025-03-13', '2025-03-12', 'Finalizada', 14, 13, 4),
+(3, '2025-03-15', '2025-03-18', '2025-03-17', 'Finalizada', 15, 18, 6),
+(3, '2025-03-20', '2025-03-23', '2025-03-22', 'Finalizada', 16, 23, 8),
+(3, '2025-03-25', '2025-03-28', '2025-03-27', 'Finalizada', 17, 28, 2),
+(3, '2025-04-01', '2025-04-04', '2025-04-03', 'Finalizada', 18, 33, 4),
+(3, '2025-04-05', '2025-04-08', '2025-04-07', 'Finalizada', 19, 38, 6),
+(3, '2025-04-10', '2025-04-13', '2025-04-12', 'Finalizada', 20, 40, 8),
+(3, '2025-04-15', '2025-04-18', '2025-04-17', 'Finalizada', 1, 1, 2),
+(3, '2025-04-20', '2025-04-23', '2025-04-22', 'Finalizada', 2, 5, 4),
+(3, '2025-04-25', '2025-04-28', '2025-04-27', 'Finalizada', 3, 10, 6),
+(3, '2025-05-01', '2025-05-04', '2025-05-03', 'Finalizada', 4, 15, 8),
+(3, '2025-05-05', '2025-05-08', '2025-05-07', 'Finalizada', 5, 20, 2),
+(3, '2025-05-10', '2025-05-13', '2025-05-12', 'Finalizada', 6, 25, 4),
+(3, '2025-05-15', '2025-05-18', '2025-05-17', 'Finalizada', 7, 30, 6);
+
+INSERT INTO REMESSA (rem_data, rem_qtd, fk_forn, fk_liv, fk_user) VALUES
+('2025-01-10', 5, 1, 1, 3),
+('2025-01-15', 3, 2, 2, 5),
+('2025-01-20', 4, 3, 3, 9),
+('2025-02-05', 6, 4, 4, 3),
+('2025-02-10', 2, 5, 5, 5),
+('2025-02-15', 3, 6, 6, 9),
+('2025-03-01', 5, 7, 7, 3),
+('2025-03-05', 4, 8, 8, 5),
+('2025-03-10', 3, 9, 9, 9),
+('2025-03-15', 6, 10, 10, 3),
+('2025-04-02', 2, 1, 11, 5),
+('2025-04-07', 4, 2, 12, 9),
+('2025-04-12', 3, 3, 13, 3),
+('2025-04-17', 5, 4, 14, 5),
+('2025-04-22', 2, 5, 15, 9),
+('2025-05-03', 4, 6, 16, 3),
+('2025-05-08', 3, 7, 17, 5),
+('2025-05-13', 6, 8, 18, 9),
+('2025-05-18', 2, 9, 19, 3),
+('2025-05-23', 5, 10, 20, 5),
+('2025-06-02', 3, 1, 21, 9),
+('2025-06-07', 4, 2, 22, 3),
+('2025-06-12', 2, 3, 23, 5),
+('2025-06-17', 6, 4, 24, 9),
+('2025-07-01', 3, 5, 25, 3),
+('2025-07-06', 5, 6, 26, 5),
+('2025-07-11', 2, 7, 27, 9),
+('2025-07-16', 4, 8, 28, 3),
+('2025-07-21', 3, 9, 29, 5),
+('2025-07-26', 6, 10, 30, 9);
+
+-- Inserir novos registros
+-- 8 multas em aberto (correspondendo aos 8 empréstimos atrasados)
+INSERT INTO MULTA (mul_valor, mul_qtdDias, mul_status, fk_mem, fk_emp) VALUES
+-- Calculando dias de atraso até 30/06/2025
+(90.00, 60, 'Aberta', 1, 21),   -- Atraso desde 08/05 (53 dias)
+(82.50, 55, 'Aberta', 2, 22),   -- Atraso desde 12/05 (49 dias)
+(75.00, 50, 'Aberta', 3, 23),   -- Atraso desde 17/05 (44 dias)
+(67.50, 45, 'Aberta', 4, 24),   -- Atraso desde 22/05 (39 dias)
+(60.00, 40, 'Aberta', 5, 25),   -- Atraso desde 27/05 (34 dias)
+(52.50, 35, 'Aberta', 6, 26),   -- Atraso desde 01/06 (29 dias)
+(45.00, 30, 'Aberta', 7, 27),   -- Atraso desde 08/06 (22 dias)
+(37.50, 25, 'Aberta', 8, 28),   -- Atraso desde 12/06 (18 dias)
+
+-- 4 multas finalizadas (para empréstimos finalizados que estiveram atrasados)
+(15.00, 10, 'Finalizada', 9, 5),    -- Empréstimo finalizado após atraso
+(12.00, 8, 'Finalizada', 10, 10),   -- Empréstimo finalizado após atraso
+(9.00, 6, 'Finalizada', 11, 15),    -- Empréstimo finalizado após atraso
+(6.00, 4, 'Finalizada', 12, 20);    -- Empréstimo finalizado após atraso
