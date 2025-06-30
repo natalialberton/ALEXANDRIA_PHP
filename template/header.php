@@ -177,7 +177,7 @@ if ($usuarioLogado) :
 
         <div class="button-group">
             <button class="btn btn-save" type="submit">Alterar</button>
-            <button class="btn btn-cancel" type="button" onclick="location.href=''">Cancelar</button>
+            <button class="btn btn-cancel" type="button" onclick="location.href = location.pathname">Cancelar</button>
         </div>
     </form>
 </div>
