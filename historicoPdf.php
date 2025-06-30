@@ -44,7 +44,7 @@ $pdf-> AliasNbPages();
 $pdf-> AddPage();
 $pdf-> SetFont('Times', '', 12);
 
-$pdf->Cell(0,10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Histórico de empréstimos de ') . iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $membro['mem_nome']), 0, 1);
+$pdf->Cell(0,10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Histórico de empréstimos de ') . iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $membro['mem_nome']), 0,1);
 
 //EMPRÉSTIMOS -------------------------------------
 $pdf->Ln(5);
