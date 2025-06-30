@@ -358,6 +358,18 @@ td:last-child i {
     box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
 }
 
+/* Ícone de Gerar PDF */
+.fa-file-pdf {
+    color: #a69c60 !important;
+}
+
+.fa-file-pdf:hover {
+    background: #a69c60 !important;
+    color: white !important;
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(167, 165, 40, 0.3);
+}
+
 /* Linhas Alternadas */
 tbody tr:nth-child(even) {
     background-color: rgba(102, 126, 234, 0.02);
