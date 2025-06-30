@@ -39,7 +39,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>GERAL</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroMulta')"><span class="plus-icon">+</span>NOVA MULTA</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroMulta')"><span class="plus-icon">+</span>NOVA MULTA</button>
         </div>
 
         <div class="stats-section">
@@ -83,7 +83,8 @@ include '../header.php';
                 <input type="hidden" name="form-id" value="cadastrar_multa">
                 <div class="form-group">
                 <label class="label-cadastro" for="fk_mem">CPF Membro: </label>
-                <input list="membros" name="fk_mem" onkeypress="mascara(this,cpfMasc)" maxlength="14" required>
+                <input list="membros" name="fk_mem" id="cad_membro"
+                       onkeypress="mascara(this,cpfMasc)" maxlength="14" required>
                 <datalist class="input-cadastro" id="membros">
                     <?php foreach ($membros as $membro): ?>
                         <option value="<?=htmlspecialchars($membro['mem_cpf']); ?>">
@@ -95,7 +96,7 @@ include '../header.php';
             </div>
             <div class="form-group">
                 <label class="label-cadastro" for="fk_emp">ID Empréstimo: </label>
-                <input list="emprestimos" name="fk_emp" required>
+                <input list="emprestimos" name="fk_emp" id="cad_emprestimo" required>
                 <datalist class="input-cadastro" id="emprestimos">
                     <?php foreach ($emprestimos as $emprestimo): ?>
                         <option value="<?=htmlspecialchars($emprestimo['pk_emp']); ?>">
@@ -107,17 +108,17 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="mul_qtdDias">Dias de Atraso: </label>
-                <input type="number" name="mul_qtdDias" required>
+                <input type="number" name="mul_qtdDias" id="cad_qtdDias" required>
             </div>
 
             <div class="form-group">
                 <label for="mul_valor">Valor: </label>
-                <input type="text" name="mul_valor" required>
+                <input type="text" name="mul_valor" id="cad_valor" required>
             </div>
         </div>
 
         <div class="button-group">
-            <button class="btn btn-save" type="submit">Registrar</button>
+            <button class="btn btn-save" id="cad_btn" type="submit">Registrar</button>
             <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroMulta')">Cancelar</button>
         </div>
     </form>
@@ -187,6 +188,14 @@ include '../header.php';
             <div class="form-group">
                 <label for="mul_valor">Valor: </label>
                 <input type="text" name="mul_valor" value="<?=htmlspecialchars($multa['mul_valor'])?>" required>
+            </div>
+
+            <div class="form-group">
+                <label class="label-cadastro" for="mul_status">Status: </label>
+                <select class="input-cadastro" name="mul_status" required>
+                    <option value="Aberta" <?= ($multa['mul_status'] ?? '') === 'Aberta' ? 'selected' : '' ?>>Aberta</option>
+                    <option value="Finalizada" <?= ($multa['mul_status'] ?? '') === 'Finalizada' ? 'selected' : '' ?>>Finalizada</option>
+                </select>
             </div>
         </div>
 

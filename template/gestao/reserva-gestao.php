@@ -41,7 +41,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>GERAL</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroReserva')"><span class="plus-icon">+</span>NOVA RESERVA</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroReserva')"><span class="plus-icon">+</span>NOVA RESERVA</button>
         </div>
 
         <div class="stats-section">
@@ -89,20 +89,25 @@ include '../header.php';
                 <input type="hidden" name="form-id" value="cadastrar_reserva">
                 <div class="form-group">
                 <label class="label-cadastro" for="fk_mem">CPF Membro: </label>
-                <input list="membros" name="fk_mem" onkeypress="mascara(this,cpfMasc)" maxlength="14" required>
+                <input list="membros" name="fk_mem" id="cad_membro" onkeypress="mascara(this,cpfMasc)" maxlength="14" required>
                 <datalist class="input-cadastro" id="membros">
                     <?php foreach ($membros as $membro): ?>
                         <option value="<?=htmlspecialchars($membro['mem_cpf']); ?>">
+                            <?=htmlspecialchars($membro['mem_nome']); ?>
+                        </option>
                     <?php endforeach; ?>
                 </datalist>
             </div>
             </div>
             <div class="form-group">
                 <label class="label-cadastro" for="fk_liv">ISBN Livro: </label>
-                <input list="livros" name="fk_liv" maxlength="17" onkeypress="mascara(this,isbnMasc)" required>
+                <input list="livros" name="fk_liv" maxlength="17" id="cad_livro"
+                       onkeypress="mascara(this,isbnMasc)" required>
                 <datalist class="input-cadastro" id="livros">
                     <?php foreach ($livros as $livro): ?>
                         <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>">
+                            <?=htmlspecialchars($livro['liv_titulo']); ?>
+                        </option>
                     <?php endforeach; ?>
                 </datalist>
             </div>
@@ -126,7 +131,7 @@ include '../header.php';
         </div>
 
         <div class="button-group">
-            <button class="btn btn-save" type="submit">Registrar</button>
+            <button class="btn btn-save" id="cad_btn" type="submit">Registrar</button>
             <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroReserva')">Cancelar</button>
         </div>
     </form>
@@ -195,12 +200,12 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="res_dataFinalizada">Finalização: </label>
-                <input type="date" name="res_dataMarcada" value="<?= htmlspecialchars($reserva['res_dataFinalizada']) ?? null ?>">
+                <input type="date" name="res_dataFinalizada" value="<?= htmlspecialchars($reserva['res_dataFinalizada']) ?? null ?>">
             </div>
 
             <div class="form-group">
-                <label class="label-cadastro" for="emp_status">Status: </label>
-                <select class="input-cadastro" name="emp_status" required>
+                <label class="label-cadastro" for="res_status">Status: </label>
+                <select class="input-cadastro" name="res_status" required>
                     <option value="Aberta" <?= ($reserva['res_status'] ?? '') === 'Aberta' ? 'selected' : '' ?>>Aberta</option>
                     <option value="Cancelada" <?= ($reserva['res_status'] ?? '') === 'Cancelada' ? 'selected' : '' ?>>Cancelada</option>
                     <option value="Finalizada" <?= ($reserva['res_status'] ?? '') === 'Finalizada' ? 'selected' : '' ?>>Finalizada</option>

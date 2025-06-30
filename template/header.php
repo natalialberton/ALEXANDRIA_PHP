@@ -158,29 +158,12 @@ if ($usuarioLogado) :
             </div>
         </div>
 
-
         <div class="form-row">
             <div class="form-group">
                 <label for="user_dataAdmissao">Admissão: </label>
                 <input type="date" name="user_dataAdmissao" value="<?=htmlspecialchars($usuarioLogado['user_dataAdmissao']) ?? null?>" required>
             </div>
 
-            <div class="form-group">
-                <label for="user_dataDemissao">Demissão: </label>
-                <input type="date" name="user_dataDemissao" value="<?=htmlspecialchars($usuarioLogado['user_dataDemissao']) ?? null?>">
-            </div>
-
-            <div class="form-group">
-                <label class="label-cadastro" for="user_tipoUser">Cargo: </label>
-                <select class="input-cadastro" name="user_tipoUser" required>
-                    <option value="Administrador" <?= ($usuarioLogado['user_tipoUser'] ?? '') === 'Administrador' ? 'selected' : '' ?>>Administrador</option>
-                    <option value="Secretaria" <?= ($usuarioLogado['user_tipoUser'] ?? '') === 'Secretaria' ? 'selected' : '' ?>>Secretaria</option>
-                    <option value="Almoxarife" <?= ($usuarioLogado['user_tipoUser'] ?? '') === 'Almoxarife' ? 'selected' : '' ?>>Almoxarife</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="form-row">
             <div class="form-group">
                 <label for="user_login">Login: </label>
                 <input type="text" name="user_login" onkeypress="mascara(this,nomeMasc)" 

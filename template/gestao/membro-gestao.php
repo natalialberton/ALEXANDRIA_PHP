@@ -35,7 +35,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>CADASTRAMENTO</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroMembro')"><span class="plus-icon">+</span>NOVO MEMBRO</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroMembro')"><span class="plus-icon">+</span>NOVO MEMBRO</button>
         </div>
     </div>
     
@@ -67,14 +67,14 @@ include '../header.php';
             <div class="form-group">
                 <input type="hidden" name="form-id" value="cadastrar_membro">
                 <label for="mem_nome">Nome: </label>
-                <input type="text" name="mem_nome" onkeypress="mascara(this,nomeMasc)" required>
+                <input type="text" name="mem_nome" id="cad_nome" onkeypress="mascara(this,nomeMasc)" required>
             </div>
             <div class="form-group">
                 <label for="mem_cpf">CPF: </label>
-                <input type="text" name="mem_cpf" required 
+                <input type="text" name="mem_cpf" id="cad_cpf" required 
                     pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" 
                     title="000.000.000-00"
-                    maxlength="14"
+                    maxlength="14" 
                     onkeypress="mascara(this,cpfMasc)">
             </div>
         </div>
@@ -82,7 +82,7 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="mem_telefone">Telefone: </label>
-                <input type="tel" name="mem_telefone" required
+                <input type="tel" name="mem_telefone" id="cad_telefone" required
                     pattern="\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}" 
                     title="(00) 00000-0000"
                     maxlength="15"
@@ -91,7 +91,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="mem_email">Email: </label>
-                <input type="email" name="mem_email" required>
+                <input type="email" name="mem_email" id="cad_email" required>
             </div>
         </div>
 
@@ -99,12 +99,12 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="mem_senha">Senha: </label>
-                <input type="password" name="mem_senha" required minlength="6" maxlength="6">
+                <input type="password" name="mem_senha" id="cad_senha" required minlength="6" maxlength="6">
             </div>
         </div>
 
         <div class="button-group">
-            <button class="btn btn-save" type="submit">Cadastrar</button>
+            <button class="btn btn-save" id="cad_btn" type="submit">Cadastrar</button>
             <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroMembro')">Cancelar</button>
         </div>
     </form>

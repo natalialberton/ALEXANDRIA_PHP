@@ -815,6 +815,7 @@ function crudFuncionario($acao, $id) {
             $cpfAtual = $usuarioAtual['user_cpf'];
             $emailAtual = $usuarioAtual['user_email'];
             $login = $usuarioAtual['user_login'];
+            $tipoUser = $usuarioAtual['user_tipoUser'];
             $senhaHash = $usuarioAtual['user_senha'];
             
             if ($cpfExistente !== false && $cpfExistente !== $cpfAtual) {
@@ -894,16 +895,16 @@ function crudEmprestimo($acao, $id) {
         $livro = $stmtLivro-> fetch(PDO::FETCH_ASSOC);
 
     //TRATAMENTO DE EXCEÇÕES
-        $stmtCheckMembro = $conexao-> prepare("SELECT pk_mul FROM multa WHERE fk_mem = :nome");
+        $stmtCheckMembro = $conexao-> prepare("SELECT pk_mul FROM multa WHERE mul_status = 'Aberta' AND fk_mem = :nome");
         $stmtCheckMembro-> bindParam(":nome", $membro['pk_mem'], PDO::PARAM_STR);
         $stmtCheckMembro-> execute();
         $membroComMulta = $stmtCheckMembro-> fetchColumn();
 
-        if ($acao === 1 && $membroComMulta !== false && $membroComMulta !== false) {
+        if ($acao === 1 && $membroComMulta !== false) {
             enviarSweetAlert('emprestimo-gestao.php', 'erroAlerta', 'O membro selecionado tem multas pendentes!');
         }
 
-        if($livro['liv_estoque'] === 0) {
+        if($livro['liv_estoque'] = 0) {
             enviarSweetAlert('emprestimo-gestao.php', 'erroAlerta', 'O livro selecionado não está disponível!');
         }
 
@@ -1016,12 +1017,12 @@ function crudReserva($acao, $id) {
         $livro = $stmtLivro-> fetch(PDO::FETCH_ASSOC);
 
     //TRATAMENTO DE EXCEÇÕES
-        $stmtCheckMembro = $conexao-> prepare("SELECT pk_mul FROM multa WHERE fk_mem = :nome");
+        $stmtCheckMembro = $conexao-> prepare("SELECT pk_mul FROM multa WHERE mul_status = 'Aberta' AND fk_mem = :nome");
         $stmtCheckMembro-> bindParam(":nome", $membro['pk_mem'], PDO::PARAM_STR);
         $stmtCheckMembro-> execute();
         $membroComMulta = $stmtCheckMembro-> fetchColumn();
 
-        if ($acao === 1 && $membroComMulta !== false && $membroComMulta !== false) {
+        if ($acao === 1 && $membroComMulta !== false) {
             enviarSweetAlert('reserva-gestao.php', 'erroAlerta', 'O membro selecionado tem multas pendentes!');
             exit();
         }
@@ -1162,9 +1163,9 @@ function crudMulta($acao, $id) {
 
     if ($acao == 1 || $acao == 2) {
     //PUXANDO DADOS VIA POST
-        $valor = filter_input(INPUT_POST, 'mul_data');
-        $qtdDias = filter_input(INPUT_POST, 'mul_qtd');
-        $status = filter_input(INPUT_POST, 'mul_valor') ?? 'Aberta';
+        $valor = filter_input(INPUT_POST, 'mul_valor');
+        $qtdDias = filter_input(INPUT_POST, 'mul_qtdDias');
+        $status = filter_input(INPUT_POST, 'mul_status') ?? 'Aberta';
         $membroNome = filter_input(INPUT_POST, 'fk_mem');
         $idEmp = filter_input(INPUT_POST, 'fk_emp');
 
@@ -1173,6 +1174,25 @@ function crudMulta($acao, $id) {
         $stmtMembro-> bindParam(":cpf", $membroNome);
         $stmtMembro-> execute();
         $membro = $stmtMembro-> fetch(PDO::FETCH_ASSOC);
+
+    //TRATAMENTO DE EXCEÇÕES
+        $stmtEmp = $conexao-> prepare("SELECT * FROM emprestimo WHERE pk_emp = :id");
+        $stmtEmp-> bindParam(":id", $idEmp);
+        $stmtEmp-> execute();
+        $emprestimo = $stmtEmp-> fetch(PDO::FETCH_ASSOC);
+
+        $stmtMul = $conexao-> prepare("SELECT * FROM multa WHERE fk_emp = :id");
+        $stmtMul-> bindParam(":id", $idEmp);
+        $stmtMul-> execute();
+        $multa = $stmtMul-> fetch(PDO::FETCH_ASSOC);
+
+        if ($acao == 1 && $emprestimo['emp_status'] !== 'Empréstimo Atrasado') {
+            enviarSweetAlert('multa-gestao.php', 'erroAlerta', 'Não é possível registrar uma multa para um empréstimo que não esteja atrasado!');
+        }
+
+        if($acao == 1 && $multa) {
+            enviarSweetAlert('multa-gestao.php', 'erroAlerta', 'O empréstimo selecionado já tem multa registrada!');
+        }
     
         if ($membro) {
 

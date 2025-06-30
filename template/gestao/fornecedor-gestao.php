@@ -31,7 +31,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>CADASTRAMENTO</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroFornecedor')"><span class="plus-icon">+</span>NOVO FORNECEDOR</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroFornecedor')"><span class="plus-icon">+</span>NOVO FORNECEDOR</button>
         </div>
     </div>
     
@@ -63,11 +63,11 @@ include '../header.php';
             <div class="form-group">
                 <input type="hidden" name="form-id" value="cadastrar_fornecedor">
                 <label for="forn_nome">Nome: </label>
-                <input type="text" name="forn_nome" onkeypress="mascara(this,nomeMasc)" required>
+                <input type="text" name="forn_nome" id="cad_nome" required>
             </div>
             <div class="form-group">
                 <label for="forn_cnpj">CNPJ: </label>
-                <input type="text" name="forn_cnpj" required 
+                <input type="text" name="forn_cnpj" id="cad_cnpj" required 
                     title="00.000.000/0000-00"
                     maxlength="18"
                     onkeypress="mascara(this,cnpjMasc)">
@@ -77,7 +77,7 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="forn_telefone">Telefone: </label>
-                <input type="tel" name="forn_telefone" required
+                <input type="tel" name="forn_telefone" id="cad_telefone" required
                     title="(00) 00000-0000"
                     maxlength="15"
                     onkeypress="mascara(this,telefoneMasc)">
@@ -85,7 +85,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="forn_email">Email: </label>
-                <input type="email" name="forn_email" required>
+                <input type="email" name="forn_email" id="cad_email" required>
             </div>
         </div>
 
@@ -93,13 +93,13 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="forn_endereco">Endereço: </label>
-                <input type="text" name="forn_endereco" required>
+                <input type="text" name="forn_endereco" id="cad_endereco" required>
             </div>
         </div>
 
         <div class="button-group">
             <button class="btn btn-save" type="submit">Cadastrar</button>
-            <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroFornecedor')">Cancelar</button>
+            <button class="btn btn-cancel" id="cad_btn" onclick="fechaPopup('popupCadastroFornecedor')">Cancelar</button>
         </div>
     </form>
 </div>

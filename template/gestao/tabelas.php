@@ -170,9 +170,7 @@ switch($tabela) {
             <th>Nome</th>
             <th>Data Nascimento</th>
             <th>Genêro Literário</th>
-            <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
             <th>Ação</th>
-            <?php endif; ?>
         </tr>
     </thead>
     <tbody id="tabela-body">
@@ -184,9 +182,8 @@ switch($tabela) {
                     <tr>
                         <td><?= htmlspecialchars($dado["pk_aut"]) ?></td>
                         <td><?= htmlspecialchars($dado["aut_nome"]) ?></td>
-                        <td><?= htmlspecialchars($dado["aut_dataNascimento"]) ?></td>
+                        <td><?= htmlspecialchars(date('d/m/Y', strtotime($dado["aut_dataNascimento"]))) ?? null ?></td>
                         <td><?= htmlspecialchars($categoria["cat_nome"]) ?></td>
-                        <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
                         <td>
                             <button style="background: none; border: none; padding: 0; cursor: pointer;"
                                     onclick="confirmarExclusao('autor-gestao.php', 'excluir_autor', <?= $dado['pk_aut'] ?>, 'Tem certeza que deseja excluir este autor?')">
@@ -197,7 +194,6 @@ switch($tabela) {
                                     <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
                             </button>
                         </td>
-                        <?php endif; ?>
                     </tr>
         <?php 
                 endforeach;
@@ -213,9 +209,7 @@ switch($tabela) {
         <tr>
             <th>ID</th>
             <th>Nome</th>
-            <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
             <th>Ação</th>
-            <?php endif; ?>
         </tr>
     </thead>
     <tbody id="tabela-body">
@@ -226,7 +220,6 @@ switch($tabela) {
                     <tr>
                         <td><?= htmlspecialchars($dado["pk_cat"]) ?></td>
                         <td><?= htmlspecialchars($dado["cat_nome"]) ?></td>
-                        <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
                         <td>
                             <button style="background: none; border: none; padding: 0; cursor: pointer;"
                                     onclick="confirmarExclusao('categoria-gestao.php', 'excluir_categoria', <?= $dado['pk_cat'] ?>, 'Tem certeza que deseja excluir esta categoria?')">
@@ -237,7 +230,6 @@ switch($tabela) {
                                     <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
                             </button>
                         </td>
-                        <?php endif; ?>
                     </tr>
         <?php 
                 endforeach;
@@ -258,9 +250,7 @@ switch($tabela) {
             <th>Categoria</th>
             <th>Edição</th>
             <th>Estoque</th>
-            <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
             <th>Ação</th>
-            <?php endif; ?>
         </tr>
     </thead>
     <tbody id="tabela-body">
@@ -278,7 +268,6 @@ switch($tabela) {
                         <td><?= htmlspecialchars($categoria["cat_nome"]) ?></td>
                         <td><?= htmlspecialchars($dado["liv_edicao"]) ?></td>
                         <td><?= $dado["liv_estoque"] ?? 0 ?></td>
-                        <?php if($_SESSION['tipoUser'] !== 'Almoxarife'): ?>
                         <td>
                             <button style="background: none; border: none; padding: 0; cursor: pointer;"
                                     onclick="confirmarExclusao('livro-gestao.php', 'excluir_livro', <?= $dado['pk_liv'] ?>, 'Tem certeza que deseja excluir este livro?')">
@@ -289,7 +278,6 @@ switch($tabela) {
                                     <i class="fas fa-pencil-alt" style="font-size: 20px; color: #a69c60;"></i>
                             </button>
                         </td>
-                        <?php endif; ?>
                     </tr>
         <?php 
                 endforeach;
@@ -423,9 +411,9 @@ switch($tabela) {
                         <td><?= htmlspecialchars($dado["pk_res"]) ?></td>
                         <td><?= htmlspecialchars($livro["liv_isbn"]) ?></td>
                         <td><?= htmlspecialchars($membro["mem_cpf"]) ?></td>
-                        <td><?= $dado["res_dataMarcada"] ?? ''?></td>
-                        <td><?= $dado["res_dataVencimento"] ?? ''?></td>
-                        <td><?= $dado["res_dataFinalizada"] ?? ''?></td>
+                        <td><?= htmlspecialchars(date('d/m/Y', strtotime($dado["res_dataMarcada"]))) ?? null ?></td>
+                        <td><?= htmlspecialchars(date('d/m/Y', strtotime($dado["res_dataVencimento"]))) ?? null ?></td>
+                        <td><?= !empty($dado["res_dataFinalizada"]) ? (date('d/m/Y', strtotime($dado["res_dataFinalizada"]))) : null ?></td>
                         <td><?= htmlspecialchars($usuario["user_nome"]) ?></td>
                         <td><?= htmlspecialchars($dado["res_status"]) ?></td>
                         <td>

@@ -41,7 +41,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>GERAL</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroEmprestimo')"><span class="plus-icon">+</span>NOVO EMPRÉSTIMO</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroEmprestimo')"><span class="plus-icon">+</span>NOVO EMPRÉSTIMO</button>
         </div>
         <div class="stats-section">
             <div class="stat-card">
@@ -49,7 +49,7 @@ include '../header.php';
                 <div class="stat-number stat-number-atrasado"><?= $qtdLivroAtrasado['total'] ?></div>
             </div>
             <div class="stat-card">
-                <div class="stat-title stat-title-a-vencer">VENCE EM TRÊS DIAS</div>
+                <div class="stat-title stat-title-a-vencer">VENCE EM 3 DIAS</div>
                 <div class="stat-number stat-number-a-vencer"><?= $qtdLivrosAVencer['total'] ?></div>
             </div>
             <div class="stat-card">
@@ -88,7 +88,8 @@ include '../header.php';
                 <input type="hidden" name="form-id" value="cadastrar_emprestimo">
                 <div class="form-group">
                 <label class="label-cadastro" for="fk_mem">CPF Membro: </label>
-                <input list="membros" name="fk_mem" onkeypress="mascara(this,cpfMasc)" maxlength="14" required>
+                <input list="membros" name="fk_mem" id="cad_membro" 
+                       onkeypress="mascara(this,cpfMasc)" maxlength="14" required>
                 <datalist class="input-cadastro" id="membros">
                     <?php foreach ($membros as $membro): ?>
                         <option value="<?=htmlspecialchars($membro['mem_cpf']); ?>">
@@ -100,7 +101,8 @@ include '../header.php';
             </div>
             <div class="form-group">
                 <label class="label-cadastro" for="fk_liv">ISBN Livro: </label>
-                <input list="livros" name="fk_liv" maxlength="17" onkeypress="mascara(this,isbnMasc)" required>
+                <input list="livros" name="fk_liv" maxlength="17" id="cad_livro"
+                       onkeypress="mascara(this,isbnMasc)" required>
                 <datalist class="input-cadastro" id="livros">
                     <?php foreach ($livros as $livro): ?>
                         <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>">
@@ -114,17 +116,17 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="emp_dataEmp">Data: </label>
-                <input type="date" name="emp_dataEmp" value="<?= date('Y-m-d') ?>" required>
+                <input type="date" name="emp_dataEmp" id="cad_data" value="<?= date('Y-m-d') ?>" required>
             </div>
 
             <div class="form-group">
                 <label for="mem_senha">Senha Membro: </label>
-                <input type="password" name="mem_senha" required minlength="6" maxlength="6">
+                <input type="password" name="mem_senha" id="cad_senha" required minlength="6" maxlength="6">
             </div>
         </div>
 
         <div class="button-group">
-            <button class="btn btn-save" type="submit">Registrar</button>
+            <button class="btn btn-save" id="cad_btn" type="submit">Registrar</button>
             <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroEmprestimo')">Cancelar</button>
         </div>
     </form>

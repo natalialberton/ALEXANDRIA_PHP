@@ -38,7 +38,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>GERAL</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroRemessa')"><span class="plus-icon">+</span>NOVA REMESSA</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroRemessa')"><span class="plus-icon">+</span>NOVA REMESSA</button>
         </div>
     </div>
     
@@ -71,7 +71,7 @@ include '../header.php';
                 <input type="hidden" name="form-id" value="cadastrar_remessa">
                 <div class="form-group">
                 <label class="label-cadastro" for="fk_forn">CNPJ Fornecedor: </label>
-                <input list="fornecedores" name="fk_forn" onkeypress="mascara(this,cnpjMasc)" maxlength="18" required>
+                <input list="fornecedores" name="fk_forn" id="cad_forn" onkeypress="mascara(this,cnpjMasc)" maxlength="18" required>
                 <datalist class="input-cadastro" id="fornecedores">
                     <?php foreach ($fornecedores as $fornecedor): ?>
                         <option value="<?=htmlspecialchars($fornecedor['forn_cnpj']); ?>">
@@ -83,7 +83,8 @@ include '../header.php';
             </div>
             <div class="form-group">
                 <label class="label-cadastro" for="fk_liv">ISBN Livro: </label>
-                <input list="livros" name="fk_liv" maxlength="17" onkeypress="mascara(this,isbnMasc)" required>
+                <input list="livros" name="fk_liv" maxlength="17" id="cad_livro"
+                       onkeypress="mascara(this,isbnMasc)" required>
                 <datalist class="input-cadastro" id="livros">
                     <?php foreach ($livros as $livro): ?>
                         <option value="<?=htmlspecialchars($livro['liv_isbn']); ?>">
@@ -97,17 +98,17 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="rem_data">Data: </label>
-                <input type="date" name="rem_data" value="<?= date('Y-m-d') ?>" required>
+                <input type="date" name="rem_data" id="cad_data" value="<?= date('Y-m-d') ?>" required>
             </div>
 
             <div class="form-group">
                 <label for="rem_qtd">Quantidade: </label>
-                <input type="number" name="rem_qtd" required>
+                <input type="number" name="rem_qtd" id="cad_qtd" required>
             </div>
         </div>
 
         <div class="button-group">
-            <button class="btn btn-save" type="submit">Registrar</button>
+            <button class="btn btn-save" id="cad_btn" type="submit">Registrar</button>
             <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroRemessa')">Cancelar</button>
         </div>
     </form>
@@ -173,12 +174,12 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="rem_data">Data: </label>
-                <input type="date" name="rem_data" value="<?= $fornOriginal['forn_cnpj'] ?>" required>
+                <input type="date" name="rem_data" value="<?= $remessa['rem_data'] ?>" required>
             </div>
 
             <div class="form-group">
-                <label for="res_qtd">Quantidade: </label>
-                <input type="number" name="res_qtd" required>
+                <label for="rem_qtd">Quantidade: </label>
+                <input type="number" name="rem_qtd" value="<?= $remessa['rem_qtd'] ?>" required>
             </div>
         </div>
 

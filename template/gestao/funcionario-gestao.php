@@ -33,7 +33,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>CADASTRAMENTO</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroUsuario')"><span class="plus-icon">+</span>NOVO FUNCIONÁRIO</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroUsuario')"><span class="plus-icon">+</span>NOVO FUNCIONÁRIO</button>
         </div>
     </div>
     
@@ -65,11 +65,11 @@ include '../header.php';
             <div class="form-group">
                 <input type="hidden" name="form-id" value="cadastrar_usuario">
                 <label for="user_nome">Nome: </label>
-                <input type="text" name="user_nome" onkeypress="mascara(this,nomeMasc)" required>
+                <input type="text" name="user_nome" id="cad_nome" onkeypress="mascara(this,nomeMasc)" required>
             </div>
             <div class="form-group">
                 <label for="user_cpf">CPF: </label>
-                <input type="text" name="user_cpf" required 
+                <input type="text" name="user_cpf" id="cad_cpf" required 
                     pattern="\d{3}\.\d{3}\.\d{3}-\d{2}" 
                     title="000.000.000-00"
                     maxlength="14"
@@ -80,7 +80,7 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="user_telefone">Telefone: </label>
-                <input type="tel" name="user_telefone" required
+                <input type="tel" name="user_telefone" id="cad_telefone" required
                     pattern="\(?\d{2}\)?[\s-]?\d{4,5}[\s-]?\d{4}" 
                     title="(00) 00000-0000"
                     maxlength="15"
@@ -89,7 +89,7 @@ include '../header.php';
 
             <div class="form-group">
                 <label for="user_email">Email: </label>
-                <input type="email" name="user_email" required>
+                <input type="email" name="user_email" id="cad_email" required>
             </div>
         </div>
 
@@ -108,7 +108,7 @@ include '../header.php';
             <div class="form-group">
                 <label class="label-cadastro" for="user_tipoUser">Cargo: </label>
                 <select class="input-cadastro" name="user_tipoUser" required>
-                    <option value="Administrador">Administrador</option>
+                    <option value="Administrador" selected>Administrador</option>
                     <option value="Secretaria">Secretaria</option>
                     <option value="Almoxarife">Almoxarife</option>
                 </select>
@@ -118,20 +118,16 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="user_login">Login: </label>
-                <input type="text" name="user_login" onkeypress="mascara(this,nomeMasc)" required>
+                <input type="text" name="user_login" id="cad_login" onkeypress="mascara(this,nomeMasc)" required>
             </div>
             <div class="form-group">
                 <label for="user_senha">Senha: </label>
-                <input type="password" name="user_senha" required minlength="8">
+                <input type="password" name="user_senha" id="cad_senha" required minlength="8">
             </div>
         </div>
 
-        <div class="form-row">
-            <p>Confira os dados com atenção! O sistema só permite a exclusão de funcionário por 1 hora após seu cadastro!</p>
-        </div>
-
         <div class="button-group">
-            <button class="btn btn-save" type="submit">Cadastrar</button>
+            <button class="btn btn-save" id="cad_btn" type="submit">Cadastrar</button>
             <button class="btn btn-cancel" type="button" onclick="fechaPopup('popupCadastroUsuario')">Cancelar</button>
         </div>
     </form>
@@ -211,8 +207,8 @@ include '../header.php';
             </div>
         </div>
 
+        <?php if($_SESSION['pk_user'] !== $idFunc): ?>
         <div class="form-row">
-            <?php if($_SESSION['pk_user'] !== $idFunc): ?>
             <div class="form-group">
                 <label class="label-cadastro" for="user_tipoUser">Cargo: </label>
                 <select class="input-cadastro" name="user_tipoUser" required>
@@ -221,7 +217,6 @@ include '../header.php';
                     <option value="Almoxarife" <?= ($usuario['user_tipoUser'] ?? '') === 'Almoxarife' ? 'selected' : '' ?>>Almoxarife</option>
                 </select>
             </div>
-            <?php endif ?>
 
             <div class="form-group">
                 <label class="label-cadastro" for="user_status">Status: </label>
@@ -231,6 +226,7 @@ include '../header.php';
                 </select>
             </div>
         </div>
+        <?php endif ?>
 
         <div class="button-group">
             <button class="btn btn-save" type="submit">Alterar</button>

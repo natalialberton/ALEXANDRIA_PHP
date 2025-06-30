@@ -35,7 +35,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>CADASTRAMENTO</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroAutor')"><span class="plus-icon">+</span>NOVO AUTOR</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroAutor')"><span class="plus-icon">+</span>NOVO AUTOR</button>
         </div>
 
         <div class="stats-section">
@@ -87,19 +87,20 @@ include '../header.php';
             <div class="form-group">
                 <input type="hidden" name="form-id" value="cadastrar_autor">
                 <label for="aut_nome">Nome: </label>
-                <input type="text" name="aut_nome" onkeypress="mascara(this,nomeMasc)" required>
+                <input type="text" name="aut_nome" id="cad_nome"
+                       onkeypress="mascara(this,nomeMasc)" required>
             </div>
 
             <div class="form-group">
                 <label for="aut_dataNascimento">Data Nascimento: </label>
-                <input type="date" name="aut_dataNascimento" required>
+                <input type="date" name="aut_dataNascimento" id="cad_dataNascimento" required>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="cat_nome">Gênero Literário: </label>
-                <input list="categorias" name="cat_nome" required>
+                <input list="categorias" name="cat_nome" id="cad_categoria" required>
                 <datalist class="input-cadastro" id="categorias">
                     <?php foreach ($categorias as $categoria): ?>
                         <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
@@ -109,7 +110,7 @@ include '../header.php';
         </div>
 
         <div class="button-group">
-            <button class="btn btn-save" type="submit">Cadastrar</button>
+            <button class="btn btn-save" id="cad_btn" type="submit">Cadastrar</button>
             <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroAutor')">Cancelar</button>
         </div>
     </form>

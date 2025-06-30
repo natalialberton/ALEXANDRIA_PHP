@@ -36,7 +36,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>CADASTRAMENTO</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroLivro')"><span class="plus-icon">+</span>NOVO LIVRO</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroLivro')"><span class="plus-icon">+</span>NOVO LIVRO</button>
         </div>
 
         <div class="stats-section">
@@ -89,19 +89,20 @@ include '../header.php';
             <div class="form-group">
                 <input type="hidden" name="form-id" value="cadastrar_livro">
                 <label for="liv_titulo">Título: </label>
-                <input type="text" name="liv_titulo" required>
+                <input type="text" name="liv_titulo" id="cad_titulo" required>
             </div>
 
             <div class="form-group">
                 <label for="liv_isbn">ISBN: </label>
-                <input type="text" name="liv_isbn" maxlength="17" onkeypress="mascara(this,isbnMasc)" required>
+                <input type="text" name="liv_isbn" maxlength="17" id="cad_isbn"
+                       onkeypress="mascara(this,isbnMasc)" required>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label class="label-cadastro" for="aut_nome">Autor: </label>
-                <input list="autores" name="aut_nome" required>
+                <input list="autores" name="aut_nome" id="cad_autor" required>
                 <datalist class="input-cadastro" id="autores">
                     <?php foreach ($autores as $autor): ?>
                         <option value="<?=htmlspecialchars($autor['aut_nome']); ?>">
@@ -110,7 +111,7 @@ include '../header.php';
             </div>
             <div class="form-group">
                 <label class="label-cadastro" for="cat_nome">Categoria: </label>
-                <input list="categorias" name="cat_nome" required>
+                <input list="categorias" name="cat_nome" id="cad_categoria" required>
                 <datalist class="input-cadastro" id="categorias">
                     <?php foreach ($categorias as $categoria): ?>
                         <option value="<?=htmlspecialchars($categoria['cat_nome']); ?>">
@@ -122,46 +123,47 @@ include '../header.php';
         <div class="form-row">
             <div class="form-group">
                 <label for="liv_edicao">Edição: </label>
-                <input type="int" name="liv_edicao" required>
+                <input type="int" name="liv_edicao" id="cad_edicao" required>
             </div>
 
             <div class="form-group">
                 <label for="liv_anoPublicacao">Ano Publicação: </label>
-                <input type="number" name="liv_anoPublicacao" maxlength="4" required>
+                <input type="number" name="liv_anoPublicacao" id="cad_anoPublicacao" maxlength="4" required>
             </div>
 
             <div class="form-group">
                 <label for="liv_num_paginas">Nº Páginas: </label>
-                <input type="int" name="liv_num_paginas" required>
+                <input type="int" name="liv_num_paginas" id="cad_nPaginas" required>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="liv_idioma">Idioma: </label>
-                <input type="text" name="liv_idioma" required>
+                <input type="text" name="liv_idioma" id="cad_idioma" required>
             </div>
 
             <div class="form-group">
                 <label for="liv_estoque">Estoque: </label>
-                <input type="int" name="liv_estoque" required>
+                <input type="int" name="liv_estoque" id="cad_estoque" required>
             </div>
 
             <div class="form-group">
                 <label for="liv_dataAlteracaoEstoque">Data Alteração Estoque: </label>
-                <input type="date" name="liv_dataAlteracaoEstoque" value="<?= date('Y-m-d') ?>" required>
+                <input type="date" name="liv_dataAlteracaoEstoque" id="cad_dataAlteracaoEstoque"
+                       value="<?= date('Y-m-d') ?>" required>
             </div>
         </div>
 
         <div class="form-row">
             <div class="form-group">
                 <label for="liv_sinopse">Sinopse: </label>
-                <input type="text" name="liv_sinopse" required>
+                <input type="text" name="liv_sinopse" id="cad_sinopse" required>
             </div>
         </div>
 
         <div class="button-group">
-            <button class="btn btn-save" type="submit">Cadastrar</button>
+            <button class="btn btn-save" type="submit" id="cad_btn">Cadastrar</button>
             <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroLivro')">Cancelar</button>
         </div>
     </form>
@@ -179,7 +181,7 @@ include '../header.php';
         $categoriaOriginal = selecionarPorId('categoria', $livro['fk_cat'], 'pk_cat');
         $autorOriginal = selecionarPorId('autor', $livro['fk_aut'], 'pk_aut');
         $timestamp = $livro['liv_dataAlteracaoEstoque'];
-        $dataFormatada = date('Y-m-d', $timestamp);
+        $dataFormatada = date('Y-m-d', strtotime($timestamp));
     }
 
     if($_SERVER["REQUEST_METHOD"] == "POST") {

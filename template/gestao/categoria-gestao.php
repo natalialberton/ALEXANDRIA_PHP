@@ -33,7 +33,7 @@ include '../header.php';
     <div class="top-section">
         <div class="actions-section">
             <h2>CADASTRAMENTO</h2>
-            <button class="action-btn" onclick="abrePopup('popupCadastroCategoria')"><span class="plus-icon">+</span>NOVA CATEGORIA</button>
+            <button class="action-btn" id="btn_abrePopupCadastro" onclick="abrePopup('popupCadastroCategoria')"><span class="plus-icon">+</span>NOVA CATEGORIA</button>
         </div>
 
         <div class="stats-section">
@@ -86,12 +86,13 @@ include '../header.php';
             <div class="form-group">
                 <input type="hidden" name="form-id" value="cadastrar_categoria">
                 <label for="cat_nome">Nome: </label>
-                <input type="text" name="cat_nome" onkeypress="mascara(this,nomeMasc)" required>
+                <input type="text" name="cat_nome" id="cad_nome"
+                       onkeypress="mascara(this,nomeMasc)" required>
             </div>
         </div>
 
         <div class="button-group">
-            <button class="btn btn-save" type="submit">Cadastrar</button>
+            <button class="btn btn-save" type="submit" id="cad_btn">Cadastrar</button>
             <button class="btn btn-cancel" onclick="fechaPopup('popupCadastroCategoria')">Cancelar</button>
         </div>
     </form>

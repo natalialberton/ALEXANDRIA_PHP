@@ -51,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <a href="recuperar-senha.php" class="forgotpw">Esqueceu sua senha?</a>
                     </div>
                     <div class="right">
-                        <button type="submit">Entrar</button>
+                        <button type="submit" id="login_btn">Entrar</button>
                     </div>
                 </form>
             </div>
