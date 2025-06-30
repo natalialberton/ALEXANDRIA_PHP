@@ -1,154 +1,140 @@
 <?php
-require_once __DIR__ . '../fpdf/fpdf.php';
-require_once __DIR__ . '../conexao.php';
 
+ob_start();
+require_once ('fpdf/fpdf.php');
+require_once ('geral.php');
 
-$pdo = conectarBanco();
+$pdo = conectaBd();
 
 if (!isset($_GET['id_mem'])) {
-    die("Membro não informado.");
+    enviarSweetAlert('template/gestao/membro-gestao.php', 'erroAlerta', 'Membro não informado!');
 }
 
 $id_mem = intval($_GET['id_mem']);
 
-class PDF extends FPDF {
-    function Header() {
-        $this->SetFont('Arial','B',16);
-        $this->Cell(0,10, utf8_decode('Relatório de Histórico de Empréstimos'),0,1,'C');
-        $this->Ln(5);
-    }
-
-    function Footer() {
-        $this->SetY(-15);
-        $this->SetFont('Arial','I',8);
-        $this->Cell(0,10, utf8_decode('Página ') . $this->PageNo(),0,0,'C');
-    }
-
-    function NbLines($w, $txt) {
-        $cw = &$this->CurrentFont['cw'];
-        if($w==0)
-            $w = $this->w-$this->rMargin-$this->x;
-        $wmax = ($w-2*$this->cMargin)*1000/$this->FontSize;
-        $s = str_replace("\r",'',$txt);
-        $nb = strlen($s);
-        if($nb>0 and $s[$nb-1]=="\n")
-            $nb--;
-        $sep = -1;
-        $i = 0;
-        $j = 0;
-        $l = 0;
-        $nl = 1;
-        while($i<$nb) {
-            $c = $s[$i];
-            if($c=="\n") {
-                $i++;
-                $sep = -1;
-                $j = $i;
-                $l = 0;
-                $nl++;
-                continue;
-            }
-            if($c==' ')
-                $sep = $i;
-            $l += $cw[$c];
-            if($l>$wmax) {
-                if($sep==-1) {
-                    if($i==$j)
-                        $i++;
-                } else
-                    $i = $sep+1;
-                $sep = -1;
-                $j = $i;
-                $l = 0;
-                $nl++;
-            } else
-                $i++;
-        }
-        return $nl;
-    }
-}
-
-$pdf = new PDF();
-$pdf->AddPage();
-$pdf->SetFont('Arial','',12);
-
-
+//SQL PARA PUXAR DADOS DE EMPRÉSTIMO
 $stmt = $pdo->prepare("SELECT mem_nome FROM membro WHERE pk_mem = ?");
 $stmt->execute([$id_mem]);
 $membro = $stmt->fetch();
 
 if (!$membro) {
-    die("Membro não encontrado.");
+    enviarSweetAlert('template/gestao/membro-gestao.php', 'erroAlerta', 'Membro não encontrado!');
 }
 
-$pdf->Cell(0,10, utf8_decode("Histórico de empréstimos de: ") . utf8_decode($membro['mem_nome']), 0,1);
+$pdf = new FPDF("P", "pt", "A4");
+$pdf-> AddPage();
+
+//VERIFICANDO SE O USUÁRIO É ATIVO
+if(!isset($_SESSION['statusUser']) || $_SESSION['statusUser'] !== 'Ativo') {
+    enviarSweetAlert('template/index.php', 'erroAlerta', 'Acesso a página negado!');
+}
+
+class PDF extends FPDF {
+    function Header() {
+        $this-> Image('static/img/LOGO-DARK-MODE.png', 5, 1, 50);
+        $this-> Ln(30);
+        $this-> SetFont('Arial', 'B', 15);
+        $this-> Cell(80); 
+        $this-> Cell(90, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Histórico de Empréstimos'), 1, 0, 'C');
+        $this-> Ln(20);
+    }
+
+    function Footer() {
+        $this-> SetY(-15);
+        $this-> SetFont('Arial', 'I', 8);
+        $this-> Cell(0, 10,  iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Página'). ''. $this-> PageNo() . '/{nb}', 0, 0, 'C');
+    }
+}
+
+$pdf = new PDF();
+//Ativa o uso do {nb} para total de páginas no rodapé
+$pdf-> AliasNbPages();
+$pdf-> AddPage();
+$pdf-> SetFont('Times', '', 12);
+
+$pdf->Cell(0,10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Histórico de empréstimos de ') . iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $membro['mem_nome']), 0,1);
+//EMPRÉSTIMOS -------------------------------------
 $pdf->Ln(5);
 
+$pdf-> SetFillColor(200, 220, 255);
+$pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Empréstimo'), 1, 0, 'C', true);
+$pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Devolução'), 1, 0, 'C', true);
+$pdf-> Cell(35, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Devolução Real'), 1, 0, 'C', true);
+$pdf-> Cell(60, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Livro'), 1, 0, 'L', true);
+$pdf-> Cell(40, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Status'), 1, 1, 'C', true);
 
-$stmt = $pdo->prepare("
-    SELECT 
-        e.pk_emp,
-        e.emp_dataEmp,
-        e.emp_dataDev,
-        e.emp_dataDevReal,
-        e.emp_status,
-        l.liv_titulo,
-        u.user_nome AS funcionario
-    FROM emprestimo e
-    JOIN livro l ON e.fk_liv = l.pk_liv
-    JOIN usuario u ON e.fk_user = u.pk_user
-    WHERE e.fk_mem = ?
-    ORDER BY e.emp_dataEmp DESC
-");
-$stmt->execute([$id_mem]);
+$stmt = $pdo-> query("SELECT * FROM emprestimo WHERE fk_mem = :id_mem ");
+$stmt-> bindParam(':id_mem', $id_mem, PDO::PARAM_INT);
 
-$emprestimos = $stmt->fetchAll();
+$fill = false;
+while($emprestimo = $stmt-> fetch(PDO::FETCH_ASSOC)) {
+    //PUXANDO DADOS FK
+    $livro = selecionarPorId('livro', $emprestimo['fk_liv'], 'pk_liv');
 
-if (!$emprestimos) {
-    $pdf->Cell(0,10, utf8_decode("Nenhum empréstimo encontrado para este membro."), 0,1);
-} else {
-    // Cabeçalho da tabela
-    $pdf->SetFont('Arial','B',12);
-    $pdf->Cell(30,10, utf8_decode('Empréstimo'), 1, 0, 'C');
-    $pdf->Cell(30,10, utf8_decode('Devolução'), 1, 0, 'C');
-    $pdf->Cell(30,10, utf8_decode('Devolução Real'), 1, 0, 'C');
-    $pdf->Cell(60,10, utf8_decode('Livro'), 1, 0, 'C');
-    $pdf->Cell(40,10, utf8_decode('Status'), 1, 1, 'C');
-
-    $pdf->SetFont('Arial','',11);
-
-   foreach ($emprestimos as $e) {
-
-    $dataEmp = date('d/m/Y', strtotime($e['emp_dataEmp']));
-    $dataDev = $e['emp_dataDev'] ? date('d/m/Y', strtotime($e['emp_dataDev'])) : '-';
-    $dataDevReal = $e['emp_dataDevReal'] ? date('d/m/Y', strtotime($e['emp_dataDevReal'])) : '-';
-    $livro = utf8_decode($e['liv_titulo']);
-    $status = utf8_decode($e['emp_status']);
-
-
-    $x = $pdf->GetX();
-    $y = $pdf->GetY();
-
-    $nb_livro = $pdf->NbLines(60, $livro);
-    $altura = max(10, 5 * $nb_livro);
-
-  
-    $pdf->Cell(30, $altura, $dataEmp, 1);
-    $pdf->Cell(30, $altura, $dataDev, 1);
-    $pdf->Cell(30, $altura, $dataDevReal, 1);
-
-
-    $pdf->SetXY($x + 90, $y);
-    $pdf->MultiCell(60,5, $livro,1);
-
-
-    $pdf->SetXY($x + 150, $y);
-    $pdf->Cell(40, $altura, $status, 1, 0, 'C');
-
-  
-    $pdf->SetY($y + $altura);
-}
+    $pdf-> SetFillColor(240, 240, 240);
+    $pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $emprestimo['pk_emp']), 1, 0, 'C', $fill);
+    $pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $emprestimo['emp_dataDev']), 1, 0, 'C', $fill);
+    $pdf-> Cell(35, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $emprestimo['emp_dataDevReal']), 1, 0, 'C', $fill);
+    $pdf-> Cell(60, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $livro['liv_titulo']), 1, 0, 'L', $fill);
+    $pdf-> Cell(40, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $emprestimo['emp_status']), 1, 1, 'C', $fill);
+    $fill = !$fill; //ALTERNA A COR
 }
 
-$pdf->Output();
+//RESERVAS -------------------------------------
+$pdf->Ln(5);
+
+$pdf-> SetFillColor(200, 220, 255);
+$pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Reserva'), 1, 0, 'C', true);
+$pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Vencimento'), 1, 0, 'C', true);
+$pdf-> Cell(35, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Finalizada'), 1, 0, 'C', true);
+$pdf-> Cell(60, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Livro'), 1, 0, 'L', true);
+$pdf-> Cell(40, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Status'), 1, 1, 'C', true);
+
+$stmt = $pdo-> query("SELECT * FROM reserva WHERE fk_mem = :id_mem ");
+$stmt-> bindParam(':id_mem', $id_mem, PDO::PARAM_INT);
+
+$fill = false;
+while($reserva = $stmt-> fetch(PDO::FETCH_ASSOC)) {
+    //PUXANDO DADOS FK
+    $livro = selecionarPorId('livro', $reserva['fk_liv'], 'pk_liv');
+
+    $pdf-> SetFillColor(240, 240, 240);
+    $pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $reserva['pk_res']), 1, 0, 'C', $fill);
+    $pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $reserva['res_dataVencimento']), 1, 0, 'C', $fill);
+    $pdf-> Cell(35, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $reserva['res_dataFinalizada']), 1, 0, 'C', $fill);
+    $pdf-> Cell(60, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $livro['liv_titulo']), 1, 0, 'L', $fill);
+    $pdf-> Cell(40, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $reserva['res_status']), 1, 1, 'C', $fill);
+    $fill = !$fill; //ALTERNA A COR
+}
+
+//MULTAS -------------------------------------
+$pdf->Ln(5);
+
+$pdf-> SetFillColor(200, 220, 255);
+$pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Multa'), 1, 0, 'C', true);
+$pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Valor'), 1, 0, 'C', true);
+$pdf-> Cell(35, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Dias Atraso'), 1, 0, 'C', true);
+$pdf-> Cell(60, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Livro'), 1, 0, 'L', true);
+$pdf-> Cell(40, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', 'Status'), 1, 1, 'C', true);
+
+$stmt = $pdo-> query("SELECT * FROM multa WHERE fk_mem = :id_mem ");
+$stmt-> bindParam(':id_mem', $id_mem, PDO::PARAM_INT);
+
+$fill = false;
+while($multa = $stmt-> fetch(PDO::FETCH_ASSOC)) {
+    //PUXANDO DADOS FK
+    $emprestimo = selecionarPorId('emprestimo', $multa['fk_emp'], 'pk_emp');
+    $livro = selecionarPorId('livro', $emprestimo['fk_liv'], 'pk_liv');
+
+    $pdf-> SetFillColor(240, 240, 240);
+    $pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $multa['pk_mul']), 1, 0, 'C', $fill);
+    $pdf-> Cell(30, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $multa['mul_valor']), 1, 0, 'C', $fill);
+    $pdf-> Cell(35, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $multa['mul_qtdDias']), 1, 0, 'C', $fill);
+    $pdf-> Cell(60, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $livro['liv_titulo']), 1, 0, 'L', $fill);
+    $pdf-> Cell(40, 10, iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $multa['mul_status']), 1, 1, 'C', $fill);
+    $fill = !$fill; //ALTERNA A COR
+}
+
+$pdf-> Output("historico_emprestimo.pdf", "I");
+
 ?>
