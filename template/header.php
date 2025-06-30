@@ -36,7 +36,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </head>
 
 <body>
-    <!-- resto do site -->
 
     <script>
         function setFavicon(theme) {
@@ -54,7 +53,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             setFavicon('light');
         }
 
-        // Para detectar mudanças no tema em tempo real (ex: usuário muda o tema do SO):
         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
             setFavicon(e.matches ? 'dark' : 'light');
         });
