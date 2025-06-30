@@ -150,7 +150,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div class="popup-content">
                     <div class="popup__container">
                         <h1>DADOS PESSOAIS</h1>
-                        <div class="edit-header"><i class="fa-solid fa-pen"></i></div>
                         <form method="POST">
                             <div class="form-row">
                                 <div class="form-group">

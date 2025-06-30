@@ -193,7 +193,7 @@ try {
 
         .card-label {
             font-size: 1.1em;
-            color: #666;
+            color:white;
             font-weight: 500;
         }
 

@@ -323,19 +323,3 @@ body {
     text-align: center;
 }
 
-.edit-header {
-    background-color: var(--cor-titulo-2-contraste);
-    color: white;
-    padding: 10px;
-    border-radius: 9px;
-    position: absolute;
-    top: 90px;
-    right: 60px;
-    cursor: pointer;
-    transition: box-shadow 0.3s ease;
-    font-size: 15px;
-}
-
-.edit-header:hover {
-    box-shadow: 0 0 20px #568b91;
-}
