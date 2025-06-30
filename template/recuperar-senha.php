@@ -22,6 +22,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>RECUPERAÇÃO SENHA</title>
 </head>
 <body>
+<head>
+    <link id="favicon" rel="icon" type="image/png" href="../../static/img/favicon-dark.png">
+        <link id="favicon" rel="icon" type="image/png" href="../../static/img/favicon-light.png">
+    </head>
+    
+    <script>
+        function setFavicon(theme) {
+            const favicon = document.getElementById('favicon');
+            if (theme === 'dark') {
+                favicon.href = '../../static/img/favicon-dark.png';
+            } else {
+                favicon.href = '../../static/img/favicon-light.png';
+            }
+        }
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            setFavicon('dark');
+        } else {
+            setFavicon('light');
+        }
+
+        // Para detectar mudanças no tema em tempo real (ex: usuário muda o tema do SO):
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+            setFavicon(e.matches ? 'dark' : 'light');
+        });
+    </script>
     <main>
         <div class="loginRight" id="LoginLeft">
             <div class="img">
