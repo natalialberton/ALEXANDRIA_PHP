@@ -252,8 +252,8 @@ function retornoPesquisa($termoBusca, $tabela, $id, $string1, $string2) {
     $stmt = $conexao-> prepare($sql);
     $stmt-> bindParam(":termoBusca", $termoBusca);
     $stmt-> execute();
-    $membros = $stmt-> fetchAll(PDO::FETCH_ASSOC);
-    return $membros;
+    $dados = $stmt-> fetchAll(PDO::FETCH_ASSOC);
+    return $dados;
 }
 
 //--------------------------------------------------- CRUD MEMBRO ---------------------------------------------------
@@ -814,9 +814,11 @@ function crudFuncionario($acao, $id) {
             $usuarioAtual = selecionarPorId('usuario', $id, 'pk_user');
             $cpfAtual = $usuarioAtual['user_cpf'];
             $emailAtual = $usuarioAtual['user_email'];
-            $login = $usuarioAtual['user_login'];
-            $tipoUser = $usuarioAtual['user_tipoUser'];
-            $senhaHash = $usuarioAtual['user_senha'];
+            if($_SESSION['pk_user'] === $usuarioAtual['pk_user']) {
+                $login = $usuarioAtual['user_login'];
+                $tipoUser = $usuarioAtual['user_tipoUser'];
+                $senhaHash = $usuarioAtual['user_senha'];
+            }
             
             if ($cpfExistente !== false && $cpfExistente !== $cpfAtual) {
                 enviarSweetAlert('funcionario-gestao.php', 'erroAlerta', 'CPF já cadastrado!');

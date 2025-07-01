@@ -120,10 +120,10 @@ function pesquisarDadoTabela(tabela) {
     timeoutPesquisa = setTimeout(() => {
         const termoBusca = document.getElementById('pesquisaInput').value;
         
-        // Mostra loading (opcional)
+        // Loading
         document.getElementById('container-tabela').innerHTML = "<tr><td colspan='2' class='text-center'><i class='fas fa-search'></i>Carregando...</td></tr>";
         
-        // Faz a requisição AJAX
+        // Requisição AJAX
         fetch(`tabelas.php?tabela=${encodeURIComponent(tabela)}&termo=${encodeURIComponent(termoBusca)}`)
             .then(response => response.text())
             .then(html => {
