@@ -232,7 +232,12 @@ function validarSenha($local, $senha) {
 function retornoPesquisa($termoBusca, $tabela, $id, $string1, $string2) {
     $conexao = conectaBd();
 
-    $termoBusca = '%' . $termoBusca . '%';
+    if(strlen($termoBusca) === 1) {
+        $termoBusca = $termoBusca . '%';
+    } else {
+        $termoBusca = '%' . $termoBusca . '%';
+    }
+
     if(!empty($string2)) {
         $sql = "SELECT * FROM $tabela WHERE $id LIKE :termoBusca
                 OR $string1 LIKE :termoBusca
