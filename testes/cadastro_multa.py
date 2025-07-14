@@ -2,12 +2,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
-from login import realizaLogin
+from login import realizaLogin, definirUrl
 
 try:
     driver = realizaLogin()
+    url = definirUrl()
     
-    driver.get("http://localhost:8080/ALEXANDRIA_PHP/template/gestao/multa-gestao.php")
+    driver.get(url + "gestao/multa-gestao.php")
     
     # ABRINDO POPUP CADASTRO
     try:
@@ -28,16 +29,6 @@ try:
         EC.element_to_be_clickable((By.ID, "cad_btn"))
     )
     submit_button.click()
-    
-    # CADASTRO BEM SUCEDIDO?
-    try:
-        WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.CLASS_NAME, "alert-success"))  # Ajuste para o elemento de sucesso do seu sistema
-        )
-        print("Cadastro realizado com sucesso!")
-    except:
-        print("Possível falha no cadastro")
-    
     time.sleep(5)
     
 finally:

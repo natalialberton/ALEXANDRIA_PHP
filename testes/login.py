@@ -3,9 +3,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
+# COLOCAR URL USADA PARA ABRIR O SISTEMA AQUI
+def definirUrl():
+    url = "http://localhost:8080/ALEXANDRIA_PHP/template/"
+    return url
+
 def realizaLogin():
     driver = webdriver.Chrome()
-    driver.get("http://localhost:8080/ALEXANDRIA_PHP/template/index.php")
+    url = definirUrl()
+    driver.get(url + "index.php")
     
     driver.find_element(By.ID, "usuario").send_keys('joao.silva')
     driver.find_element(By.ID, "senha").send_keys('Password123')
