@@ -116,6 +116,11 @@ function enviarEmailRecuperacao($emailDestino, $token) {
         $phpmailer->Encoding = 'base64';
         $phpmailer->ContentType = 'text/html; charset=UTF-8';
 
+        // Configurações de codificação
+        $phpmailer->CharSet = 'UTF-8';
+        $phpmailer->Encoding = 'base64';
+        $phpmailer->ContentType = 'text/html; charset=UTF-8';
+
         // Remetente e destinatário
         $phpmailer->setFrom('no-reply@alexandria.com', 'Alexandria');
         $phpmailer->addAddress($emailDestino);
