@@ -4,10 +4,13 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
+
+// CARREGA ARQUIVO .ENV
+$dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
+$dotenv->load();
 
 //FUNÇÃO PARA CONEXÃO COM BANCO DE DADOS
 function conectaBd() {
@@ -58,6 +61,43 @@ function logout() {
     enviarSweetAlert('../index.php', 'sucessoAlerta', 'Até a próxima!');
 }
 
+//FUNÇÃO PARA ENVIAR EMAIL PARA MEMBRO COM EMPRÉSTIMO ATRASADO
+function enviarEmailAtraso($emailDestino, $nomeMembro, $nomeLivro, $dataEmp, $dataDev) {
+    $phpmailer = new PHPMailer(true);
+    try {
+        // Configurações do servidor SMTP (Mailtrap)
+        $phpmailer->isSMTP();
+        $phpmailer->Host = 'sandbox.smtp.mailtrap.io';
+        $phpmailer->SMTPAuth = true;
+        $phpmailer->AuthType = 'LOGIN';
+        $phpmailer->Port = 2525;
+        $phpmailer->Username = $_ENV['SMTP_USERNAME'];
+        $phpmailer->Password = $_ENV['SMTP_PASSWORD'];;
+
+        // Configurações de codificação
+        $phpmailer->CharSet = 'UTF-8';
+        $phpmailer->Encoding = 'base64';
+        $phpmailer->ContentType = 'text/html; charset=UTF-8';
+
+        // Remetente e destinatário
+        $phpmailer->setFrom('no-reply@alexandria.com', 'Alexandria');
+        $phpmailer->addAddress($emailDestino);
+
+        // Conteúdo do e-mail
+        $phpmailer->isHTML(true);
+        $phpmailer->Subject = 'Empréstimo Atrasado';
+        $phpmailer->Body    = "Olá $nomeMembro! <br><br>
+                               Verificou-se que o <b>empréstimo</b> do livro <b>$nomeLivro</b>, realizado em $dataEmp e com devolução para $dataDev está <b>atrasado</b>. Por favor, regularize sua situação o mais rápido possível. <br><br>
+                               Atenciosamente, <br> Equipe Alexandria";
+
+        $phpmailer->send();
+        return true;
+    } catch (Exception $e) {
+        echo "<script> console.log('Erro ao enviar e-mail:' . {$phpmailer->ErrorInfo}); </script>";
+        exit();
+    }
+}
+
 //FUNÇÕES PARA RECUPERAÇÃO E REDEFINIÇÃO DE SENHA
 function enviarEmailRecuperacao($emailDestino, $token) {
     $phpmailer = new PHPMailer(true);
@@ -68,8 +108,13 @@ function enviarEmailRecuperacao($emailDestino, $token) {
         $phpmailer->SMTPAuth = true;
         $phpmailer->AuthType = 'LOGIN';
         $phpmailer->Port = 2525;
-        $phpmailer->Username = 'cb14002034b6ed';
-        $phpmailer->Password = '112c731bddd36c';
+        $phpmailer->Username = $_ENV['SMTP_USERNAME'];
+        $phpmailer->Password = $_ENV['SMTP_PASSWORD'];;
+
+        // Configurações de codificação
+        $phpmailer->CharSet = 'UTF-8';
+        $phpmailer->Encoding = 'base64';
+        $phpmailer->ContentType = 'text/html; charset=UTF-8';
 
         // Remetente e destinatário
         $phpmailer->setFrom('no-reply@alexandria.com', 'Alexandria');
@@ -78,7 +123,8 @@ function enviarEmailRecuperacao($emailDestino, $token) {
         // Conteúdo do e-mail
         $phpmailer->isHTML(true);
         $phpmailer->Subject = 'Recuperar Senha';
-        $phpmailer->Body    = "Seu token para redefinir a senha: <br><b>$token</b>";
+        $phpmailer->Body    = "<img src=''><br><br>
+                               Seu token para redefinir a senha: <br><b>$token</b>";
 
         $phpmailer->send();
         return true;
@@ -883,7 +929,7 @@ function crudEmprestimo($acao, $id) {
         $prazo = 7;
         $dataEmp = filter_input(INPUT_POST, 'emp_dataEmp');
         $dataDev = date('Y-m-d', strtotime("$dataEmp + $prazo days"));
-        $dataDevReal = filter_input(INPUT_POST, 'emp_dataDevReal') ?? null;
+        $dataDevReal = !empty(filter_input(INPUT_POST, 'emp_dataDevReal')) ? filter_input(INPUT_POST, 'emp_dataDevReal') : null;
         $status = filter_input(INPUT_POST, 'emp_status') ?? 'Empréstimo Ativo';
         $membroNome = filter_input(INPUT_POST, 'fk_mem');
         $livroNome = filter_input(INPUT_POST, 'fk_liv');
@@ -989,6 +1035,24 @@ function crudEmprestimo($acao, $id) {
             if ($acao == 1) {
                 atualizarEstoqueLivro($livro['pk_liv'], $novoEstoque);
             }
+
+             // SE MUDOU PARA ATRASADO, ENVIA EMAIL DE AVISO PARA O MEMBRO
+            if($acao == 2) {
+                $emprestimoAtual = selecionarPorId('emprestimo', $id, 'pk_emp');
+                $statusAnterior = $emprestimoAtual['emp_status'];
+                $novoStatus = filter_input(INPUT_POST, 'emp_status') ?? 'Empréstimo Ativo';
+                $dataEmp = date('d/m/Y', strtotime($dataEmp));
+                $dataDev = date('d/m/Y', strtotime($dataDev));
+            
+                if ($statusAnterior !== 'Empréstimo Atrasado' ||
+                    $statusAnterior !== 'Renovação Atrasada' && 
+                    $novoStatus === 'Empréstimo Atrasado' || 
+                    $novoStatus === 'Renovação Atrasada') {
+                    enviarEmailAtraso($membro['mem_email'], $membro['mem_nome'], $livro['liv_titulo'], $dataEmp, $dataDev);
+                    enviarSweetAlert('emprestimo-gestao.php', 'sucessoAlerta', 'Um email avisando do atraso foi enviado para ' . $membro['mem_email'] . '!');
+                }
+            }
+            
             enviarSweetAlert('emprestimo-gestao.php', 'sucessoAlerta', $msgSucesso);
         }
     } catch (PDOException $e) {
