@@ -2,10 +2,24 @@
 Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
 Chart.defaults.color = '#fff';
 
-// Função para fazer requisições AJAX
-async function fetchData(tipo) {
+// Variáveis globais para armazenar as instâncias dos gráficos
+let chartInstances = {};
+
+// Função para fazer requisições AJAX com filtros
+async function fetchData(tipo, filtros = {}) {
     try {
-        const response = await fetch(`dados_grafico.php?tipo=${tipo}`);
+        const params = new URLSearchParams();
+        params.append('tipo', tipo);
+        
+        // Adicionar filtros à query string
+        if (filtros.mes && filtros.mes !== 'todos') {
+            params.append('mes', filtros.mes);
+        }
+        if (filtros.ano && filtros.ano !== 'todos') {
+            params.append('ano', filtros.ano);
+        }
+        
+        const response = await fetch(`dados_grafico.php?${params.toString()}`);
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -16,16 +30,41 @@ async function fetchData(tipo) {
     }
 }
 
+// Função para obter filtros atuais
+function getFiltrosAtuais() {
+    const mesSelect = document.getElementById('filtro-mes');
+    const anoSelect = document.getElementById('filtro-ano');
+    
+    return {
+        mes: mesSelect ? mesSelect.value : 'todos',
+        ano: anoSelect ? anoSelect.value : 'todos'
+    };
+}
+
 // Função para esconder loading e mostrar gráfico
 function showChart(loadingId, canvasId) {
     document.getElementById(loadingId).style.display = 'none';
     document.getElementById(canvasId).style.display = 'block';
 }
 
+// Função para mostrar loading
+function showLoading(loadingId, canvasId) {
+    document.getElementById(loadingId).style.display = 'block';
+    document.getElementById(canvasId).style.display = 'none';
+}
+
 // Função para mostrar erro
 function showError(loadingId, message) {
     const loadingElement = document.getElementById(loadingId);
     loadingElement.innerHTML = `<div class="error">❌ Erro: ${message}</div>`;
+}
+
+// Função para destruir gráfico existente
+function destroyChart(chartId) {
+    if (chartInstances[chartId]) {
+        chartInstances[chartId].destroy();
+        delete chartInstances[chartId];
+    }
 }
 
 // Paleta de cores
@@ -45,7 +84,12 @@ const colors = {
 // Gráfico de Empréstimos e Reservas por Mês
 async function criarGraficoEmprestimosReservas() {
     try {
-        const dados = await fetchData('emprestimos_reservas_mes');
+        showLoading('loading-emprestimos', 'grafico-emprestimos-reservas');
+        destroyChart('emprestimos-reservas');
+        
+        const filtros = getFiltrosAtuais();
+        const dados = await fetchData('emprestimos_reservas_mes', filtros);
+        
         const labels = dados.map(item => {
             const [ano, mes] = item.mes.split('-');
             const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
@@ -58,7 +102,7 @@ async function criarGraficoEmprestimosReservas() {
         showChart('loading-emprestimos', 'grafico-emprestimos-reservas');
 
         const ctx = document.getElementById('grafico-emprestimos-reservas').getContext('2d');
-        new Chart(ctx, {
+        chartInstances['emprestimos-reservas'] = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
@@ -101,14 +145,19 @@ async function criarGraficoEmprestimosReservas() {
 // Gráfico de Livros Mais Emprestados
 async function criarGraficoLivros() {
     try {
-        const dados = await fetchData('livros_mais_emprestados');
+        showLoading('loading-livros', 'grafico-livros');
+        destroyChart('livros');
+        
+        const filtros = getFiltrosAtuais();
+        const dados = await fetchData('livros_mais_emprestados', filtros);
+        
         const labels = dados.map(item => item.titulo.length > 30 ? item.titulo.substring(0, 30) + '...' : item.titulo);
         const valores = dados.map(item => parseInt(item.total_emprestimos));
 
         showChart('loading-livros', 'grafico-livros');
 
         const ctx = document.getElementById('grafico-livros').getContext('2d');
-        new Chart(ctx, {
+        chartInstances['livros'] = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -148,14 +197,19 @@ async function criarGraficoLivros() {
 // Gráfico de Categorias Mais Emprestadas
 async function criarGraficoCategorias() {
     try {
-        const dados = await fetchData('categorias_mais_emprestadas');
+        showLoading('loading-categorias', 'grafico-categorias');
+        destroyChart('categorias');
+        
+        const filtros = getFiltrosAtuais();
+        const dados = await fetchData('categorias_mais_emprestadas', filtros);
+        
         const labels = dados.map(item => item.categoria);
         const valores = dados.map(item => parseInt(item.total_emprestimos));
 
         showChart('loading-categorias', 'grafico-categorias');
 
         const ctx = document.getElementById('grafico-categorias').getContext('2d');
-        new Chart(ctx, {
+        chartInstances['categorias'] = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: labels,
@@ -195,14 +249,19 @@ async function criarGraficoCategorias() {
 // Gráfico de Autores Mais Emprestados
 async function criarGraficoAutores() {
     try {
-        const dados = await fetchData('autores_mais_emprestados');
+        showLoading('loading-autores', 'grafico-autores');
+        destroyChart('autores');
+        
+        const filtros = getFiltrosAtuais();
+        const dados = await fetchData('autores_mais_emprestados', filtros);
+        
         const labels = dados.map(item => item.autor);
         const valores = dados.map(item => parseInt(item.total_emprestimos));
 
         showChart('loading-autores', 'grafico-autores');
 
         const ctx = document.getElementById('grafico-autores').getContext('2d');
-        new Chart(ctx, {
+        chartInstances['autores'] = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -234,7 +293,12 @@ async function criarGraficoAutores() {
 // Gráfico de Multas por Mês
 async function criarGraficoMultas() {
     try {
-        const dados = await fetchData('multas_mes');
+        showLoading('loading-multas', 'grafico-multas');
+        destroyChart('multas');
+        
+        const filtros = getFiltrosAtuais();
+        const dados = await fetchData('multas_mes', filtros);
+        
         const labels = dados.map(item => {
             const [ano, mes] = item.mes.split('-');
             const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 
@@ -246,7 +310,7 @@ async function criarGraficoMultas() {
         showChart('loading-multas', 'grafico-multas');
 
         const ctx = document.getElementById('grafico-multas').getContext('2d');
-        new Chart(ctx, {
+        chartInstances['multas'] = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: labels,
@@ -282,17 +346,56 @@ async function criarGraficoMultas() {
     }
 }
 
-// Inicializar todos os gráficos
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Dashboard Alexandria carregado');
+// Função para atualizar todos os gráficos
+function atualizarGraficos() {
     criarGraficoEmprestimosReservas();
     criarGraficoLivros();
     criarGraficoCategorias();
     criarGraficoAutores();
     criarGraficoMultas();
+}
+
+// Função para aplicar filtros
+function aplicarFiltros() {
+    const mesSelect = document.getElementById('filtro-mes');
+    const anoSelect = document.getElementById('filtro-ano');
+    
+    console.log('Filtros aplicados:', {
+        mes: mesSelect.value,
+        ano: anoSelect.value
+    });
+    
+    atualizarGraficos();
+}
+
+// Função para limpar filtros
+function limparFiltros() {
+    document.getElementById('filtro-mes').value = 'todos';
+    document.getElementById('filtro-ano').value = 'todos';
+    atualizarGraficos();
+}
+
+// Inicializar todos os gráficos
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Dashboard Alexandria carregado');
+    
+    // Adicionar event listeners aos filtros
+    const mesSelect = document.getElementById('filtro-mes');
+    const anoSelect = document.getElementById('filtro-ano');
+    
+    if (mesSelect) {
+        mesSelect.addEventListener('change', aplicarFiltros);
+    }
+    
+    if (anoSelect) {
+        anoSelect.addEventListener('change', aplicarFiltros);
+    }
+    
+    // Carregar gráficos iniciais
+    atualizarGraficos();
 });
 
-// Função para recarregar
+// Função para recarregar dashboard
 function recarregarDashboard() {
     location.reload();
 }
