@@ -176,3 +176,17 @@ body {
         height: 300px; /* Altura menor em mobile */
     }
 }
+
+button{
+    background-color: #23767E;
+    padding:9px;
+    border-radius: 5px;
+    border: none;
+    color:white;
+    margin-top: 5px;
+}
+
+button:hover{
+    background-color: #1a5b66;
+    cursor: pointer;
+}

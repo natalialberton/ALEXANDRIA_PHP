@@ -1,3 +1,5 @@
+
+
 <?php
 
 session_start();
@@ -83,7 +85,6 @@ try {
     die("Erro na consulta de multas: " . $e->getMessage());
 }
 
-
 $sqlEmp = "
     SELECT 
         SUM(emp_status = 'Empréstimo Ativo') AS em_aberto,
@@ -92,7 +93,6 @@ $sqlEmp = "
 ";
 $resEmp = $conexao->query($sqlEmp)->fetch(PDO::FETCH_ASSOC);
 
-// Reservas
 $sqlRes = "
     SELECT 
         SUM(res_status = 'Aberta') AS res_aberto,
@@ -101,7 +101,6 @@ $sqlRes = "
 ";
 $resRes = $conexao->query($sqlRes)->fetch(PDO::FETCH_ASSOC);
 
-// Multas
 $sqlMul = "
     SELECT 
         COUNT(*) AS qtd_multas,
@@ -110,7 +109,6 @@ $sqlMul = "
     WHERE mul_status = 'Aberta'
 ";
 $resMul = $conexao->query($sqlMul)->fetch(PDO::FETCH_ASSOC);
-
 
 try {
     $stmt = $conexao->prepare($sql);
@@ -123,220 +121,40 @@ try {
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <script src="../../static/javascript/semanal.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            margin-top: 20px;
-            margin-bottom: 40px;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-
-        }
-
-        .header p {
-            font-size: 1.2em;
-            opacity: 0.9;
-        }
-
-        .cards-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 100px;
-        }
-
-        .card {
-            background: rgb(81, 61, 70);
-            border-radius: 15px;
-            padding: 25px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            transition: transform 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-        }
-
-        .card-number {
-            font-size: 2.5em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .card-label {
-            font-size: 1.1em;
-            color:white;
-            font-weight: 500;
-        }
-
-        .card.emprestimos .card-number {
-            color: #fff;
-        }
-
-        .card.reservas .card-number {
-            color: #fff;
-        }
-
-        .card.ativos .card-number {
-            color: #fff;
-        }
-
-        .card.abertas .card-number {
-            color: #fff;
-        }
-
-        .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .chart-card {
-            background: rgb(81, 61, 70);
-            border-radius: 15px;
-            padding: 25px;
-            backdrop-filter: blur(10px);
-        }
-
-        .chart-title {
-            font-size: 1.3em;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-            color: #FFEE87CC;
-        }
-
-        .chart-container {
-            position: relative;
-            height: 200px;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 50px;
-            color: white;
-            font-size: 1.2em;
-        }
-
-        .error {
-            background: rgba(231, 76, 60, 0.9);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .refresh-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1em;
-            margin: 20px auto;
-            display: block;
-            transition: background 0.3s ease;
-        }
-
-        .refresh-btn:hover {
-            background: #2980b9;
-        }
-
-
-        @media (max-width: 768px) {
-            .charts-container {
-                grid-template-columns: 1fr;
-            }
-
-            .cards-container {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .header h1 {
-                font-size: 2em;
-            }
-        }
-    </style>
 </head>
+<style>
+ * { margin: 0; padding: 0; box-sizing: border-box; } body { min-height: 100vh; padding: 20px; } .container { max-width: 1200px; margin: 0 auto; margin-top: 20px; margin-bottom: 40px; } .header { text-align: center; color: white; margin-bottom: 30px; } .header h1 { font-size: 2.5em; margin-bottom: 10px; } .header p { font-size: 1.2em; opacity: 0.9; } .cards-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 100px; } .card { background: rgb(81, 61, 70); border-radius: 15px; padding: 25px; text-align: center; backdrop-filter: blur(10px); transition: transform 0.3s ease; } .card:hover { transform: translateY(-5px); } .card-number { font-size: 2.5em; font-weight: bold; margin-bottom: 10px; } .card-label { font-size: 1.1em; color:white; font-weight: 500; } .card.emprestimos .card-number { color: #fff; } .card.reservas .card-number { color: #fff; } .card.ativos .card-number { color: #fff; } .card.abertas .card-number { color: #fff; } .charts-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-bottom: 30px; } .chart-card { background: rgb(81, 61, 70); border-radius: 15px; padding: 25px; backdrop-filter: blur(10px); } .chart-title { font-size: 1.3em; font-weight: bold; margin-bottom: 20px; text-align: center; color: #FFEE87CC; } .chart-container { position: relative; height: 200px; } .loading { text-align: center; padding: 50px; color: white; font-size: 1.2em; } .error { background: rgba(231, 76, 60, 0.9); color: white; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0; } .refresh-btn { background: #3498db; color: white; border: none; padding: 12px 24px; border-radius: 25px; cursor: pointer; font-size: 1em; margin: 20px auto; display: block; transition: background 0.3s ease; } .refresh-btn:hover { background: #2980b9; } @media (max-width: 768px) { .charts-container { grid-template-columns: 1fr; } .cards-container { grid-template-columns: repeat(2, 1fr); } .header h1 { font-size: 2em; } } 
+</style>
 
 <body>
-    <div class="container">
-
-        <div id="loading" class="loading">
-            <p> Carregando dados </p>
+<div class="container">
+    <div id="loading" class="loading">Carregando dados...</div>
+    <div id="error" class="error" style="display: none;"></div>
+    <div id="dashboard" style="display: none;">
+        <div class="cards-container">
+            <div class="card emprestimos"><div class="card-number" id="totalEmprestimos">0</div><div class="card-label">Total de Empréstimos</div></div>
+            <div class="card reservas"><div class="card-number" id="totalReservas">0</div><div class="card-label">Total de Reservas</div></div>
+            <div class="card ativos"><div class="card-number" id="emprestimosAtivos">0</div><div class="card-label">Empréstimos Ativos</div></div>
+            <div class="card abertas"><div class="card-number" id="reservasAbertas">0</div><div class="card-label">Reservas Abertas</div></div>
         </div>
 
-        <div id="error" class="error" style="display: none;"></div>
-
-        <div id="dashboard" style="display: none;">
-            <div class="cards-container">
-                <div class="card emprestimos">
-                    <div class="card-number" id="totalEmprestimos">0</div>
-                    <div class="card-label">Total de Empréstimos</div>
-                </div>
-                <div class="card reservas">
-                    <div class="card-number" id="totalReservas">0</div>
-                    <div class="card-label">Total de Reservas</div>
-                </div>
-                <div class="card ativos">
-                    <div class="card-number" id="emprestimosAtivos">0</div>
-                    <div class="card-label">Empréstimos Ativos</div>
-                </div>
-                <div class="card abertas">
-                    <div class="card-number" id="reservasAbertas">0</div>
-                    <div class="card-label">Reservas Abertas</div>
-                </div>
-            </div>
-
-            <div class="charts-container">
-                <div class="chart-card">
-                    <div class="chart-title">Status dos Empréstimos</div>
-                    <div class="chart-container">
-                        <canvas id="emprestimosChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-title">Status das Reservas</div>
-                    <div class="chart-container">
-                        <canvas id="reservasChart"></canvas>
-                    </div>
-                </div>
-            </div>
+        <div class="charts-container">
+            <div class="chart-card"><div class="chart-title">Status dos Empréstimos</div><div class="chart-container"><canvas id="emprestimosChart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-title">Status das Reservas</div><div class="chart-container"><canvas id="reservasChart"></canvas></div></div>
         </div>
 
-
+        <div class="charts-container">
+            <div class="chart-card"><div class="chart-title">Gráfico Semanal</div><div class="chart-container"><canvas id="graficoSemanal"></canvas></div></div>
+            <div class="chart-card"><div class="chart-title">Gráfico Diário por Data</div>
+                <input type="date" id="dataSelecionada" style="margin: 10px auto; display: block;">
+                <div class="chart-container"><canvas id="graficoDiario"></canvas></div>
+            </div>
+        </div>
     </div>
 
 </body>
